@@ -179,62 +179,6 @@ select.btn option{background:#111;color:#fff}
 .tab.on{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
 .tab .n{opacity:.5;margin-left:7px;font-size:12px;font-weight:500}
 
-/* ================= music ================= */
-.msearch{position:relative;max-width:620px}
-.msearch input{width:100%;background:var(--raise);border:1px solid var(--edge2);color:var(--ink);padding:15px 20px 15px 50px;border-radius:16px;outline:none;transition:border-color .25s,box-shadow .3s}
-.msearch input:focus{border-color:rgba(var(--ac-rgb),.7);box-shadow:0 0 0 5px rgba(var(--ac-rgb),.09)}
-.msearch svg{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:18px;height:18px;stroke:var(--dim);fill:none;stroke-width:2;stroke-linecap:round}
-.panel{background:var(--raise);border:1px solid var(--edge);border-radius:20px;padding:20px 22px}
-.panel h3{font:700 16px var(--display);letter-spacing:-.04em;margin-bottom:12px}
-.tracks{display:grid;gap:4px}
-.trk{display:flex;align-items:center;gap:14px;padding:8px 10px;border-radius:14px;border:1px solid transparent;background:transparent;cursor:pointer;text-align:left;width:100%;transition:background .2s,border-color .2s}
-.trk:hover{background:rgba(255,255,255,.05)}
-.trk.on{border-color:rgba(var(--ac-rgb),.6);background:rgba(var(--ac-rgb),.07)}
-.trk .art{width:48px;height:48px;border-radius:10px;background:#16161b;overflow:hidden;flex-shrink:0;position:relative;display:grid;place-items:center}
-.trk .art img{width:100%;height:100%;object-fit:cover}
-.trk .art svg{width:16px;height:16px;fill:#fff;stroke:none;position:absolute;opacity:0;transition:opacity .25s;filter:drop-shadow(0 1px 4px #000)}
-.trk:hover .art svg,.trk.on .art svg{opacity:1}
-.trk .tx{min-width:0;flex:1}
-.trk b{display:block;font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trk small{display:block;color:var(--dim);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trk .dur{color:var(--dim);font-size:12.5px;font-variant-numeric:tabular-nums}
-.trk.dead{opacity:.45}
-.credit{color:var(--dim);font-size:12.5px;margin-top:16px}
-.credit a{color:var(--mist);text-decoration:underline}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:9px;background:linear-gradient(90deg,var(--ac) var(--p,0%),#26262d var(--p,0%));outline:none}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;border:0;box-shadow:0 2px 8px rgba(0,0,0,.6)}
-input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:0}
-#mini{position:fixed;right:20px;bottom:20px;z-index:55;display:none;flex-direction:column;align-items:stretch;gap:8px;background:rgba(12,12,15,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--edge2);border-radius:20px;padding:12px 12px 12px 18px;min-width:290px;box-shadow:0 30px 70px -20px #000}
-#mini.show{display:flex;animation:rise .5s var(--ease)}
-#mini .row1{display:flex;align-items:center;gap:10px}
-#mini .row1>div{flex:1;min-width:0}
-#mini b{display:block;font-size:14px;max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#mini small{display:block;color:var(--dim);font-size:12px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
-#mini button{width:36px;height:36px;border-radius:50%;border:0;background:var(--ac);color:var(--on-ac);display:grid;place-items:center}
-#mini svg{width:14px;height:14px;fill:currentColor;stroke:none}
-#mini .seek{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
-
-/* ================= tools ================= */
-.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;align-items:start}
-.tool{background:var(--raise);border:1px solid var(--edge);border-radius:22px;padding:22px}
-.tool h3{font:700 17px var(--display);letter-spacing:-.04em}
-.tool .hint2{color:var(--dim);font-size:13px;margin:4px 0 16px}
-.tool textarea{width:100%;min-height:210px;resize:vertical;background:#050506;border:1px solid var(--edge);border-radius:14px;padding:14px;outline:none;line-height:1.55}
-.tool textarea:focus,.tool input.f:focus{border-color:rgba(var(--ac-rgb),.6)}
-.tool input.f{background:#050506;border:1px solid var(--edge);border-radius:12px;padding:9px 12px;outline:none;width:100%}
-.big-n{font:800 clamp(40px,6vw,58px)/1 var(--display);letter-spacing:-.06em;font-variant-numeric:tabular-nums;margin:6px 0 16px}
-.btns{display:flex;flex-wrap:wrap;gap:8px}
-.laps{margin-top:12px;max-height:130px;overflow:auto;color:var(--mist);font-size:13.5px;font-variant-numeric:tabular-nums;display:grid;gap:3px}
-.calc{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.calc .scr{grid-column:1/-1;background:#050506;border:1px solid var(--edge);border-radius:14px;padding:14px 16px;text-align:right;font:700 30px/1.1 var(--display);letter-spacing:-.04em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-bottom:4px;font-variant-numeric:tabular-nums}
-.calc button{height:50px;border-radius:13px;border:1px solid var(--edge);background:var(--raise2);font-weight:700;font-size:17px;transition:background .15s,transform .15s}
-.calc button:hover{background:#1c1c21}
-.calc button:active{transform:scale(.95)}
-.calc button.op{background:rgba(var(--ac-rgb),.14);border-color:rgba(var(--ac-rgb),.3)}
-.calc button.eq{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
-.calc button.w2{grid-column:span 2}
-.result{font:800 34px/1.1 var(--display);letter-spacing:-.05em;margin:14px 0 4px;min-height:38px;word-break:break-word}
-
 /* ================= help & settings ================= */
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px;align-items:start}
 details{background:var(--raise);border:1px solid var(--edge);border-radius:16px;padding:0 20px;margin-bottom:10px;transition:border-color .25s}
@@ -327,7 +271,6 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
   .row{padding:6px 16px 14px;margin:0 -16px;scroll-padding-left:16px}
   .grid{grid-template-columns:repeat(2,1fr);gap:18px 12px}
   main{padding-bottom:70px}
-  #mini{bottom:76px;right:10px;left:10px;min-width:0}
   .vbar .hide-m,#vnew{display:none}
   .vbar{flex-wrap:wrap;gap:6px}
   .vbar .vt{order:9;flex:1 0 100%;padding:2px 2px 0}
@@ -347,8 +290,6 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
   <button class="mark" data-go="home" aria-label="Void Arcade home"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="9" fill="none" stroke="currentColor" stroke-width="4"/></svg><b>Void Arcade</b></button>
   <button class="nb on" data-go="home"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span class="lb">Home</span></button>
   <button class="nb" data-go="games"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span class="lb">Games</span></button>
-  <button class="nb" data-go="music"><svg class="i" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg><span class="lb">Music</span></button>
-  <button class="nb" data-go="tools"><svg class="i" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0 5 5L11 20a2.1 2.1 0 0 1-3-3l8.7-8.7"/><path d="M14.7 6.3 18 3l3 3-3.3 3.3"/></svg><span class="lb">Tools</span></button>
   <button class="nb hide-m" data-go="help"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg><span class="lb">Help</span></button>
   <button class="nb" data-go="settings"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span class="lb">Settings</span></button>
   <div class="nav-gap"></div>
@@ -362,7 +303,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
       <div class="eclipse" aria-hidden="true"><i class="halo"></i><i class="rim"></i><i class="ring2"></i></div>
       <div class="hero-l">
         <h1 class="wm" id="logo" aria-label="Void Arcade"><span>V<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="10.5" fill="none" stroke-width="5.2"/></svg>id</span><span>Arcade</span></h1>
-        <p id="tag">Games, music and tools. No ads. Ever.</p>
+        <p id="tag">Just games. No ads. Ever.</p>
         <form class="hsearch" id="hform" autocomplete="off">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
           <input id="hq" placeholder="Search games" autocomplete="off" spellcheck="false" aria-label="Search games">
@@ -393,68 +334,12 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
     <div id="gmain"></div>
   </section>
 
-  <!-- MUSIC -->
-  <section class="view" id="v-music">
-    <div class="vhead"><div><h2 class="page">Music</h2><p>Search for a song or pick a genre. Free and ad-free.</p></div></div>
-    <form class="msearch" id="mForm" autocomplete="off">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input id="mQ" type="search" placeholder="Search songs, artists…" spellcheck="false">
-    </form>
-    <div class="tabs" id="mTabs" style="margin-top:16px"></div>
-    <div class="panel" id="mPanel" style="margin-top:16px;display:none">
-      <h3 id="mTitle"></h3>
-      <div class="tracks" id="tracks"></div>
-    </div>
-    <p class="credit">Music from <a href="https://audius.co" target="_blank" rel="noopener noreferrer">Audius</a>, streamed from artists who upload there. Big-label songs aren't on it.</p>
-  </section>
-
-  <!-- TOOLS -->
-  <section class="view" id="v-tools">
-    <div class="vhead"><div><h2 class="page">Tools</h2><p>Small things that live on this device.</p></div></div>
-    <div class="tgrid">
-      <div class="tool">
-        <h3>Notes</h3><p class="hint2" id="noteState">Saves as you type.</p>
-        <textarea id="notes" placeholder="Type anything…" spellcheck="false"></textarea>
-      </div>
-      <div class="tool">
-        <h3>Timer</h3><p class="hint2">Counts down and beeps.</p>
-        <div class="big-n" id="tmDisp">10:00</div>
-        <div class="btns" style="margin-bottom:12px"><button class="btn" data-tm="5">5 min</button><button class="btn" data-tm="10">10 min</button><button class="btn" data-tm="25">25 min</button><button class="btn" data-tm="45">45 min</button></div>
-        <div class="btns"><button class="btn solid" id="tmGo">Start</button><button class="btn" id="tmReset">Reset</button></div>
-      </div>
-      <div class="tool">
-        <h3>Stopwatch</h3><p class="hint2">Laps included.</p>
-        <div class="big-n" id="swDisp">0:00.0</div>
-        <div class="btns"><button class="btn solid" id="swGo">Start</button><button class="btn" id="swLap">Lap</button><button class="btn" id="swReset">Reset</button></div>
-        <div class="laps" id="laps"></div>
-      </div>
-      <div class="tool">
-        <h3>Calculator</h3><p class="hint2">Keyboard works too.</p>
-        <div class="calc" id="calc">
-          <div class="scr" id="cScr">0</div>
-          <button class="op" data-k="C">C</button><button class="op" data-k="±">±</button><button class="op" data-k="%">%</button><button class="op" data-k="/">÷</button>
-          <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button class="op" data-k="*">×</button>
-          <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="op" data-k="-">−</button>
-          <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button class="op" data-k="+">+</button>
-          <button class="w2" data-k="0">0</button><button data-k=".">.</button><button class="eq" data-k="=">=</button>
-        </div>
-      </div>
-      <div class="tool">
-        <h3>Randomizer</h3><p class="hint2">Flip a coin, roll dice or pick from a list.</p>
-        <div class="btns" style="margin-bottom:6px"><button class="btn" id="rCoin">Flip a coin</button><button class="btn" data-die="6">Roll d6</button><button class="btn" data-die="20">Roll d20</button><button class="btn" data-die="100">Roll d100</button></div>
-        <div class="result" id="rOut">-</div>
-        <textarea class="f" id="rList" placeholder="One option per line" style="min-height:96px;margin:10px 0;width:100%;resize:vertical;background:#050506;border:1px solid var(--edge);border-radius:14px;padding:12px;outline:none"></textarea>
-        <button class="btn solid" id="rPick">Pick one</button>
-      </div>
-    </div>
-  </section>
-
   <!-- HELP -->
   <section class="view" id="v-help">
     <div class="vhead"><div><h2 class="page">Help</h2><p>Quick answers and shortcuts.</p></div></div>
     <div class="cols">
       <div>
-        <details open><summary>What is Void Arcade?</summary><p>A clean hub with games, songs and a few small tools. There are no ads on this site.</p></details>
+        <details open><summary>What is Void Arcade?</summary><p>A clean hub with games. There are no ads on this site.</p></details>
         <details><summary>How do games load?</summary><p>Games load directly by default. If you want them to go through the proxy instead, turn on "Games through proxy" in Settings. Web pages from the browse bar always use the proxy.</p></details>
         <details><summary>A game or site opened blank.</summary><p>Many big sites can't run inside another page. Try "New tab" in the top bar, or switch to Proxy there. Game hubs and other big sites often refuse to load inside another page, so turn on "Games through proxy" in Settings for those.</p></details>
         <details><summary>Do my games save?</summary><p>Games run through the proxy save inside this site, one slot per game site, and you can back them up in Settings. Games loaded directly save in their own site\u2019s storage, and some browsers block that, so turn on "Games through proxy" in Settings if a game forgets your progress.</p></details>
@@ -503,7 +388,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
         <div class="set"><div><b>Back up favorites</b><small>Download or restore a small file</small></div><div class="btns"><button class="btn" id="exp">Export</button><button class="btn" id="imp">Import</button><input type="file" id="impf" accept="application/json,.json" hidden></div></div>
         <div class="set"><div><b>Game saves</b><small id="saveInfo">Saves from games run through the proxy live on this device. They're included in the backup above.</small></div><button class="btn danger" id="clrSaves">Clear</button></div>
         <div class="set"><div><b>Clear recently played</b><small>Empties "Continue playing"</small></div><button class="btn" id="clrRecent">Clear</button></div>
-        <div class="set"><div><b>Reset everything</b><small>Favorites, notes, name and settings on this device</small></div><button class="btn danger" id="reset">Reset</button></div>
+        <div class="set"><div><b>Reset everything</b><small>Favorites, name and settings on this device</small></div><button class="btn danger" id="reset">Reset</button></div>
       </div>
     </div>
   </section>
@@ -512,7 +397,6 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
 </main>
 
 <!-- now playing -->
-<div id="mini"><div class="row1"><div><b id="miniName">-</b><small id="miniArtist">-</small></div><button id="miniNext" aria-label="Next" style="background:rgba(255,255,255,.1);color:#fff"><svg viewBox="0 0 24 24"><path d="M5 4.5v15l10-7.5zM17 4h2.5v16H17z"/></svg></button><button id="miniBtn" aria-label="Play or pause"></button></div><div class="seek"><span id="tCur">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="Seek"><span id="tDur">0:00</span></div></div>
 
 <!-- viewer -->
 <div class="viewer" id="viewer">
@@ -1025,7 +909,13 @@ const RAW=[
 ["Count Masters","https://www.crazygames.com/game/count-masters-stickman-games","","Quick Play","Grow your crowd and run through the gates"],
 ["Helix Jump","https://www.crazygames.com/game/helix-jump","","Quick Play","Bounce the ball down the tower"],
 ["Draw Climber","https://www.crazygames.com/game/draw-climber","","Quick Play","Draw the legs that climb the hill"],
-["Color Fill 3D","https://www.crazygames.com/game/color-fill-3d","","Quick Play","Paint the whole level without crashing"]
+["Color Fill 3D","https://www.crazygames.com/game/color-fill-3d","","Quick Play","Paint the whole level without crashing"],
+["Tiny Fishing (CrazyGames)","https://www.crazygames.com/game/tiny-fishing","","Quick Play","Cast, catch, upgrade your line and go deeper"],
+["Hook King Runner","https://www.crazygames.com/game/hook-king-runner","","Quick Play","Grapple and swing your way through the course"],
+["Crazy Flips 3D","https://www.crazygames.com/game/crazy-flips-3d","","Quick Play","Pull off wild flips and land them clean"],
+["Happy Glass","https://poki.com/en/g/happy-glass","","Quick Play","Draw a line to fill the glass with water"],
+["Bottle Flip Challenge","https://poki.com/en/g/bottle-flip-challenge","","Quick Play","Flip the bottle and stick the landing"],
+["Flip the Bottle","https://poki.com/en/g/flip-the-bottle","","Quick Play","Tap to flip and land on target spots"]
 ];
 const GAMES=RAW.map(([n,u,im,c,t])=>{
   const abs=/^https?:\/\//i.test(u), url=abs?u:BASE+u;
@@ -1138,7 +1028,7 @@ $('#spot').addEventListener('mouseleave',()=>{sp.hold=false;$('#spot').classList
 function renderAll(){renderTabs();renderGames();renderHome()}
 
 /* ================= router ================= */
-const VIEWS=['home','games','music','tools','help','settings'];
+const VIEWS=['home','games','help','settings'];
 let view='home';
 function go(v,push){
   if(!VIEWS.includes(v))v='home';
@@ -1148,7 +1038,6 @@ function go(v,push){
   if(push!==false&&location.hash!=='#/'+v)history.pushState(null,'','#/'+v);
   try{if(document.activeElement&&document.activeElement!==document.body)document.activeElement.blur()}catch(e){}
   window.scrollTo(0,0);
-  if(v==='music'&&typeof ensureMusic==='function')ensureMusic();
   if(v==='home')renderSpot();
 }
 addEventListener('popstate',()=>{const m=location.hash.match(/^#\/(\w+)/);const v=m?m[1]:'home';if(v!==view)go(v,false)});
@@ -1224,7 +1113,7 @@ function noteRecent(g){
 function openGame(g){
   if(!g)return;
   noteRecent(g);
-  cur=g;setVia(gproxy||/(^|\.)(crazygames\.com|now\.gg)$/.test(g.d));
+  cur=g;setVia(gproxy||/(^|\.)(crazygames\.com|now\.gg|poki\.com)$/.test(g.d));
   $('#vtitle').innerHTML=cover(g)+'<span><b>'+esc(g.n)+'</b><small>'+esc(g.site?g.d:g.c)+'</small></span>';
   $('#vmode').style.display='';
   $('#hint').classList.toggle('show',!!store.get('hints',true));
@@ -1273,12 +1162,6 @@ document.addEventListener('keydown',e=>{
   if(e.key==='`'&&!typing){e.preventDefault();$('#secret').classList.contains('open')?closeSecret():openSecret();return}
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openSecret();return}
   if(e.key==='/'&&!typing){e.preventDefault();if(view==='home')$('#hq').focus();else{go('games');setTimeout(()=>$('#gq').focus(),200)}return}
-  if(view==='tools'&&!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
-    const k=e.key;
-    if(/^[0-9.+\-*\/]$/.test(k)){calcKey(k);e.preventDefault()}
-    else if(k==='Enter'||k==='='){calcKey('=');e.preventDefault()}
-    else if(k==='Backspace'||k.toLowerCase()==='c'){calcKey('C');e.preventDefault()}
-  }
   if(e.key==='Escape'){
     const now=Date.now();
     if(now-lastEsc<450){location.replace('https://classroom.google.com');return}
@@ -1289,179 +1172,6 @@ document.addEventListener('keydown',e=>{
     else if(typing)document.activeElement.blur();
   }
 });
-
-/* ================= music: songs (Audius) ================= */
-const API='https://api.audius.co/v1',APP='VOID_ARCADE';
-const GENRES=[['Electronic','Electronic'],['Hip-Hop/Rap','Hip-Hop/Rap'],['Lo-Fi','Lo-Fi'],['Pop','Pop'],['Rock','Rock'],['R&B/Soul','R&B/Soul'],['Chill','Chill']];
-const PLAY='<svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg>',PAUSE='<svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
-const au=new Audio();au.preload='none';
-let list=[],cur_i=-1,mtab='',mseq=0;
-const fmt=t=>{t=Math.max(0,Math.floor(t||0));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
-function trackOf(t){
-  const art=t.artwork||{};
-  return {id:t.id,title:t.title||'Untitled',artist:(t.user&&t.user.name)||'Unknown',dur:t.duration||0,
-    img:art['150x150']||art['480x480']||'',ok:!(t.access&&t.access.stream===false)&&!t.is_delete&&t.is_available!==false};
-}
-function renderTracks(){
-  const box=$('#tracks');
-  if(!list.length){box.innerHTML='<div class="empty" style="padding:34px 0">Nothing found. Try another search.</div>';return}
-  box.innerHTML=list.map((t,i)=>`<button class="trk ${i===cur_i?'on':''} ${t.ok?'':'dead'}" data-t="${i}"><span class="art">${t.img?`<img src="${esc(t.img)}" alt="" loading="lazy" onerror="this.remove()">`:''}${i===cur_i&&!au.paused?PAUSE:PLAY}</span><span class="tx"><b>${esc(t.title)}</b><small>${esc(t.artist)}</small></span><span class="dur">${t.dur?fmt(t.dur):''}</span></button>`).join('');
-}
-async function loadTracks(url,title){
-  const my=++mseq;
-  $('#mPanel').style.display='';
-  $('#mTitle').textContent=title;
-  $('#tracks').innerHTML='<div class="empty" style="padding:34px 0">Loading…</div>';
-  try{
-    const r=await fetch(url);
-    if(!r.ok)throw new Error('bad');
-    const j=await r.json();
-    if(my!==mseq)return;
-    const playing=cur_i>=0&&list[cur_i]?list[cur_i].id:null;
-    list=(j.data||[]).map(trackOf).filter(t=>t.id);
-    cur_i=playing?list.findIndex(t=>t.id===playing):-1;
-    renderTracks();
-  }catch(e){
-    if(my!==mseq)return;
-    $('#tracks').innerHTML='<div class="empty" style="padding:34px 0">Couldn’t load songs. Check your connection and try again.</div>';
-  }
-}
-function showTab(name){
-  mtab=name;
-  $('#mTabs').innerHTML=GENRES.map(([n])=>`<button class="tab ${n===mtab?'on':''}" data-g="${esc(n)}">${esc(n)}</button>`).join('');
-}
-function openGenre(name){
-  showTab(name);
-  const g=GENRES.find(x=>x[0]===name);
-  if(g)loadTracks(`${API}/tracks/trending?genre=${encodeURIComponent(g[1])}&limit=30&app_name=${APP}`,name);
-}
-$('#mTabs').addEventListener('click',e=>{const b=e.target.closest('[data-g]');if(!b)return;$('#mQ').value='';openGenre(b.dataset.g)});
-$('#mForm').addEventListener('submit',e=>{
-  e.preventDefault();
-  const q=$('#mQ').value.trim();
-  if(!q)return;
-  showTab('');
-  loadTracks(`${API}/tracks/search?query=${encodeURIComponent(q)}&limit=30&app_name=${APP}`,'Results for “'+q+'”');
-});
-function paintPlayer(){
-  const m=$('#mini'),t=list[cur_i];
-  if(!t){m.classList.remove('show');return}
-  m.classList.add('show');
-  $('#miniName').textContent=t.title;$('#miniArtist').textContent=t.artist;
-  $('#miniBtn').innerHTML=au.paused?PLAY:PAUSE;
-}
-function playIndex(i){
-  const t=list[i];if(!t)return;
-  if(!t.ok){toast('That song isn’t available to stream');return}
-  if(i===cur_i){au.paused?au.play().catch(()=>{}):au.pause();return}
-  cur_i=i;
-  au.src=`${API}/tracks/${encodeURIComponent(t.id)}/stream?app_name=${APP}`;
-  au.play().catch(()=>{});
-  if('mediaSession' in navigator){try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,artwork:t.img?[{src:t.img,sizes:'150x150'}]:[]})}catch(e){}}
-  renderTracks();paintPlayer();
-}
-function step(d){
-  if(!list.length)return;
-  let i=cur_i;
-  for(let n=0;n<list.length;n++){i=(i+d+list.length)%list.length;if(list[i].ok)break}
-  playIndex(i);
-}
-$('#tracks').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b)playIndex(+b.dataset.t)});
-$('#miniBtn').onclick=()=>{if(cur_i>=0)au.paused?au.play().catch(()=>{}):au.pause()};
-$('#miniNext').onclick=()=>step(1);
-au.addEventListener('play',()=>{renderTracks();paintPlayer()});
-au.addEventListener('pause',()=>{renderTracks();paintPlayer()});
-au.addEventListener('ended',()=>step(1));
-au.addEventListener('error',()=>{if(cur_i>=0){toast('Couldn’t play that one. Skipping.');step(1)}});
-au.addEventListener('loadedmetadata',()=>{$('#tDur').textContent=fmt(au.duration)});
-let seeking=false;
-au.addEventListener('timeupdate',()=>{
-  $('#tCur').textContent=fmt(au.currentTime);
-  if(au.duration&&isFinite(au.duration)&&!seeking){const v=Math.round(au.currentTime/au.duration*1000);$('#seek').value=v;$('#seek').style.setProperty('--p',(v/10)+'%')}
-});
-$('#seek').addEventListener('input',e=>{seeking=true;e.target.style.setProperty('--p',(e.target.value/10)+'%')});
-$('#seek').addEventListener('change',e=>{if(au.duration&&isFinite(au.duration))au.currentTime=e.target.value/1000*au.duration;seeking=false});
-if('mediaSession' in navigator){try{
-  navigator.mediaSession.setActionHandler('play',()=>au.play());
-  navigator.mediaSession.setActionHandler('pause',()=>au.pause());
-  navigator.mediaSession.setActionHandler('nexttrack',()=>step(1));
-  navigator.mediaSession.setActionHandler('previoustrack',()=>step(-1));
-}catch(e){}}
-let musicLoaded=false;
-function ensureMusic(){if(!musicLoaded){musicLoaded=true;showTab('')}}
-
-/* ================= tools ================= */
-const nt=$('#notes');nt.value=store.get('notes','');
-nt.addEventListener('input',()=>{$('#noteState').textContent='Saving…';clearTimeout(nt._t);nt._t=setTimeout(()=>{store.set('notes',nt.value);$('#noteState').textContent='Saved on this device'},350)});
-
-function beep(){
-  try{
-    const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
-    const a=new AC();[0,.28,.56].forEach(t=>{const o=a.createOscillator(),g=a.createGain();o.frequency.value=880;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(.0001,a.currentTime+t);g.gain.exponentialRampToValueAtTime(.25,a.currentTime+t+.02);g.gain.exponentialRampToValueAtTime(.0001,a.currentTime+t+.2);o.start(a.currentTime+t);o.stop(a.currentTime+t+.22)});
-    setTimeout(()=>{try{a.close()}catch(e){}},1200);
-  }catch(e){}
-}
-const mmss=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
-let tm={total:600,left:600,end:0,run:false,h:0};
-function tmPaint(){$('#tmDisp').textContent=mmss(tm.run?(tm.end-Date.now())/1000:tm.left);$('#tmGo').textContent=tm.run?'Pause':(tm.left<tm.total&&tm.left>0?'Resume':'Start')}
-function tmStop(){clearInterval(tm.h);tm.run=false}
-$$('[data-tm]').forEach(b=>b.onclick=()=>{tmStop();tm.total=tm.left=+b.dataset.tm*60;tmPaint()});
-$('#tmGo').onclick=()=>{
-  if(tm.run){tm.left=Math.max(0,(tm.end-Date.now())/1000);tmStop();tmPaint();return}
-  if(tm.left<=0)tm.left=tm.total;
-  tm.end=Date.now()+tm.left*1000;tm.run=true;
-  tm.h=setInterval(()=>{
-    if(tm.end-Date.now()<=0){tmStop();tm.left=tm.total;tmPaint();beep();toast('Time’s up');return}
-    tmPaint();
-  },200);tmPaint();
-};
-$('#tmReset').onclick=()=>{tmStop();tm.left=tm.total;tmPaint()};
-tmPaint();
-
-let sw={t0:0,acc:0,run:false,h:0,laps:[]};
-const swFmt=ms=>{const t=Math.floor(ms/100)/10,m=Math.floor(t/60),s=(t%60).toFixed(1).padStart(4,'0');return m+':'+s};
-const swNow=()=>sw.acc+(sw.run?Date.now()-sw.t0:0);
-function swPaint(){$('#swDisp').textContent=swFmt(swNow());$('#swGo').textContent=sw.run?'Stop':(sw.acc?'Resume':'Start')}
-$('#swGo').onclick=()=>{
-  if(sw.run){sw.acc+=Date.now()-sw.t0;sw.run=false;clearInterval(sw.h)}
-  else{sw.t0=Date.now();sw.run=true;sw.h=setInterval(swPaint,100)}
-  swPaint();
-};
-$('#swLap').onclick=()=>{if(!swNow())return;sw.laps.unshift(swFmt(swNow()));$('#laps').innerHTML=sw.laps.map((l,i)=>`<span>Lap ${sw.laps.length-i} · ${l}</span>`).join('')};
-$('#swReset').onclick=()=>{clearInterval(sw.h);sw={t0:0,acc:0,run:false,h:0,laps:[]};$('#laps').innerHTML='';swPaint()};
-
-let cs={cur:'0',acc:null,op:null,fresh:true};
-const nfmt=v=>{if(!isFinite(v))return 'Error';let s=String(+v.toPrecision(12));return s.length>15?v.toExponential(6):s};
-function calcDo(a,op,b){return op==='+'?a+b:op==='-'?a-b:op==='*'?a*b:op==='/'?a/b:b}
-function calcKey(k){
-  if(/^\d$/.test(k)){cs.cur=cs.fresh||cs.cur==='0'?k:cs.cur+k;cs.fresh=false;if(cs.cur.length>14)cs.cur=cs.cur.slice(0,14)}
-  else if(k==='.'){if(cs.fresh){cs.cur='0.';cs.fresh=false}else if(cs.cur.indexOf('.')<0)cs.cur+='.'}
-  else if(k==='C'){cs={cur:'0',acc:null,op:null,fresh:true}}
-  else if(k==='±'){cs.cur=nfmt(-parseFloat(cs.cur))}
-  else if(k==='%'){cs.cur=nfmt(parseFloat(cs.cur)/100);cs.fresh=true}
-  else if('+-*/'.indexOf(k)>-1){
-    if(cs.op&&!cs.fresh){const r=calcDo(cs.acc,cs.op,parseFloat(cs.cur));cs.cur=nfmt(r);cs.acc=r}
-    else cs.acc=parseFloat(cs.cur);
-    cs.op=k;cs.fresh=true;
-  }
-  else if(k==='='){
-    if(cs.op){
-      const b=parseFloat(cs.cur);
-      if(cs.op==='/'&&b===0){cs={cur:'Can’t divide by 0',acc:null,op:null,fresh:true};$('#cScr').textContent=cs.cur;cs.cur='0';return}
-      cs.cur=nfmt(calcDo(cs.acc,cs.op,b));cs.acc=null;cs.op=null;cs.fresh=true;
-    }
-  }
-  $('#cScr').textContent=cs.cur.replace('-','−');
-}
-$('#calc').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(b)calcKey(b.dataset.k)});
-
-$('#rCoin').onclick=()=>{$('#rOut').textContent=Math.random()<.5?'Heads':'Tails'};
-$$('[data-die]').forEach(b=>b.onclick=()=>{const n=+b.dataset.die;$('#rOut').textContent='d'+n+': '+(1+Math.random()*n|0)});
-$('#rPick').onclick=()=>{
-  const opts=$('#rList').value.split('\n').map(s=>s.trim()).filter(Boolean);
-  if(!opts.length){toast('Add at least one option');return}
-  $('#rOut').textContent=opts[Math.random()*opts.length|0];
-};
 
 /* ================= settings ================= */
 const ACCENTS=[['White','#f4f4f5'],['Orange','#ff7a1a'],['Blue','#4c8dff'],['Green','#34d399'],['Purple','#a78bfa'],['Pink','#f472b6']];
@@ -1489,7 +1199,7 @@ function setDens(d,save){
 $('#dens').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setDens(b.dataset.d,true)});
 $('#dens2').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setDens(b.dataset.d,true)});
 $('#exp').onclick=()=>{
-  const data={app:'void-arcade',favs,recent,name:pname,plays:store.get('plays',0),notes:store.get('notes',''),saves:saveDump()};
+  const data={app:'void-arcade',favs,recent,name:pname,plays:store.get('plays',0),saves:saveDump()};
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,1)],{type:'application/json'}));a.download='void-arcade-backup.json';document.body.appendChild(a);a.click();a.remove();toast('Backup downloaded');
 };
 $('#imp').onclick=()=>$('#impf').click();
@@ -1502,7 +1212,6 @@ $('#impf').addEventListener('change',e=>{
       const names=a=>Array.isArray(a)?a.filter(x=>typeof x==='string').slice(0,500):[];
       favs=names(d.favs);recent=names(d.recent).slice(0,12);store.set('favs',favs);store.set('recent',recent);
       if(typeof d.name==='string'){pname=d.name.slice(0,20);store.set('pname',pname);paintName()}
-      if(typeof d.notes==='string'){store.set('notes',d.notes);nt.value=d.notes}
       if(d.saves&&typeof d.saves==='object')saveLoad(d.saves);
       renderAll();toast('Backup restored');
     }catch(err){toast('That file isn’t a Void Arcade backup')}
@@ -1518,7 +1227,7 @@ function paintSaves(){const n=saveKeys().length;$('#saveInfo').textContent=n?n+'
 $('#clrSaves').onclick=()=>{const n=saveKeys().length;if(!n){toast('No saves to clear');return}if(confirm('Delete saved progress from games run through the proxy?')){saveKeys().forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});paintSaves();toast('Game saves cleared')}};
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
 $('#clrRecent').onclick=()=>{recent=[];store.set('recent',recent);renderHome();toast('Cleared')};
-$('#reset').onclick=()=>{if(confirm('Reset favorites, notes, name and settings on this device?')){try{localStorage.clear()}catch(e){}location.hash='';location.reload()}};
+$('#reset').onclick=()=>{if(confirm('Reset favorites, name and settings on this device?')){try{localStorage.clear()}catch(e){}location.hash='';location.reload()}};
 
 /* tab title + icon */
 const CLOAKS={notes:{t:'Notes',c:'#f5c542',l:'N'},newtab:{t:'New Tab',c:'#3c4043',l:'+'},calc:{t:'Calculator',c:'#ff9f0a',l:'='},classroom:{t:'Classes',c:'#1e8e3e',l:'C'},docs:{t:'Untitled document',c:'#4285f4',l:'D'},drive:{t:'My Drive',c:'#fbbc04',l:'D'},canvas:{t:'Dashboard',c:'#e72429',l:'C'}};
@@ -1553,7 +1262,7 @@ let pname=store.get('pname','');
 function paintName(){
   $('#avl').textContent=pname?pname.trim()[0].toUpperCase():'?';
   $('#whoName').textContent=pname||'Set your name';
-  $('#tag').textContent=pname?`Welcome back, ${pname}. No ads. Ever.`:'Games, music and tools. No ads. Ever.';
+  $('#tag').textContent=pname?`Welcome back, ${pname}. No ads. Ever.`:'Just games. No ads. Ever.';
 }
 $('#avatar').onclick=()=>{$('#pname').value=pname;openOv('#pmodal');setTimeout(()=>$('#pname').focus(),60)};
 $('#pcancel').onclick=()=>closeOv('#pmodal');
@@ -1585,7 +1294,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnim
 setAccent(store.get('accent','#f4f4f5'),false);
 tog($('#tgFx'),'fx',true,v=>{fxOn=v;if(v)startFx();else clearFx()});
 setDens(store.get('dens','cozy'),false);
-paintName();paintSaves();renderAll();pickSpot();renderSpot();swPaint();
+paintName();paintSaves();renderAll();pickSpot();renderSpot();
 const m=location.hash.match(/^#\/(\w+)/);if(m&&VIEWS.includes(m[1]))go(m[1],false);
 })();
 </script>
