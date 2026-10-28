@@ -1,10 +1,11 @@
 // Simple server-side web proxy for Netlify Functions.
 // GET/POST /go?u=<encoded url>  ->  fetches the page, rewrites links back through /go.
-// Limits (Netlify): ~10s per request, ~6MB per response, no WebSockets.
+// Netlify: responses are buffered (~6MB cap, ~10s). Vercel: non-HTML files stream straight through
+// (event.stream = true), so large files work; only the time limit in vercel.json applies. No WebSockets.
 
 const { checkUrl, looksAdultHtml } = require('./blocklist');
 
-const MAX_BYTES = (process.env.VERCEL ? 4.2 : 5.5) * 1024 * 1024; // Vercel caps responses at 4.5MB
+const MAX_BYTES = 5.5 * 1024 * 1024; // only used in buffered mode (Netlify)
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -73,6 +74,17 @@ function rewriteHtml(html, base) {
   return out;
 }
 
+// Decodes a text response using its real charset (header, then <meta charset>), defaulting to UTF-8.
+async function decodeText(res, ct) {
+  const buf = Buffer.from(await res.arrayBuffer());
+  let label = (/charset\s*=\s*["']?([\w-]+)/i.exec(ct) || [])[1];
+  if (!label) {
+    const sniff = buf.subarray(0, 4096).toString('latin1');
+    label = (/<meta[^>]+charset\s*=\s*["']?([\w-]+)/i.exec(sniff) || [])[1];
+  }
+  try { return new TextDecoder(label || 'utf-8').decode(buf); } catch { return buf.toString('utf8'); }
+}
+
 exports.handler = async (event) => {
   const target = event.queryStringParameters && event.queryStringParameters.u;
   if (!target) return infoPage(400, 'No address', 'Nothing to load.');
@@ -81,13 +93,18 @@ exports.handler = async (event) => {
   let body = method === 'POST' && event.body ? (event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body) : undefined;
   const headers = { 'user-agent': UA, accept: event.headers.accept || '*/*', 'accept-language': event.headers['accept-language'] || 'en-US,en;q=0.9' };
   if (body && event.headers['content-type']) headers['content-type'] = event.headers['content-type'];
+  if (event.headers.range) headers.range = event.headers.range;
 
   let url = target, res;
   try {
     for (let hop = 0; hop < 6; hop++) {
       const check = checkUrl(url);
       if (!check.ok) return infoPage(403, 'Blocked', check.reason);
-      res = await fetch(url, { method, headers, body, redirect: 'manual', signal: AbortSignal.timeout(8500) });
+      // The timer only covers waiting for the response headers, so big downloads aren't cut off.
+      const ac = new AbortController();
+      const timer = setTimeout(() => ac.abort(), 8500);
+      try { res = await fetch(url, { method, headers, body, redirect: 'manual', signal: ac.signal }); }
+      finally { clearTimeout(timer); }
       const loc = res.headers.get('location');
       if (res.status >= 300 && res.status < 400 && loc) {
         url = new URL(loc, url).href;
@@ -107,17 +124,34 @@ exports.handler = async (event) => {
 
   try {
     if (/text\/html|application\/xhtml/i.test(ct)) {
-      const html = await res.text();
+      const html = await decodeText(res, ct);
       if (looksAdultHtml(html)) return infoPage(403, 'Blocked', 'This page looks like adult content.');
+      outHeaders['content-type'] = 'text/html; charset=utf-8';
       return { statusCode: res.status, headers: outHeaders, body: rewriteHtml(html, url) };
     }
     if (/text\/css/i.test(ct)) {
-      return { statusCode: res.status, headers: outHeaders, body: rewriteCss(await res.text(), url) };
+      outHeaders['content-type'] = 'text/css; charset=utf-8';
+      return { statusCode: res.status, headers: outHeaders, body: rewriteCss(await decodeText(res, ct), url) };
     }
+
+    // Everything else is passed through untouched. Keep range/partial-content info so big media can seek.
+    const passHeaders = { 'content-type': ct, 'cache-control': 'private, max-age=600' };
+    for (const h of ['content-range', 'accept-ranges', 'etag', 'last-modified']) {
+      const v = res.headers.get(h);
+      if (v) passHeaders[h] = v;
+    }
+    // fetch() already decompressed the body, so the upstream length is only valid if it wasn't compressed.
+    const len = res.headers.get('content-length');
+    if (len && !res.headers.get('content-encoding')) passHeaders['content-length'] = len;
+
+    if (event.stream && res.body) {
+      return { statusCode: res.status, headers: passHeaders, stream: res.body }; // no size cap
+    }
+    delete passHeaders['content-length'];
     const buf = Buffer.from(await res.arrayBuffer());
     if (buf.length > MAX_BYTES) return infoPage(413, 'Too big', 'That file is too large to pass through the proxy.');
-    if (/^text\/|json|javascript|xml/i.test(ct)) return { statusCode: res.status, headers: outHeaders, body: buf.toString('utf8') };
-    return { statusCode: res.status, headers: outHeaders, body: buf.toString('base64'), isBase64Encoded: true };
+    if (/^text\/|json|javascript|xml/i.test(ct)) return { statusCode: res.status, headers: passHeaders, body: buf.toString('utf8') };
+    return { statusCode: res.status, headers: passHeaders, body: buf.toString('base64'), isBase64Encoded: true };
   } catch (e) {
     return infoPage(502, "Couldn't load that", 'Something went wrong reading the response.');
   }
