@@ -1017,7 +1017,15 @@ const RAW=[
 ["Monkey Mart","games/175.html","images/184.jpg","Idle","Store management tycoon."],
 ["Short Life","games/174.html","images/185.jpg","Action","Quick racing challenges."],
 ["Five Nights at Epstein","games/2019.html","","Horror","A secret escape game where you navigate through mysterious locations."],
-["CrazyGames","https://www.crazygames.com","","Game Hubs","Huge library of free browser games"]
+["CrazyGames","https://www.crazygames.com","","Game Hubs","Huge library of free browser games"],
+["Stone Grass","https://www.crazygames.com/game/stone-grass-mowing-simulator","","Quick Play","Mow the lawn and upgrade your mower"],
+["Sky Riders","https://www.crazygames.com/game/sky-riders","","Quick Play","Race cars and bikes over wild sky tracks"],
+["Cubes 2048.io","https://www.crazygames.com/game/cubes-2048-io","","Quick Play","Merge matching cubes to build bigger numbers"],
+["Slice Master","https://www.crazygames.com/game/slice-master","","Quick Play","Slice stacks of colorful blocks"],
+["Count Masters","https://www.crazygames.com/game/count-masters-stickman-games","","Quick Play","Grow your crowd and run through the gates"],
+["Helix Jump","https://www.crazygames.com/game/helix-jump","","Quick Play","Bounce the ball down the tower"],
+["Draw Climber","https://www.crazygames.com/game/draw-climber","","Quick Play","Draw the legs that climb the hill"],
+["Color Fill 3D","https://www.crazygames.com/game/color-fill-3d","","Quick Play","Paint the whole level without crashing"]
 ];
 const GAMES=RAW.map(([n,u,im,c,t])=>{
   const abs=/^https?:\/\//i.test(u), url=abs?u:BASE+u;
@@ -1026,7 +1034,7 @@ const GAMES=RAW.map(([n,u,im,c,t])=>{
   return {n,u:url,d,c,t,img:im?BASE+im:'',site:SITE_CATS.indexOf(c)>-1};
 });
 GAMES.forEach((g,i)=>g.id=i);
-const GENRES_G=['Action','Adventure','Horror','Puzzle','Racing','Rhythm','Sandbox','Sports','Retro','Idle'];
+const GENRES_G=['Action','Adventure','Horror','Puzzle','Racing','Rhythm','Sandbox','Sports','Retro','Idle','Quick Play'];
 const ORDER=[...GENRES_G,...SITE_CATS];
 const TABS=['All','Favorites',...ORDER];
 const POP=['Plants Vs Zombies','Undertale','Deltarune (fixed)','Minecraft 1.12.1','Happy Wheels','Cookie Clicker','Geometry Dash Webport','Slope','Hill Climb Racing','Drift Hunters'];
@@ -1041,6 +1049,7 @@ function hash(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;r
 function cover(g){
   const h=hash(g.n),fav=!g.img,src=g.img||('/icon?d='+encodeURIComponent(g.d));
   const l=esc((g.n.trim()[0]||'?').toUpperCase());
+  if(g.c==='Quick Play')return `<span class="cv" data-l="${l}" style="--a:${h%360}deg;--l1:${12+h%9}%;--l2:${3+h%5}%"></span>`;
   return `<span class="cv${fav?' fav':''}" data-l="${l}" style="--a:${h%360}deg;--l1:${12+h%9}%;--l2:${3+h%5}%"><img src="${esc(src)}" alt="" loading="lazy" decoding="async" onload="icoOk(this)" onerror="icoErr(this)"></span>`;
 }
 const PLAYI='<svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg>';
