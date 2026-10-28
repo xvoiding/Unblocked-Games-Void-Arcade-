@@ -1,6 +1,7 @@
 {
   "rewrites": [
-    { "source": "/go/(.*)", "destination": "/api/go/$1" }
+    { "source": "/go", "destination": "/api/go" },
+    { "source": "/go/(.*)", "destination": "/api/go?u=$1" }
   ],
   "functions": {
     "api/go.js": { "maxDuration": 60, "memory": 1024 }
