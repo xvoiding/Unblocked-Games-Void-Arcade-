@@ -427,7 +427,9 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
       <div class="panel">
         <h3>Browser tab</h3>
         <div class="row"><div><b>Tab disguise</b><small>Title and icon shown in the tab</small></div>
-          <select class="btn" id="cloak"><option value="">Void Arcade</option><option value="classroom">Google Classroom</option><option value="docs">Google Docs</option><option value="drive">Google Drive</option><option value="canvas">Canvas</option></select></div>
+          <select class="btn" id="cloak"><option value="">Void Arcade</option><option value="notes">Notes</option><option value="newtab">New Tab</option><option value="calc">Calculator</option><option value="classroom">Classes</option><option value="docs">Untitled document</option><option value="drive">My Drive</option><option value="canvas">Dashboard</option><option value="custom">Custom…</option></select></div>
+        <div class="row" id="cloakCustom" style="display:none;flex-wrap:wrap"><div><b>Custom tab</b><small>Your own title and icon</small></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:flex-end"><input class="btn" id="ctTitle" maxlength="40" placeholder="Tab title" style="width:150px;outline:none"><input class="btn" id="ctEmoji" maxlength="4" placeholder="Icon" style="width:62px;text-align:center;outline:none"><div class="swatches" id="ctColors"></div></div></div>
         <div class="row"><div><b>Open in about:blank</b><small>Runs the site inside a blank tab</small></div><button class="btn" id="blank">Open</button></div>
         <div class="row"><div><b>Site games open</b><small>How other sites load</small></div><div class="seg" id="modeSeg"><button data-m="proxy">Proxy</button><button data-m="direct">Direct</button></div></div>
       </div>
@@ -882,13 +884,28 @@ $('#modeSeg').addEventListener('click',e=>{const b=e.target.closest('button');if
 syncModeSeg();
 $('#reset').onclick=()=>{if(confirm('Reset favorites, scores, name and settings on this device?')){try{localStorage.clear()}catch(e){}location.hash='';location.reload()}};
 
-/* tab disguise */
-const CLOAKS={classroom:{t:'Classes',c:'#1e8e3e',l:'C'},docs:{t:'Untitled document - Google Docs',c:'#4285f4',l:'D'},drive:{t:'My Drive - Google Drive',c:'#fbbc04',l:'D'},canvas:{t:'Dashboard',c:'#e72429',l:'C'}};
+/* tab title + icon */
+const CLOAKS={notes:{t:'Notes',c:'#f5c542',l:'N'},newtab:{t:'New Tab',c:'#3c4043',l:'+'},calc:{t:'Calculator',c:'#ff9f0a',l:'='},classroom:{t:'Classes',c:'#1e8e3e',l:'C'},docs:{t:'Untitled document',c:'#4285f4',l:'D'},drive:{t:'My Drive',c:'#fbbc04',l:'D'},canvas:{t:'Dashboard',c:'#e72429',l:'C'}};
+const TAB_COLORS=['#18181b','#ff7a1a','#4c8dff','#34d399','#a78bfa','#f472b6'];
 const DEFAULT_TITLE='Void Arcade',DEFAULT_ICON=$('#fav').href;
-function tabIcon(c,l){const k=document.createElement('canvas');k.width=k.height=64;const x=k.getContext('2d');x.fillStyle=c;x.beginPath();x.roundRect?x.roundRect(0,0,64,64,14):x.rect(0,0,64,64);x.fill();x.fillStyle='#fff';x.font='bold 40px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(l,32,35);return k.toDataURL()}
-function applyCloak(k){const c=CLOAKS[k];document.title=c?c.t:DEFAULT_TITLE;$('#fav').href=c?tabIcon(c.c,c.l):DEFAULT_ICON;store.set('cloak',k||'')}
+let ct=Object.assign({t:'',e:'',c:TAB_COLORS[0]},store.get('cloakc',{}));
+function tabIcon(c,l){const k=document.createElement('canvas');k.width=k.height=64;const x=k.getContext('2d');if(!x)return DEFAULT_ICON;x.fillStyle=c;x.beginPath();x.roundRect?x.roundRect(0,0,64,64,14):x.rect(0,0,64,64);x.fill();x.fillStyle='#fff';x.font='bold 38px sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(l,32,35);return k.toDataURL()}
+function applyCloak(k){
+  let t=DEFAULT_TITLE,i=DEFAULT_ICON;
+  if(k==='custom'){t=ct.t.trim()||DEFAULT_TITLE;i=tabIcon(ct.c,(ct.e.trim()||t[0]||'V'))}
+  else if(CLOAKS[k]){t=CLOAKS[k].t;i=tabIcon(CLOAKS[k].c,CLOAKS[k].l)}
+  document.title=t;$('#fav').href=i;store.set('cloak',k||'');
+  $('#cloakCustom').style.display=k==='custom'?'flex':'none';
+}
+$('#ctColors').innerHTML=TAB_COLORS.map(c=>`<button class="sw" data-c="${c}" aria-label="Icon color" style="background:${c};width:24px;height:24px"></button>`).join('');
+function paintCt(){$$('#ctColors .sw').forEach(b=>b.classList.toggle('on',b.dataset.c===ct.c));$('#ctTitle').value=ct.t;$('#ctEmoji').value=ct.e}
+function saveCt(){store.set('cloakc',ct);if($('#cloak').value==='custom')applyCloak('custom')}
+$('#ctTitle').addEventListener('input',e=>{ct.t=e.target.value;saveCt()});
+$('#ctEmoji').addEventListener('input',e=>{ct.e=[...e.target.value].slice(0,2).join('');saveCt()});
+$('#ctColors').addEventListener('click',e=>{const b=e.target.closest('.sw');if(b){ct.c=b.dataset.c;paintCt();saveCt()}});
 $('#cloak').addEventListener('change',e=>{applyCloak(e.target.value);toast(e.target.value?'Tab changed':'Tab restored')});
-const savedCloak=store.get('cloak','');$('#cloak').value=savedCloak;if(savedCloak)applyCloak(savedCloak);
+const savedCloak=store.get('cloak','');paintCt();
+if(savedCloak&&(CLOAKS[savedCloak]||savedCloak==='custom')){$('#cloak').value=savedCloak;applyCloak(savedCloak)}
 $('#blank').onclick=()=>{
   const w=window.open('about:blank','_blank');if(!w){toast('Allow pop-ups first');return}
   const d=w.document;d.title=document.title;const f=d.createElement('iframe');f.src=location.href.split('#')[0];
