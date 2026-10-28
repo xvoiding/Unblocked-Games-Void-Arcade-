@@ -353,9 +353,9 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
     <div class="cols">
       <div>
         <details open><summary>What is Void Arcade?</summary><p>A clean hub with games. There are no ads on this site.</p></details>
-        <details><summary>How do games load?</summary><p>Games load directly by default. If you want them to go through the proxy instead, turn on "Games through proxy" in Settings. Web pages from the browse bar always use the proxy.</p></details>
-        <details><summary>A game or site opened blank.</summary><p>Many big sites can't run inside another page. Try "New tab" in the top bar, or switch to Proxy there. Game hubs and other big sites often refuse to load inside another page, so turn on "Games through proxy" in Settings for those.</p></details>
-        <details><summary>Do my games save?</summary><p>Games run through the proxy save inside this site, one slot per game site, and you can back them up in Settings. Games loaded directly save in their own site\u2019s storage, and some browsers block that, so turn on "Games through proxy" in Settings if a game forgets your progress.</p></details>
+        <details><summary>How do games load?</summary><p>Games run through the proxy by default so your progress saves on this site. If a game is slow or breaks, flip it to Direct in the top bar, or turn off "Keep my saves" in Settings.</p></details>
+        <details><summary>A game or site opened blank.</summary><p>Many big sites can't run inside another page. Try "New tab" in the top bar, or switch to Proxy there.</p></details>
+        <details><summary>Do my games save?</summary><p>Games run through the proxy save inside this site, one slot per game site, and you can back them up in Settings. Games switched to Direct save in their own site\u2019s storage, and many browsers block or wipe that, so keep "Keep my saves" on in Settings if a game forgets your progress.</p></details>
         <details><summary>Where are my favorites saved?</summary><p>On this device, in your browser. Clearing site data or switching devices starts you fresh. You can export a backup in Settings.</p></details>
         <details><summary>Why is some stuff blocked?</summary><p>Adult and other inappropriate content is blocked on this site.</p></details>
       </div>
@@ -378,7 +378,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
     <div class="cols">
       <div class="panel">
         <h3 class="ph">Games</h3>
-        <div class="set"><div><b>Games through proxy</b><small>Off: games load directly. On: games load through the proxy. Web pages from the browse bar always use the proxy.</small></div><button class="tog" id="tgProxy" aria-label="Toggle games through proxy"></button></div>
+        <div class="set"><div><b>Keep my saves</b><small>On: games run on this site so progress is saved and can be backed up. Off: games load directly (faster) but your browser may not keep their saves.</small></div><button class="tog" id="tgProxy" aria-label="Toggle keep my saves"></button></div>
         <div class="set"><div><b>Show load tips</b><small>The bar that appears when a game won't load</small></div><button class="tog" id="tgHint" aria-label="Toggle load tips"></button></div>
         <div class="set"><div><b>Tile size</b><small>How big game covers are</small></div><div class="seg" id="dens2" role="group"><button data-d="compact">Small</button><button data-d="cozy">Medium</button><button data-d="roomy">Large</button></div></div>
       </div>
@@ -1080,7 +1080,7 @@ $('#sort').addEventListener('change',e=>{sortBy=e.target.value;renderGames()});
 $('#rand').onclick=()=>{const l=GAMES.filter(g=>!g.site);openGame(l[Math.random()*l.length|0])};
 
 /* ================= viewer ================= */
-let gproxy=false,cur=null,viaProxy=false,openedAt=0;
+let gproxy=true,cur=null,viaProxy=false,openedAt=0;
 const proxied=u=>'/go?u='+encodeURIComponent(u);
 function target(){return cur?(viaProxy?proxied(cur.u):cur.u):'about:blank'}
 const HINT_DEFAULT='Blank or stuck? Some games can\u2019t run inside another page.';
@@ -1132,7 +1132,7 @@ $('#hintProxy').onclick=()=>{if(!cur)return;setVia(true);load();toast('Loading t
 $('#hintOff').onclick=()=>{store.set('hints',false);$('#hint').classList.remove('show');$('#tgHint').classList.remove('on')};
 $('#vfull').onclick=()=>{const f=$('#frame');(f.requestFullscreen||f.webkitRequestFullscreen||(()=>{})).call(f)};
 $('#vfav').onclick=()=>{if(cur&&!cur.web)toggleFav(cur)};
-$('#vmode').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!cur||cur.web)return;setVia(b.dataset.m==='proxy');load();toast(b.dataset.m==='proxy'?'Proxy on for this game':'Loading directly')});
+$('#vmode').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!cur||cur.web)return;setVia(b.dataset.m==='proxy');load();toast(b.dataset.m==='proxy'?'Proxy on for this game':'Direct: saves may not stick')});
 
 /* ================= browse bar (web pages always use the proxy) ================= */
 function toTarget(q){
@@ -1189,7 +1189,7 @@ function tog(btn,key,def,fn){
 }
 let fxOn=true;
 tog($('#tgCalm'),'calm',false,v=>document.body.classList.toggle('calm',v));
-tog($('#tgProxy'),'gproxy',false,v=>{gproxy=v});
+tog($('#tgProxy'),'gproxy2',true,v=>{gproxy=v});
 tog($('#tgHint'),'hints',true);
 function setDens(d,save){
   document.body.dataset.dens=d;
