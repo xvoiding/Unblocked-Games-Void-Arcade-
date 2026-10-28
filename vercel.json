@@ -1,0 +1,9 @@
+{
+  "outputDirectory": "public",
+  "functions": {
+    "api/go.js": { "maxDuration": 10, "includeFiles": "netlify/functions/**" }
+  },
+  "rewrites": [
+    { "source": "/go", "destination": "/api/go" }
+  ]
+}
