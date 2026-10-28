@@ -1,12 +1,8 @@
 {
-  "outputDirectory": "public",
-  "functions": {
-    "api/go.js": { "maxDuration": 10, "includeFiles": "netlify/functions/**" },
-    "api/icon.js": { "maxDuration": 10, "includeFiles": "netlify/functions/**" },
-    "api/ai.js": { "maxDuration": 30, "includeFiles": "netlify/functions/**" }
-  },
   "rewrites": [
-    { "source": "/go", "destination": "/api/go" },
-    { "source": "/icon", "destination": "/api/icon" }
-  ]
+    { "source": "/go/(.*)", "destination": "/api/go/$1" }
+  ],
+  "functions": {
+    "api/go.js": { "maxDuration": 60, "memory": 1024 }
+  }
 }
