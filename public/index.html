@@ -1223,7 +1223,7 @@ function noteRecent(g){
 function openGame(g){
   if(!g)return;
   noteRecent(g);
-  cur=g;setVia(gproxy);
+  cur=g;setVia(gproxy||/(^|\.)crazygames\.com$/.test(g.d));
   $('#vtitle').innerHTML=cover(g)+'<span><b>'+esc(g.n)+'</b><small>'+esc(g.site?g.d:g.c)+'</small></span>';
   $('#vmode').style.display='';
   $('#hint').classList.toggle('show',!!store.get('hints',true));
