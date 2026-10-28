@@ -179,6 +179,41 @@ select.btn option{background:#111;color:#fff}
 .tab.on{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
 .tab .n{opacity:.5;margin-left:7px;font-size:12px;font-weight:500}
 
+/* ================= music ================= */
+.msearch{position:relative;max-width:620px}
+.msearch input{width:100%;background:var(--raise);border:1px solid var(--edge2);color:var(--ink);padding:15px 20px 15px 50px;border-radius:16px;outline:none;transition:border-color .25s,box-shadow .3s}
+.msearch input:focus{border-color:rgba(var(--ac-rgb),.7);box-shadow:0 0 0 5px rgba(var(--ac-rgb),.09)}
+.msearch svg{position:absolute;left:18px;top:50%;transform:translateY(-50%);width:18px;height:18px;stroke:var(--dim);fill:none;stroke-width:2;stroke-linecap:round}
+.panel{background:var(--raise);border:1px solid var(--edge);border-radius:20px;padding:20px 22px}
+.panel h3{font:700 16px var(--display);letter-spacing:-.04em;margin-bottom:12px}
+.tracks{display:grid;gap:4px}
+.trk{display:flex;align-items:center;gap:14px;padding:8px 10px;border-radius:14px;border:1px solid transparent;background:transparent;cursor:pointer;text-align:left;width:100%;transition:background .2s,border-color .2s}
+.trk:hover{background:rgba(255,255,255,.05)}
+.trk.on{border-color:rgba(var(--ac-rgb),.6);background:rgba(var(--ac-rgb),.07)}
+.trk .art{width:48px;height:48px;border-radius:10px;background:#16161b;overflow:hidden;flex-shrink:0;position:relative;display:grid;place-items:center}
+.trk .art img{width:100%;height:100%;object-fit:cover}
+.trk .art svg{width:16px;height:16px;fill:#fff;stroke:none;position:absolute;opacity:0;transition:opacity .25s;filter:drop-shadow(0 1px 4px #000)}
+.trk:hover .art svg,.trk.on .art svg{opacity:1}
+.trk .tx{min-width:0;flex:1}
+.trk b{display:block;font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trk small{display:block;color:var(--dim);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trk .dur{color:var(--dim);font-size:12.5px;font-variant-numeric:tabular-nums}
+.trk.dead{opacity:.45}
+.credit{color:var(--dim);font-size:12.5px;margin-top:16px}
+.credit a{color:var(--mist);text-decoration:underline}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:9px;background:linear-gradient(90deg,var(--ac) var(--p,0%),#26262d var(--p,0%));outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;border:0;box-shadow:0 2px 8px rgba(0,0,0,.6)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#fff;border:0}
+#mini{position:fixed;right:20px;bottom:20px;z-index:55;display:none;flex-direction:column;align-items:stretch;gap:8px;background:rgba(12,12,15,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--edge2);border-radius:20px;padding:12px 12px 12px 18px;min-width:290px;box-shadow:0 30px 70px -20px #000}
+#mini.show{display:flex;animation:rise .5s var(--ease)}
+#mini .row1{display:flex;align-items:center;gap:10px}
+#mini .row1>div{flex:1;min-width:0}
+#mini b{display:block;font-size:14px;max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mini small{display:block;color:var(--dim);font-size:12px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
+#mini button{width:36px;height:36px;border-radius:50%;border:0;background:var(--ac);color:var(--on-ac);display:grid;place-items:center}
+#mini svg{width:14px;height:14px;fill:currentColor;stroke:none}
+#mini .seek{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+
 /* ================= help & settings ================= */
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px;align-items:start}
 details{background:var(--raise);border:1px solid var(--edge);border-radius:16px;padding:0 20px;margin-bottom:10px;transition:border-color .25s}
@@ -266,6 +301,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
 @media (max-width:720px){
   :root{--rail:0px}
   main{overflow-x:clip}
+  #mini{bottom:calc(76px + env(safe-area-inset-bottom,0px));right:10px;left:10px;min-width:0}
   .toast{bottom:calc(80px + env(safe-area-inset-bottom,0px))}
   button,.tl,.tab,.chip{touch-action:manipulation}
   input,select,textarea{font-size:16px!important}
@@ -306,6 +342,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
   <button class="mark" data-go="home" aria-label="Void Arcade home"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="9" fill="none" stroke="currentColor" stroke-width="4"/></svg><b>Void Arcade</b></button>
   <button class="nb on" data-go="home"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span class="lb">Home</span></button>
   <button class="nb" data-go="games"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span class="lb">Games</span></button>
+  <button class="nb" data-go="music"><svg class="i" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg><span class="lb">Music</span></button>
   <button class="nb hide-m" data-go="help"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg><span class="lb">Help</span></button>
   <button class="nb" data-go="settings"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span class="lb">Settings</span></button>
   <div class="nav-gap"></div>
@@ -319,7 +356,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
       <div class="eclipse" aria-hidden="true"><i class="halo"></i><i class="rim"></i><i class="ring2"></i></div>
       <div class="hero-l">
         <h1 class="wm" id="logo" aria-label="Void Arcade"><span>V<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="10.5" fill="none" stroke-width="5.2"/></svg>id</span><span>Arcade</span></h1>
-        <p id="tag">Just games. No ads. Ever.</p>
+        <p id="tag">Games and music. No ads. Ever.</p>
         <form class="hsearch" id="hform" autocomplete="off">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
           <input id="hq" placeholder="Search games" autocomplete="off" spellcheck="false" aria-label="Search games">
@@ -348,6 +385,21 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
       <div class="tabs" id="tabs"></div>
     </div>
     <div id="gmain"></div>
+  </section>
+
+  <!-- MUSIC -->
+  <section class="view" id="v-music">
+    <div class="vhead"><div><h2 class="page">Music</h2><p>Search for a song or pick a genre. Free and ad-free.</p></div></div>
+    <form class="msearch" id="mForm" autocomplete="off">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="mQ" type="search" placeholder="Search songs, artists…" spellcheck="false">
+    </form>
+    <div class="tabs" id="mTabs" style="margin-top:16px"></div>
+    <div class="panel" id="mPanel" style="margin-top:16px;display:none">
+      <h3 id="mTitle"></h3>
+      <div class="tracks" id="tracks"></div>
+    </div>
+    <p class="credit">Music from <a href="https://audius.co" target="_blank" rel="noopener noreferrer">Audius</a>, streamed from artists who upload there. Big-label songs aren't on it.</p>
   </section>
 
   <!-- HELP -->
@@ -448,6 +500,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
 </div>
 <div class="toast" id="toast"></div>
 
+<div id="mini"><div class="row1"><div><b id="miniName">-</b><small id="miniArtist">-</small></div><button id="miniNext" aria-label="Next" style="background:rgba(255,255,255,.1);color:#fff"><svg viewBox="0 0 24 24"><path d="M5 4.5v15l10-7.5zM17 4h2.5v16H17z"/></svg></button><button id="miniBtn" aria-label="Play or pause"></button></div><div class="seek"><span id="tCur">0:00</span><input type="range" id="seek" min="0" max="1000" value="0" aria-label="Seek"><span id="tDur">0:00</span></div></div>
 <script>
 (function(){
 'use strict';
@@ -917,7 +970,6 @@ const RAW=[
 ["Wordle","games/176.html","images/183.jpg","Puzzle","Word guessing puzzle."],
 ["Monkey Mart","games/175.html","images/184.jpg","Idle","Store management tycoon."],
 ["Short Life","games/174.html","images/185.jpg","Action","Quick racing challenges."],
-["Five Nights at Epstein","games/2019.html","","Horror","A secret escape game where you navigate through mysterious locations."],
 ["Slice Master","https://www.crazygames.com/game/slice-master","/images/qp/slice-master.jpg","Action","Slice stacks of colorful blocks"],
 ["Tiny Fishing (Fullscreen)","https://html5.gamemonetize.co/0sv6b7mr8ry3mnczviovlrf0ql7e9ob9/","/images/qp/tiny-fishing.jpg","Idle","Cast, catch, upgrade your line and go deeper"],
 ["Aqua Park","https://html5.gamemonetize.co/1e6qqz20x4n2hyn71p3kftt64den44h5/","/images/qp/aquapark.jpg","Action","Race down giant water slides and bump rivals into the pool"],
@@ -1033,11 +1085,12 @@ $('#spot').addEventListener('mouseleave',()=>{sp.hold=false;$('#spot').classList
 function renderAll(){renderTabs();renderGames();renderHome()}
 
 /* ================= router ================= */
-const VIEWS=['home','games','help','settings'];
+const VIEWS=['home','games','music','help','settings'];
 let view='home';
 function go(v,push){
   if(!VIEWS.includes(v))v='home';
   view=v;
+  if(v==='music'&&typeof ensureMusic==='function')ensureMusic();
   $$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));
   $$('.rail .nb').forEach(b=>b.classList.toggle('on',b.dataset.go===v));
   if(push!==false&&location.hash!=='#/'+v)history.pushState(null,'','#/'+v);
@@ -1178,6 +1231,106 @@ document.addEventListener('keydown',e=>{
   }
 });
 
+/* ================= music: songs (Audius) ================= */
+const API='https://api.audius.co/v1',APP='VOID_ARCADE';
+const GENRES=[['Electronic','Electronic'],['Hip-Hop/Rap','Hip-Hop/Rap'],['Lo-Fi','Lo-Fi'],['Pop','Pop'],['Rock','Rock'],['R&B/Soul','R&B/Soul'],['Chill','Chill']];
+const PLAY='<svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg>',PAUSE='<svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
+const au=new Audio();au.preload='none';
+let list=[],cur_i=-1,mtab='',mseq=0;
+const fmt=t=>{t=Math.max(0,Math.floor(t||0));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
+function trackOf(t){
+  const art=t.artwork||{};
+  return {id:t.id,title:t.title||'Untitled',artist:(t.user&&t.user.name)||'Unknown',dur:t.duration||0,
+    img:art['150x150']||art['480x480']||'',ok:!(t.access&&t.access.stream===false)&&!t.is_delete&&t.is_available!==false};
+}
+function renderTracks(){
+  const box=$('#tracks');
+  if(!list.length){box.innerHTML='<div class="empty" style="padding:34px 0">Nothing found. Try another search.</div>';return}
+  box.innerHTML=list.map((t,i)=>`<button class="trk ${i===cur_i?'on':''} ${t.ok?'':'dead'}" data-t="${i}"><span class="art">${t.img?`<img src="${esc(t.img)}" alt="" loading="lazy" onerror="this.remove()">`:''}${i===cur_i&&!au.paused?PAUSE:PLAY}</span><span class="tx"><b>${esc(t.title)}</b><small>${esc(t.artist)}</small></span><span class="dur">${t.dur?fmt(t.dur):''}</span></button>`).join('');
+}
+async function loadTracks(url,title){
+  const my=++mseq;
+  $('#mPanel').style.display='';
+  $('#mTitle').textContent=title;
+  $('#tracks').innerHTML='<div class="empty" style="padding:34px 0">Loading…</div>';
+  try{
+    const r=await fetch(url);
+    if(!r.ok)throw new Error('bad');
+    const j=await r.json();
+    if(my!==mseq)return;
+    const playing=cur_i>=0&&list[cur_i]?list[cur_i].id:null;
+    list=(j.data||[]).map(trackOf).filter(t=>t.id);
+    cur_i=playing?list.findIndex(t=>t.id===playing):-1;
+    renderTracks();
+  }catch(e){
+    if(my!==mseq)return;
+    $('#tracks').innerHTML='<div class="empty" style="padding:34px 0">Couldn’t load songs. Check your connection and try again.</div>';
+  }
+}
+function showTab(name){
+  mtab=name;
+  $('#mTabs').innerHTML=GENRES.map(([n])=>`<button class="tab ${n===mtab?'on':''}" data-g="${esc(n)}">${esc(n)}</button>`).join('');
+}
+function openGenre(name){
+  showTab(name);
+  const g=GENRES.find(x=>x[0]===name);
+  if(g)loadTracks(`${API}/tracks/trending?genre=${encodeURIComponent(g[1])}&limit=30&app_name=${APP}`,name);
+}
+$('#mTabs').addEventListener('click',e=>{const b=e.target.closest('[data-g]');if(!b)return;$('#mQ').value='';openGenre(b.dataset.g)});
+$('#mForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const q=$('#mQ').value.trim();
+  if(!q)return;
+  showTab('');
+  loadTracks(`${API}/tracks/search?query=${encodeURIComponent(q)}&limit=30&app_name=${APP}`,'Results for “'+q+'”');
+});
+function paintPlayer(){
+  const m=$('#mini'),t=list[cur_i];
+  if(!t){m.classList.remove('show');return}
+  m.classList.add('show');
+  $('#miniName').textContent=t.title;$('#miniArtist').textContent=t.artist;
+  $('#miniBtn').innerHTML=au.paused?PLAY:PAUSE;
+}
+function playIndex(i){
+  const t=list[i];if(!t)return;
+  if(!t.ok){toast('That song isn’t available to stream');return}
+  if(i===cur_i){au.paused?au.play().catch(()=>{}):au.pause();return}
+  cur_i=i;
+  au.src=`${API}/tracks/${encodeURIComponent(t.id)}/stream?app_name=${APP}`;
+  au.play().catch(()=>{});
+  if('mediaSession' in navigator){try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,artwork:t.img?[{src:t.img,sizes:'150x150'}]:[]})}catch(e){}}
+  renderTracks();paintPlayer();
+}
+function step(d){
+  if(!list.length)return;
+  let i=cur_i;
+  for(let n=0;n<list.length;n++){i=(i+d+list.length)%list.length;if(list[i].ok)break}
+  playIndex(i);
+}
+$('#tracks').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b)playIndex(+b.dataset.t)});
+$('#miniBtn').onclick=()=>{if(cur_i>=0)au.paused?au.play().catch(()=>{}):au.pause()};
+$('#miniNext').onclick=()=>step(1);
+au.addEventListener('play',()=>{renderTracks();paintPlayer()});
+au.addEventListener('pause',()=>{renderTracks();paintPlayer()});
+au.addEventListener('ended',()=>step(1));
+au.addEventListener('error',()=>{if(cur_i>=0){toast('Couldn’t play that one. Skipping.');step(1)}});
+au.addEventListener('loadedmetadata',()=>{$('#tDur').textContent=fmt(au.duration)});
+let seeking=false;
+au.addEventListener('timeupdate',()=>{
+  $('#tCur').textContent=fmt(au.currentTime);
+  if(au.duration&&isFinite(au.duration)&&!seeking){const v=Math.round(au.currentTime/au.duration*1000);$('#seek').value=v;$('#seek').style.setProperty('--p',(v/10)+'%')}
+});
+$('#seek').addEventListener('input',e=>{seeking=true;e.target.style.setProperty('--p',(e.target.value/10)+'%')});
+$('#seek').addEventListener('change',e=>{if(au.duration&&isFinite(au.duration))au.currentTime=e.target.value/1000*au.duration;seeking=false});
+if('mediaSession' in navigator){try{
+  navigator.mediaSession.setActionHandler('play',()=>au.play());
+  navigator.mediaSession.setActionHandler('pause',()=>au.pause());
+  navigator.mediaSession.setActionHandler('nexttrack',()=>step(1));
+  navigator.mediaSession.setActionHandler('previoustrack',()=>step(-1));
+}catch(e){}}
+let musicLoaded=false;
+function ensureMusic(){if(!musicLoaded){musicLoaded=true;showTab('')}}
+
 /* ================= settings ================= */
 const ACCENTS=[['White','#f4f4f5'],['Orange','#ff7a1a'],['Blue','#4c8dff'],['Green','#34d399'],['Purple','#a78bfa'],['Pink','#f472b6']];
 function hexRgb(h){const n=parseInt(h.slice(1),16);return [n>>16&255,n>>8&255,n&255].join(',')}
@@ -1276,7 +1429,7 @@ let pname=store.get('pname','');
 function paintName(){
   $('#avl').textContent=pname?pname.trim()[0].toUpperCase():'?';
   $('#whoName').textContent=pname||'Set your name';
-  $('#tag').textContent=pname?`Welcome back, ${pname}. No ads. Ever.`:'Just games. No ads. Ever.';
+  $('#tag').textContent=pname?`Welcome back, ${pname}. No ads. Ever.`:'Games and music. No ads. Ever.';
 }
 $('#avatar').onclick=()=>{$('#pname').value=pname;openOv('#pmodal');setTimeout(()=>$('#pname').focus(),60)};
 $('#pcancel').onclick=()=>closeOv('#pmodal');
