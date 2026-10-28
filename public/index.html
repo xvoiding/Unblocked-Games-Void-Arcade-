@@ -457,6 +457,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
         <details open><summary>What is Void Arcade?</summary><p>A clean hub with games, songs and a few small tools. There are no ads on this site.</p></details>
         <details><summary>How do games load?</summary><p>Games load directly by default. If you want them to go through the proxy instead, turn on "Games through proxy" in Settings. Web pages from the browse bar always use the proxy.</p></details>
         <details><summary>A game or site opened blank.</summary><p>Many big sites can't run inside another page. Try "New tab" in the top bar, or switch to Proxy there. Game hubs and other big sites often refuse to load inside another page, so turn on "Games through proxy" in Settings for those.</p></details>
+        <details><summary>Do my games save?</summary><p>Games run through the proxy save inside this site, one slot per game site, and you can back them up in Settings. Games loaded directly save in their own site\u2019s storage, and some browsers block that, so turn on "Games through proxy" in Settings if a game forgets your progress.</p></details>
         <details><summary>Where are my favorites saved?</summary><p>On this device, in your browser. Clearing site data or switching devices starts you fresh. You can export a backup in Settings.</p></details>
         <details><summary>Why is some stuff blocked?</summary><p>Adult and other inappropriate content is blocked on this site.</p></details>
       </div>
@@ -500,6 +501,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
       <div class="panel">
         <h3 class="ph">Your data</h3>
         <div class="set"><div><b>Back up favorites</b><small>Download or restore a small file</small></div><div class="btns"><button class="btn" id="exp">Export</button><button class="btn" id="imp">Import</button><input type="file" id="impf" accept="application/json,.json" hidden></div></div>
+        <div class="set"><div><b>Game saves</b><small id="saveInfo">Saves from games run through the proxy live on this device. They're included in the backup above.</small></div><button class="btn danger" id="clrSaves">Clear</button></div>
         <div class="set"><div><b>Clear recently played</b><small>Empties "Continue playing"</small></div><button class="btn" id="clrRecent">Clear</button></div>
         <div class="set"><div><b>Reset everything</b><small>Favorites, notes, name and settings on this device</small></div><button class="btn danger" id="reset">Reset</button></div>
       </div>
@@ -1478,7 +1480,7 @@ function setDens(d,save){
 $('#dens').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setDens(b.dataset.d,true)});
 $('#dens2').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setDens(b.dataset.d,true)});
 $('#exp').onclick=()=>{
-  const data={app:'void-arcade',favs,recent,name:pname,plays:store.get('plays',0),notes:store.get('notes','')};
+  const data={app:'void-arcade',favs,recent,name:pname,plays:store.get('plays',0),notes:store.get('notes',''),saves:saveDump()};
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,1)],{type:'application/json'}));a.download='void-arcade-backup.json';document.body.appendChild(a);a.click();a.remove();toast('Backup downloaded');
 };
 $('#imp').onclick=()=>$('#impf').click();
@@ -1492,11 +1494,20 @@ $('#impf').addEventListener('change',e=>{
       favs=names(d.favs);recent=names(d.recent).slice(0,12);store.set('favs',favs);store.set('recent',recent);
       if(typeof d.name==='string'){pname=d.name.slice(0,20);store.set('pname',pname);paintName()}
       if(typeof d.notes==='string'){store.set('notes',d.notes);nt.value=d.notes}
+      if(d.saves&&typeof d.saves==='object')saveLoad(d.saves);
       renderAll();toast('Backup restored');
     }catch(err){toast('That file isn’t a Void Arcade backup')}
   };
   r.readAsText(f);e.target.value='';
 });
+/* game saves: proxied games keep their data in localStorage under keys that start with "vx|" */
+const SAVE_PRE='vx|';
+function saveKeys(){const a=[];try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.indexOf(SAVE_PRE)===0)a.push(k)}}catch(e){}return a}
+function saveDump(){const o={};saveKeys().forEach(k=>{try{o[k]=localStorage.getItem(k)}catch(e){}});return o}
+function saveLoad(o){Object.keys(o).forEach(k=>{if(k.indexOf(SAVE_PRE)===0&&typeof o[k]==='string'){try{localStorage.setItem(k,o[k])}catch(e){}}});paintSaves()}
+function paintSaves(){const n=saveKeys().length;$('#saveInfo').textContent=n?n+' saved item'+(n===1?'':'s')+' from games run through the proxy. Included in the backup above.':'Saves from games run through the proxy live on this device. They\u2019re included in the backup above.'}
+$('#clrSaves').onclick=()=>{const n=saveKeys().length;if(!n){toast('No saves to clear');return}if(confirm('Delete saved progress from games run through the proxy?')){saveKeys().forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});paintSaves();toast('Game saves cleared')}};
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
 $('#clrRecent').onclick=()=>{recent=[];store.set('recent',recent);renderHome();toast('Cleared')};
 $('#reset').onclick=()=>{if(confirm('Reset favorites, notes, name and settings on this device?')){try{localStorage.clear()}catch(e){}location.hash='';location.reload()}};
 
@@ -1565,7 +1576,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnim
 setAccent(store.get('accent','#f4f4f5'),false);
 tog($('#tgFx'),'fx',true,v=>{fxOn=v;if(v)startFx();else clearFx()});
 setDens(store.get('dens','cozy'),false);
-paintName();renderAll();pickSpot();renderSpot();swPaint();
+paintName();paintSaves();renderAll();pickSpot();renderSpot();swPaint();
 const m=location.hash.match(/^#\/(\w+)/);if(m&&VIEWS.includes(m[1]))go(m[1],false);
 })();
 </script>

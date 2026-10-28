@@ -43,6 +43,18 @@ function rewriteCss(css, base) {
 function shim(base) {
   const B = JSON.stringify(base);
   return `<script>(function(){var B=${B};
+try{var NS='vx|'+new URL(B).origin+'|';
+function wrapS(real){function keys(){var a=[];for(var i=0;i<real.length;i++){var k=real.key(i);if(k&&k.indexOf(NS)===0)a.push(k.slice(NS.length))}return a}
+var api={getItem:function(k){return real.getItem(NS+k)},setItem:function(k,v){real.setItem(NS+k,v)},removeItem:function(k){real.removeItem(NS+k)},clear:function(){keys().forEach(function(k){real.removeItem(NS+k)})},key:function(i){var a=keys();return i>=0&&i<a.length?a[i]:null}};
+return new Proxy(api,{get:function(t,p){if(p==='length')return keys().length;if(typeof p==='string'&&!(p in t)){var v=t.getItem(p);return v===null?undefined:v}return t[p]},set:function(t,p,v){t.setItem(String(p),v);return true},deleteProperty:function(t,p){t.removeItem(String(p));return true},has:function(t,p){return p in t||keys().indexOf(p)>-1},ownKeys:function(){return keys()},getOwnPropertyDescriptor:function(t,p){var v=t.getItem(String(p));return v===null?undefined:{value:v,writable:true,enumerable:true,configurable:true}}})}
+var LS=wrapS(window.localStorage),SS=wrapS(window.sessionStorage);
+Object.defineProperty(window,'localStorage',{configurable:true,get:function(){return LS}});
+Object.defineProperty(window,'sessionStorage',{configurable:true,get:function(){return SS}});
+if(window.IDBFactory){var Fo=IDBFactory.prototype.open,Fd=IDBFactory.prototype.deleteDatabase,Fs=IDBFactory.prototype.databases;
+IDBFactory.prototype.open=function(n){var a=[].slice.call(arguments);a[0]=NS+n;return Fo.apply(this,a)};
+IDBFactory.prototype.deleteDatabase=function(n){var a=[].slice.call(arguments);a[0]=NS+n;return Fd.apply(this,a)};
+if(Fs)IDBFactory.prototype.databases=function(){return Fs.call(this).then(function(l){return l.filter(function(d){return d.name&&d.name.indexOf(NS)===0}).map(function(d){return{name:d.name.slice(NS.length),version:d.version}})})}}
+}catch(e){}
 function P(u){try{u=String(u);if(!u)return u;if(u.indexOf('/go?u=')===0)return u;var a=new URL(u,B).href;if(!/^https?:/.test(a))return u;return '/go?u='+encodeURIComponent(a);}catch(e){return u}}
 var f=window.fetch;if(f){window.fetch=function(i,o){try{if(typeof i==='string'||i instanceof URL)i=P(i);else if(i&&i.url)i=new Request(P(i.url),i);}catch(e){}return f.call(this,i,o)}}
 var x=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){arguments[1]=P(u);return x.apply(this,arguments)};
