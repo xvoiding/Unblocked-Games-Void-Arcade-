@@ -1,283 +1,311 @@
-// Cloudflare Pages Function — streaming reverse proxy for /go/*
-// Handles:  /go?u=<encoded>   /go/<encoded>   /go/<encoded dir>/relative/path   /go/ping
+// Void Arcade: Cloudflare Pages Function (proxy).
+//
+// Runs on Cloudflare Pages next to the site, so one deploy covers everything:
+//   /go?u=<url>   streaming web proxy (no size cap; big files stream through, Range works)
+//   /go/<url>     same thing, address in the path
+//   /go/ping      health check
+//   /icon?d=<dom> favicon route
+//
+// Same adult/gore content filter as the Netlify and Vercel versions, re-checked on every
+// redirect hop. HTML is streamed through HTMLRewriter, so large pages don't hit the CPU limit.
+// Not included: WebSockets. Only /go and /icon are routed here (see public/_routes.json).
 
-const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
-const PASS = ['content-type', 'accept-ranges', 'content-range', 'last-modified', 'etag'];
-const CORS = { 'access-control-allow-origin': '*' };
+// ---------------------------------------------------------------- content filter
+const BLOCKED_DOMAINS = [
+  'pornhub.com', 'xvideos.com', 'xnxx.com', 'xhamster.com', 'redtube.com', 'youporn.com',
+  'spankbang.com', 'eporner.com', 'tube8.com', 'motherless.com', 'thothub.to', 'erome.com',
+  'onlyfans.com', 'fansly.com', 'chaturbate.com', 'stripchat.com', 'bongacams.com',
+  'cam4.com', 'livejasmin.com', 'brazzers.com', 'nhentai.net', 'hanime.tv', 'e621.net',
+  'rule34.xxx', 'gelbooru.com', 'danbooru.donmai.us', 'bestgore.fun', 'kaotic.com',
+  'liveleak.com', 'luscious.net', 'literotica.com', 'fapello.com', 'coomer.su', 'kemono.su',
+];
+const STRONG_SUBSTRINGS = [
+  'porn', 'xxx', 'hentai', 'nsfw', 'onlyfans', 'xvideos', 'xnxx', 'xhamster', 'redtube',
+  'youporn', 'spankbang', 'chaturbate', 'stripchat', 'bongacams', 'livejasmin', 'brazzers',
+  'rule34', 'nhentai', 'hanime', 'eporner', 'fansly', 'motherless', 'thothub', 'bestgore',
+  'camgirl', 'sexcam', 'nudist', 'erotica', 'upskirt', 'creampie', 'blowjob', 'handjob',
+  'beheading', 'decapitat', 'dismember', 'mutilat', 'gorevideo', 'goresite', 'snuffvid', 'pornstar',
+];
+const STRONG_TOKENS = new Set([
+  'sex', 'sexy', 'nude', 'nudes', 'naked', 'nudity', 'erotic', 'fetish', 'bdsm', 'milf',
+  'boobs', 'tits', 'nipples', 'escort', 'escorts', 'gore', 'camgirls', 'hookup', 'hookups',
+  'topless', 'lingerie', 'stripper', 'strippers', 'onlyfan',
+  'gory', 'snuff', 'rape', 'rapist', 'incest', 'porno', 'xxxx', 'cumshot', 'orgy', 'gangbang',
+  'beheaded', 'mutilated', 'bloodbath', 'dismembered',
+]);
 
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const isAscii = s => /^[\x20-\x7E]*$/.test(s);
+const tokens = (str) => str.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
 
-function norm(raw) {
-  raw = String(raw || '').trim().replace(/^(https?):\/+/, '$1://');
-  if (!raw) return null;
-  if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
-  try {
-    const t = new URL(raw);
-    return /^https?:$/.test(t.protocol) ? t.href : null;
-  } catch (e) { return null; }
+function hasBad(str) {
+  const lower = str.toLowerCase();
+  const flat = lower.replace(/[^a-z0-9]/g, '');
+  for (const s of STRONG_SUBSTRINGS) if (flat.includes(s)) return s;
+  for (const t of tokens(lower)) if (STRONG_TOKENS.has(t)) return t;
+  return null;
 }
 
-function targetUrl(u) {
-  const q = u.searchParams.get('u');
-  if (q) return norm(q);
+function isPrivateHost(host) {
+  if (host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') ||
+      host.endsWith('.internal') || (!host.includes('.') && !host.includes(':'))) return true;
+  if (host.startsWith('[') || host.includes(':')) return true; // no IPv6 literals
+  if (/^\d+\.\d+\.\d+\.\d+$/.test(host)) return true; // no raw IPs
+  if (/^\d+$/.test(host) || /^0x[0-9a-f]+$/i.test(host)) return true;
+  return false;
+}
 
-  let raw = u.pathname.replace(/^\/go\/?/, '');
-  if (!raw) return null;
-
-  // base form: /go/<encoded dir>/relative/path — split at the first literal slash
-  const i = raw.indexOf('/');
-  if (i > -1) {
-    let head = raw.slice(0, i);
-    try { head = decodeURIComponent(head); } catch (e) {}
-    if (/^https?:\/\//i.test(head)) {
-      try { return new URL(raw.slice(i + 1) + u.search, head).href; } catch (e) {}
-    }
+function checkUrl(raw, selfHost) {
+  let u;
+  try { u = new URL(raw); } catch { return { ok: false, reason: 'That address is not valid.' }; }
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') return { ok: false, reason: 'Only web addresses are allowed.' };
+  const host = u.hostname.toLowerCase().replace(/\.$/, '');
+  if (isPrivateHost(host) || (selfHost && host === selfHost)) return { ok: false, reason: 'That address is not allowed.' };
+  for (const d of BLOCKED_DOMAINS) {
+    if (host === d || host.endsWith('.' + d)) return { ok: false, reason: 'This site is blocked (adult content).' };
   }
-
-  try { raw = decodeURIComponent(raw); } catch (e) {}
-  return norm(raw.includes('?') ? raw : raw + u.search);
+  if (hasBad(host)) return { ok: false, reason: 'This site is blocked (adult content).' };
+  let rest = u.pathname + ' ' + u.search;
+  try { rest = decodeURIComponent(rest); } catch { /* keep raw */ }
+  if (hasBad(rest)) return { ok: false, reason: 'This page is blocked (adult content).' };
+  return { ok: true };
 }
 
-function resolve(v, base) {
-  if (v == null) return v;
-  v = String(v).trim();
-  if (!v || /^(data:|blob:|javascript:|about:|mailto:|tel:|#)/i.test(v)) return v;
+function looksAdultHtml(html) {
+  const head = html.slice(0, 60000);
+  if (/RTA-5042-1996-1400-1577-RTA/i.test(head)) return true;
+  if (/<meta[^>]+name=["']?rating["']?[^>]+content=["']?(adult|mature|rta)/i.test(head)) return true;
+  if (/<meta[^>]+content=["']?(adult|mature|rta)[^>]+name=["']?rating/i.test(head)) return true;
+  const title = (head.match(/<title[^>]*>([^<]*)<\/title>/i) || [])[1] || '';
+  if (title && hasBad(title)) return true;
+  const body = tokens(head.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>|<[^>]+>/gi, ' '));
+  let hits = 0;
+  for (const t of body) if (STRONG_TOKENS.has(t) && t !== 'escort' && t !== 'gore') hits++;
+  return hits >= 6;
+}
+
+// ---------------------------------------------------------------- helpers
+const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36';
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function infoPage(status, title, msg) {
+  return new Response(
+    `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
+<style>html,body{height:100%;margin:0;background:#000;color:#fff;font:15px ui-monospace,Menlo,Consolas,monospace}
+body{display:flex;align-items:center;justify-content:center;text-align:center}
+div{max-width:420px;padding:24px;border:1px solid #333}h1{font-size:18px;margin:0 0 10px}p{color:#aaa;margin:0}</style>
+<div><h1>${esc(title)}</h1><p>${esc(msg)}</p></div>`,
+    { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } });
+}
+
+const prox = (abs) => '/go?u=' + encodeURIComponent(abs);
+
+function absolutize(value, base) {
+  const v = (value || '').trim();
+  if (!v || v.startsWith('#') || /^(javascript|data|mailto|tel|blob|about):/i.test(v)) return null;
   try {
     const abs = new URL(v, base).href;
-    return /^https?:/i.test(abs) ? '/go/' + encodeURIComponent(abs) : abs;
-  } catch (e) { return v; }
+    return /^https?:/i.test(abs) ? abs : null;
+  } catch { return null; }
 }
 
 function rewriteCss(css, base) {
-  return String(css)
-    .replace(/url\(\s*(['"]?)([^'")]+)\1\s*\)/gi, (m, q, v) => `url(${q}${resolve(v, base)}${q})`)
-    .replace(/@import\s+(['"])([^"']+)\1/gi, (m, q, v) => `@import ${q}${resolve(v, base)}${q}`);
+  return css.replace(/url\(\s*(['"]?)(.*?)\1\s*\)/gi, (m, q, val) => {
+    const abs = absolutize(val, base);
+    return abs ? `url(${q}${prox(abs)}${q})` : m;
+  });
 }
 
 function shim(base) {
-  return `<script>(function(){
-var B=${JSON.stringify(base)};
-function R(u){
-  try{
-    if(u==null)return u;
-    u=String(u).trim();
-    if(!u||/^(data:|blob:|javascript:|about:|mailto:|tel:|#)/i.test(u))return u;
-    var a=new URL(u,B).href;
-    return /^https?:/i.test(a)?'/go/'+encodeURIComponent(a):a;
-  }catch(e){return u}
-}
-window.__pv=R;
-var sa=Element.prototype.setAttribute;
-Element.prototype.setAttribute=function(n,v){
-  if(/^(src|href|action|poster|formaction|data-src|data-href)$/i.test(n)&&typeof v==='string')v=R(v);
-  return sa.call(this,n,v);
-};
-function pp(P,ps){ps.forEach(function(p){
-  var d=Object.getOwnPropertyDescriptor(P,p);
-  if(!d||!d.set)return;
-  Object.defineProperty(P,p,{configurable:true,enumerable:d.enumerable,
-    get:function(){return d.get.call(this)},set:function(v){d.set.call(this,R(v))}});
-})}
-pp(HTMLScriptElement.prototype,['src']);
-pp(HTMLImageElement.prototype,['src','srcset']);
-pp(HTMLMediaElement.prototype,['src']);
-pp(HTMLSourceElement.prototype,['src','srcset']);
-pp(HTMLLinkElement.prototype,['href']);
-pp(HTMLEmbedElement.prototype,['src']);
-pp(HTMLIFrameElement.prototype,['src']);
-pp(HTMLFormElement.prototype,['action']);
-var f=window.fetch;
-if(f)window.fetch=function(i,o){
-  try{
-    if(typeof i==='string')i=R(i);
-    else if(i&&i.url){try{i=new Request(R(i.url),i)}catch(e){i=R(i.url)}}
-  }catch(e){}
-  return f.call(this,i,o);
-};
-var X=window.XMLHttpRequest,op=X.prototype.open;
-X.prototype.open=function(m,u){try{arguments[1]=R(u)}catch(e){}return op.apply(this,arguments)};
-var wo=window.open;
-window.open=function(u){try{u=R(u)}catch(e){}return wo.apply(window,arguments)};
-if(window.Worker){var W=window.Worker;window.Worker=function(u,o){return new W(R(u),o)};window.Worker.prototype=W.prototype}
-if(window.importScripts){var isc=window.importScripts;window.importScripts=function(){return isc.apply(this,[].map.call(arguments,R))}}
+  const B = JSON.stringify(base);
+  return `<script>(function(){var B=${B};
+function P(u){try{u=String(u);if(u.indexOf('/go?u=')===0)return u;var a=new URL(u,B).href;if(!/^https?:/.test(a))return u;return '/go?u='+encodeURIComponent(a);}catch(e){return u}}
+var f=window.fetch;if(f){window.fetch=function(i,o){try{if(typeof i==='string'||i instanceof URL)i=P(i);else if(i&&i.url)i=new Request(P(i.url),i);}catch(e){}return f.call(this,i,o)}}
+var x=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){arguments[1]=P(u);return x.apply(this,arguments)};
+var w=window.open;window.open=function(u){return w.call(window,u?P(u):u)};
+document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(a&&a.getAttribute('href').indexOf('/go?u=')!==0){var h=a.getAttribute('href');if(/^https?:/i.test(h)){e.preventDefault();location.href=P(h)}}},true);
 })();</script>`;
 }
 
-// prepended to worker scripts, which resolve relatives against their own URL
-function jsShim(base) {
-  return `(function(){var B=${JSON.stringify(base)};
-function R(u){try{
-  if(u==null)return u;u=String(u).trim();
-  if(!u||/^(data:|blob:|javascript:|about:|mailto:|tel:|#)/i.test(u))return u;
-  var a=new URL(u,B).href;return /^https?:/i.test(a)?'/go/'+encodeURIComponent(a):a;
-}catch(e){return u}}
-if(self.fetch){var f=self.fetch;self.fetch=function(i,o){try{
-  if(typeof i==='string')i=R(i);
-  else if(i&&i.url){try{i=new Request(R(i.url),i)}catch(e){i=R(i.url)}}
-}catch(e){}return f.call(this,i,o)}}
-if(self.importScripts){var s=self.importScripts;self.importScripts=function(){return s.apply(this,[].map.call(arguments,R))}}
-if(self.XMLHttpRequest){var op=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){try{arguments[1]=R(u)}catch(e){}return op.apply(this,arguments)}}
-})();
-`;
+// Streams HTML through Cloudflare's HTMLRewriter (fast, low memory, no size cap).
+function rewriteHtmlStream(res, base, headers) {
+  let injected = false;
+  const inject = (el) => { if (!injected) { injected = true; el.prepend(shim(base), { html: true }); } };
+  const URL_ATTRS = ['href', 'src', 'action', 'poster', 'data-src'];
+  let styleBuf = '';
+
+  const rw = new HTMLRewriter()
+    .on('base', { element(el) { el.remove(); } })
+    .on('meta[http-equiv]', {
+      element(el) {
+        const v = (el.getAttribute('http-equiv') || '').toLowerCase();
+        if (v === 'content-security-policy' || v === 'refresh') el.remove();
+      },
+    })
+    .on('[href],[src],[action],[poster],[data-src],[srcset],[integrity],[nonce],[crossorigin]', {
+      element(el) {
+        el.removeAttribute('integrity');
+        el.removeAttribute('nonce');
+        el.removeAttribute('crossorigin');
+        for (const a of URL_ATTRS) {
+          const v = el.getAttribute(a);
+          if (v == null) continue;
+          const abs = absolutize(v, base);
+          if (abs) el.setAttribute(a, prox(abs));
+        }
+        const ss = el.getAttribute('srcset');
+        if (ss != null) {
+          el.setAttribute('srcset', ss.split(',').map((p) => {
+            const [u, ...rest] = p.trim().split(/\s+/);
+            const abs = absolutize(u, base);
+            return (abs ? prox(abs) : u) + (rest.length ? ' ' + rest.join(' ') : '');
+          }).join(', '));
+        }
+      },
+    })
+    .on('style', {
+      text(t) {
+        styleBuf += t.text;
+        if (t.lastInTextNode) { t.replace(rewriteCss(styleBuf, base), { html: true }); styleBuf = ''; }
+        else t.remove();
+      },
+    })
+    .on('head', { element: inject })
+    .on('body', { element: inject });
+
+  return rw.transform(new Response(res.body, { status: res.status, headers }));
 }
 
-function rewriteHtml(html, dir) {
-  html = String(html).replace(/<meta[^>]+http-equiv=["']?content-security-policy["']?[^>]*>/gi, '');
-
-  // if the page declares its own <base>, that is the real resolution root — keep it
-  let eff = dir;
-  let ownBase = false;
-  const bm = html.match(/<base\b[^>]*\bhref\s*=\s*["']([^"']+)["']/i);
-  if (bm) {
-    try { eff = new URL(bm[1], dir).href; ownBase = true; } catch (e) { eff = dir; }
+// Reads roughly the first 60 KB of a stream so the adult-content scan can run
+// before anything is sent to the browser. Returns { text, stream } where stream is the full body.
+async function peek(stream, limit = 65536) {
+  const [a, b] = stream.tee();
+  const reader = a.getReader();
+  const dec = new TextDecoder('utf-8', { fatal: false });
+  let text = '', size = 0;
+  while (size < limit) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.length;
+    text += dec.decode(value, { stream: true });
   }
-
-  html = html.replace(/\s(src|href|action|poster|formaction|data-src|data-href)\s*=\s*(["'])([^"']*)\2/gi,
-    (m, a, q, v) => ` ${a}=${q}${resolve(v, eff)}${q}`);
-  html = html.replace(/\s(srcset)\s*=\s*(["'])([^"']*)\2/gi, (m, a, q, v) => {
-    const out = v.split(',').map(s => {
-      const p = s.trim().split(/\s+/);
-      return resolve(p[0], eff) + (p[1] ? ' ' + p[1] : '');
-    }).join(', ');
-    return ` ${a}=${q}${out}${q}`;
-  });
-  html = html.replace(/<style([^>]*)>([\s\S]*?)<\/style>/gi, (m, a, c) => `<style${a}>${rewriteCss(c, eff)}</style>`);
-  html = html.replace(/style\s*=\s*(["'])([^"']*)\1/gi, (m, q, v) => `style=${q}${rewriteCss(v, eff)}${q}`);
-
-  // a literal trailing slash is required — %2F is not a directory separator
-  const baseTag = `<base href="/go/${encodeURIComponent(eff)}/">`;
-  const inject = ownBase ? shim(eff) : baseTag + shim(eff);
-  if (ownBase) html = html.replace(/<base\b[^>]*>/i, baseTag);
-
-  if (/<head[^>]*>/i.test(html)) return html.replace(/<head([^>]*)>/i, (m, a) => `<head${a}>${inject}`);
-  if (/<html[^>]*>/i.test(html)) return html.replace(/<html([^>]*)>/i, (m, a) => `<html${a}><head>${inject}</head>`);
-  return inject + html;
+  reader.cancel().catch(() => {});
+  return { text, stream: b };
 }
 
-function page(status, msg) {
-  return `<!doctype html><meta charset="utf-8"><body style="font:13px/1.6 ui-monospace,monospace;background:#0b0b12;color:#e9e9f2;padding:22px;word-break:break-all">
-  <h3 style="margin:0 0 10px;color:#ff6b81">Proxy ${status}</h3><p style="opacity:.75;margin:0">${esc(msg)}</p></body>`;
-}
+// ---------------------------------------------------------------- /go
+async function handleGo(request, url, selfHost, override) {
+  const target = override || url.searchParams.get('u');
+  if (!target) return infoPage(400, 'No address', 'Nothing to load.');
 
-function fail(status, msg) {
-  return new Response(page(status, msg), {
-    status: status >= 400 && status < 600 ? status : 502,
-    headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', ...CORS }
-  });
-}
-
-export async function onRequest(ctx) {
-  const req = ctx.request;
-  const u = new URL(req.url);
-
-  if (!/^\/go(?:\/|$)/.test(u.pathname)) return ctx.next();
-
-  if (/^\/go\/ping\/?$/.test(u.pathname)) {
-    return new Response('proxy ok', {
-      status: 200,
-      headers: { 'content-type': 'text/plain', 'cache-control': 'no-store', ...CORS }
-    });
-  }
-
-  if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: { ...CORS, 'access-control-allow-methods': 'GET,HEAD,OPTIONS', 'access-control-allow-headers': '*' }
-    });
-  }
-
-  const target = targetUrl(u);
-  if (!target) return fail(400, 'Use /go/<encoded url> or /go?u=<encoded url>');
-
-  const h = {
+  let method = request.method === 'POST' ? 'POST' : request.method === 'HEAD' ? 'HEAD' : 'GET';
+  let body = method === 'POST' ? await request.arrayBuffer() : undefined;
+  const headers = new Headers({
     'user-agent': UA,
-    'accept': req.headers.get('accept') || '*/*',
-    'accept-language': 'en-US,en;q=0.9',
-    'accept-encoding': 'identity',
-    'referer': new URL(target).origin + '/'
-  };
-  const range = req.headers.get('range');
-  if (range) h.range = range;
+    accept: request.headers.get('accept') || '*/*',
+    'accept-language': request.headers.get('accept-language') || 'en-US,en;q=0.9',
+  });
+  if (body && request.headers.get('content-type')) headers.set('content-type', request.headers.get('content-type'));
+  const range = request.headers.get('range');
+  if (range) headers.set('range', range);
 
-  let up;
+  let cur = target, res = null;
   try {
-    up = await fetch(target, {
-      method: req.method === 'HEAD' ? 'HEAD' : 'GET',
-      headers: h,
-      redirect: 'follow'
-    });
+    for (let hop = 0; hop < 8; hop++) {
+      const check = checkUrl(cur, selfHost);
+      if (!check.ok) return infoPage(403, 'Blocked', check.reason);
+      res = await fetch(cur, { method, headers, body, redirect: 'manual' });
+      const loc = res.headers.get('location');
+      if (res.status >= 300 && res.status < 400 && loc) {
+        cur = new URL(loc, cur).href;
+        if (res.status !== 307 && res.status !== 308) { method = 'GET'; body = undefined; headers.delete('content-type'); }
+        res = null;
+        continue;
+      }
+      break;
+    }
   } catch (e) {
-    return fail(502, target + '\n' + (e && e.message ? e.message : e));
+    return infoPage(502, "Couldn't load that", 'The site took too long or refused the connection.');
   }
-  if (up.status >= 400) return fail(up.status, 'Upstream returned ' + up.status + ' for ' + target);
+  if (!res) return infoPage(508, 'Too many redirects', 'That site kept bouncing the request around.');
 
-  const dbg = isAscii(target) ? { 'x-proxy-target': target } : {};
-  const ct = (up.headers.get('content-type') || '').toLowerCase();
-  const finalUrl = up.url || target;
-  const dir = new URL('.', finalUrl).href;
-  const noEnc = !up.headers.get('content-encoding');
-  const path = new URL(finalUrl).pathname.toLowerCase();
+  const ct = res.headers.get('content-type') || 'application/octet-stream';
+  const out = new Headers({ 'content-type': ct, 'cache-control': 'no-store' });
 
-  if (req.method === 'HEAD' || up.status === 204 || up.status === 205 || up.status === 304) {
-    const oh = new Headers({ ...CORS, ...dbg });
-    if (ct) oh.set('content-type', ct);
-    const cl = up.headers.get('content-length');
-    if (cl && noEnc && req.method === 'HEAD') oh.set('content-length', cl);
-    return new Response(null, { status: up.status, headers: oh });
+  try {
+    // HTML: scan the start for adult content, then stream it through the rewriter.
+    if (/text\/html|application\/xhtml/i.test(ct)) {
+      const { text, stream } = await peek(res.body);
+      if (looksAdultHtml(text)) return infoPage(403, 'Blocked', 'This page looks like adult content.');
+      return rewriteHtmlStream({ body: stream, status: res.status }, cur, out);
+    }
+    // CSS: small, rewrite url(...) references.
+    if (/text\/css/i.test(ct)) {
+      return new Response(rewriteCss(await res.text(), cur), { status: res.status, headers: out });
+    }
+    // Everything else streams straight through, any size. Range/partial content is preserved.
+    for (const h of ['content-range', 'accept-ranges', 'etag', 'last-modified']) {
+      const v = res.headers.get(h);
+      if (v) out.set(h, v);
+    }
+    // The body is already decompressed, so only keep the upstream length if it wasn't compressed.
+    const len = res.headers.get('content-length');
+    if (len && !res.headers.get('content-encoding')) out.set('content-length', len);
+    out.set('cache-control', 'private, max-age=600');
+    return new Response(method === 'HEAD' ? null : res.body, { status: res.status, headers: out });
+  } catch (e) {
+    return infoPage(502, "Couldn't load that", 'Something went wrong reading the response.');
   }
+}
 
-  const looksHtml = ct.includes('text/html') || ct.includes('application/xhtml') ||
-    (!ct && (path.endsWith('.html') || path.endsWith('.htm') || path.endsWith('/')));
-
-  if (looksHtml) {
-    return new Response(rewriteHtml(await up.text(), dir), {
-      status: 200,
-      headers: {
-        'content-type': 'text/html; charset=utf-8',
-        'cache-control': 'no-store',
-        ...CORS,
-        ...dbg
-      }
-    });
+// ---------------------------------------------------------------- /icon
+async function handleIcon(url, selfHost) {
+  const d = String(url.searchParams.get('d') || '').toLowerCase();
+  if (!/^[a-z0-9.-]{3,80}$/.test(d) || !d.includes('.') || !checkUrl('https://' + d, selfHost).ok) {
+    return new Response('', { status: 400, headers: { 'cache-control': 'no-store' } });
   }
-
-  if (ct.includes('text/css')) {
-    return new Response(rewriteCss(await up.text(), dir), {
-      status: 200,
-      headers: {
-        'content-type': 'text/css; charset=utf-8',
-        'cache-control': 'no-store',
-        ...CORS,
-        ...dbg
-      }
-    });
+  const sources = [
+    `https://www.google.com/s2/favicons?domain=${d}&sz=128`,
+    `https://icons.duckduckgo.com/ip3/${d}.ico`,
+  ];
+  for (const src of sources) {
+    try {
+      const r = await fetch(src, { cf: { cacheTtl: 604800, cacheEverything: true } });
+      if (!r.ok) continue;
+      const buf = await r.arrayBuffer();
+      if (buf.byteLength < 100) continue;
+      return new Response(buf, {
+        headers: {
+          'content-type': r.headers.get('content-type') || 'image/png',
+          'cache-control': 'public, max-age=604800, s-maxage=2592000, stale-while-revalidate=86400',
+        },
+      });
+    } catch (e) { /* try next */ }
   }
+  return new Response('', { status: 404, headers: { 'cache-control': 'public, max-age=3600' } });
+}
 
-  const isJs = ct.includes('javascript') || ct.includes('ecmascript');
-  if (isJs && /(?:\.worker|\.ww|-worker|_worker)\.m?js$/i.test(path)) {
-    return new Response(jsShim(dir) + (await up.text()), {
-      status: 200,
-      headers: {
-        'content-type': 'text/javascript; charset=utf-8',
-        'cache-control': 'no-store',
-        ...CORS,
-        ...dbg
-      }
-    });
-  }
+// ---------------------------------------------------------------- entry
+export async function onRequest(ctx) {
+  const request = ctx.request;
+  const url = new URL(request.url);
+  const selfHost = url.hostname.toLowerCase();
+  const p = url.pathname;
 
-  const oh = new Headers({ ...CORS, ...dbg });
-  for (const k of PASS) {
-    const v = up.headers.get(k);
-    if (v) oh.set(k, v);
-  }
-  if (!ct) oh.set('content-type', 'application/octet-stream');
-  if (noEnc) {
-    const cl = up.headers.get('content-length');
-    if (cl) oh.set('content-length', cl);
-  }
-  oh.set('cache-control', 'public, max-age=86400');
+  if (p === '/icon') return handleIcon(url, selfHost);
 
-  return new Response(up.body, { status: up.status, headers: oh });
+  if (p === '/go/ping' || p === '/go/ping/') {
+    return new Response('proxy ok', { headers: { 'content-type': 'text/plain', 'cache-control': 'no-store' } });
+  }
+  if (request.method === 'OPTIONS' && (p === '/go' || p.startsWith('/go/'))) {
+    return new Response(null, { status: 204, headers: { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'GET,POST,HEAD,OPTIONS', 'access-control-allow-headers': '*' } });
+  }
+  if (p === '/go') return handleGo(request, url, selfHost);
+  if (p.startsWith('/go/')) {
+    // /go/<encoded address> (older link style)
+    let raw = p.slice(4);
+    try { raw = decodeURIComponent(raw); } catch { /* keep raw */ }
+    raw = raw.replace(/^(https?):\/+/i, '$1://');
+    if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
+    return handleGo(request, url, selfHost, raw + url.search);
+  }
+  return ctx.next();
 }
