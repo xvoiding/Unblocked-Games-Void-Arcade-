@@ -1029,12 +1029,7 @@ const RAW=[
 ["Jstris","https://jstris.jezevec10.com","","Online","Free multiplayer block stacking"],
 ["TypeRacer","https://play.typeracer.com","","Online","Race other players by typing"],
 ["Nitro Type","https://www.nitrotype.com","","Online","Typing races with cars"],
-["Roblox: Brookhaven","https://now.gg/Brookhaven/19905/Brookhaven.html","","Online","Roblox roleplay town, played in the browser through now.gg"],
-["Roblox: Adopt Me","https://now.gg/adopt-me/19912/adopt-me.html","","Online","Raise pets and trade in Roblox, played through now.gg"],
-["Roblox: Blox Fruits","https://now.gg/Blox-fruit/19901/Blox-fruit.html","","Online","Roblox pirate adventure, played through now.gg"],
-["Roblox: Rivals","https://now.gg/rivals/19911/rivals.html","","Online","Roblox shooter duels, played through now.gg"],
-["Roblox: The Strongest Battlegrounds","https://now.gg/the-strongest-battle/19913/the-strongest-battle.html","","Online","Roblox fighting arena, played through now.gg"],
-["Roblox: 99 Nights in the Forest","https://now.gg/99-Nights/19902/99-Nights.html","","Online","Roblox survival horror, played through now.gg"],
+["Roblox","https://now.gg/apps/a/19900/b.html","","Online","Play Roblox in your browser through now.gg"],
 ["Lichess","https://lichess.org","","Brain","Free chess against anyone"],
 ["Chess.com","https://www.chess.com/play/online","","Brain","Play chess online"],
 ["2048","https://play2048.co","","Brain","Slide tiles and make 2048"],
@@ -1054,7 +1049,7 @@ GAMES.forEach((g,i)=>g.id=i);
 const GENRES_G=['Action','Adventure','Horror','Puzzle','Racing','Rhythm','Sandbox','Sports','Retro','Idle'];
 const ORDER=[...GENRES_G,...SITE_CATS];
 const TABS=['All','Favorites',...ORDER];
-const POP=['Roblox: Brookhaven','Roblox: Adopt Me','Roblox: Blox Fruits','Plants Vs Zombies','Undertale','Deltarune (fixed)','Minecraft 1.12.1','Happy Wheels','Cookie Clicker','Geometry Dash Webport','Slope','Hill Climb Racing','Drift Hunters'];
+const POP=['Roblox','Plants Vs Zombies','Undertale','Deltarune (fixed)','Minecraft 1.12.1','Happy Wheels','Cookie Clicker','Geometry Dash Webport','Slope','Hill Climb Racing','Drift Hunters'];
 let cat='All',query='',sortBy='';
 let favs=store.get('favs',[]),recent=store.get('recent',[]);
 const byName=n=>GAMES.find(g=>g.n===n);
