@@ -310,7 +310,6 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
 <nav class="side" id="side">
   <button class="nb on" data-go="home" data-tip="Home"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></button>
   <button class="nb" data-go="games" data-tip="Games"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></button>
-  <button class="nb" data-go="ai" data-tip="AI"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></button>
   <button class="nb" data-go="music" data-tip="Music"><svg class="i" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg></button>
   <button class="nb hide-m" data-go="help" data-tip="Help"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9"/></svg></button>
   <button class="nb" data-go="settings" data-tip="Settings"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
@@ -323,14 +322,13 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
   <section class="view on" id="v-home">
     <div class="hero">
       <h1 id="logo" style="cursor:default">Void<span class="hl">Arcade</span></h1>
-      <p id="tag">Games, AI, music and more. No ads. Ever.</p>
+      <p id="tag">Games, music and more. No ads. Ever.</p>
       <div class="searchbox">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input id="hq" placeholder="Search games…" autocomplete="off" spellcheck="false">
       </div>
       <div class="tiles">
         <button class="tile-b" data-go="games"><span class="ib"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></span>Games</button>
-        <button class="tile-b" data-go="ai"><span class="ib"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></span>AI</button>
         <button class="tile-b" data-go="music"><span class="ib"><svg class="i" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg></span>Music</button>
         <button class="tile-b" data-go="help"><span class="ib"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9"/></svg></span>Help</button>
         <button class="tile-b" data-go="settings"><span class="ib"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></span>Settings</button>
@@ -353,18 +351,6 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
   </section>
 
 
-  <!-- AI -->
-  <section class="view" id="v-ai">
-    <div class="vhead"><div><h2>AI</h2><p>Ask anything. Homework help, ideas, explanations.</p></div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div class="seg" id="aiEng" title="Which AI to use"><button data-e="auto">Auto</button><button data-e="void">Void AI</button><button data-e="puter">Free</button></div><button class="btn" id="aiNew">New chat</button></div></div>
-    <p class="note" id="aiNote"></p>
-    <div class="aiwrap">
-      <div id="chat"></div>
-      <form class="composer" id="aiForm">
-        <textarea id="aiIn" rows="1" placeholder="Ask Void AI…" maxlength="3000"></textarea>
-        <button class="send" id="aiSend" type="submit" aria-label="Send"><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-      </form>
-    </div>
-  </section>
 
   <!-- MUSIC -->
   <section class="view" id="v-music">
@@ -396,9 +382,8 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
     <div class="vhead"><div><h2>Help</h2><p>Quick answers and shortcuts.</p></div></div>
     <div class="cols">
       <div>
-        <details open><summary>What is Void Arcade?</summary><p>A clean hub with links to the big game sites, an AI assistant, free radio and a focus mixer. There are no ads on this site.</p></details>
+        <details open><summary>What is Void Arcade?</summary><p>A clean hub with games, free radio and a focus mixer. There are no ads on this site.</p></details>
         <details><summary>A site I opened won't load.</summary><p>Big game sites are run by other companies and many of them can't run inside another page. Use "New tab" in the top bar, or switch between Proxy and Direct.</p></details>
-        <details><summary>How does the AI work?</summary><p>Your messages go to an AI model through this site's server. If the site's own AI key isn't set up, it switches to a free option run by Puter, which may ask you to sign in there. Don't share personal details in chats.</p></details>
         <details><summary>Where are my scores and favorites saved?</summary><p>On this device, in your browser. Clearing site data or switching devices starts you fresh.</p></details>
         <details><summary>Why is some stuff blocked?</summary><p>Adult and other inappropriate content is blocked on this site.</p></details>
       </div>
@@ -1040,7 +1025,7 @@ function reveal(scope){
 function renderAll(){renderTabs();renderGames();renderHome()}
 
 /* ================= router ================= */
-const VIEWS=['home','games','ai','music','help','settings'];
+const VIEWS=['home','games','music','help','settings'];
 let view='home';
 function go(v,push){
   if(!VIEWS.includes(v))v='home';
@@ -1051,7 +1036,6 @@ function go(v,push){
   try{if(document.activeElement&&document.activeElement!==document.body)document.activeElement.blur()}catch(e){}
   window.scrollTo(0,0);
   if(v==='home'||v==='games')reveal();
-  if(v==='ai')setTimeout(()=>{if(view==='ai')$('#aiIn').focus()},250);
 }
 addEventListener('popstate',()=>{const m=location.hash.match(/^#\/(\w+)/);const v=m?m[1]:'home';if(v!==view)go(v,false)});
 
@@ -1142,94 +1126,6 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-/* ================= AI ================= */
-let chat=store.get('aihist',[]),busy=false;
-const SUGG=['Explain photosynthesis simply','Quiz me on fractions','Help me plan a study schedule','Give me a fun fact','Check my essay intro','How do I start a science project?'];
-function md(s){
-  s=String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-  const blocks=[];
-  s=s.replace(/```[\w-]*\n?([\s\S]*?)```/g,(m,c)=>{blocks.push(c.replace(/\n$/,''));return '\u0000'+(blocks.length-1)+'\u0000'});
-  s=s.replace(/`([^`\n]+)`/g,'<code>$1</code>').replace(/\*\*([^*\n]+)\*\*/g,'<b>$1</b>');
-  let out='',list=null;
-  for(const ln of s.split('\n')){
-    const m=ln.match(/^\s*([-*]|\d+\.)\s+(.*)/);
-    if(m){const t=/\d/.test(m[1])?'ol':'ul';if(list!==t){out+=(list?`</${list}>`:'')+`<${t}>`;list=t}out+=`<li>${m[2]}</li>`}
-    else{if(list){out+=`</${list}>`;list=null}if(ln.trim())out+=`<p>${ln}</p>`}
-  }
-  if(list)out+=`</${list}>`;
-  return out.replace(/\u0000(\d+)\u0000/g,(m,i)=>`<pre><code>${blocks[+i]}</code></pre>`);
-}
-function renderChat(){
-  const box=$('#chat');
-  if(!chat.length){
-    box.innerHTML=`<div class="sugg"><h3>What's on your mind?</h3><p>I can explain things, quiz you, brainstorm, or help you get unstuck.</p><div class="chips">${SUGG.map(s=>`<button class="chip" data-s="${esc(s)}">${esc(s)}</button>`).join('')}</div></div>`;
-    return;
-  }
-  box.innerHTML=chat.map(m=>m.role==='user'?`<div class="msg u">${esc(m.content).replace(/\n/g,'<br>')}</div>`:`<div class="msg a${m.err?' err':''}">${m.err?esc(m.content):md(m.content)}</div>`).join('')+(busy?`<div class="msg a"><span class="dots"><i></i><i></i><i></i></span></div>`:'');
-  box.scrollTop=box.scrollHeight;
-}
-const NOTE={auto:'Auto uses Void AI, and switches to the free option if Void AI is not set up.',void:'Void AI runs on this site’s own AI key.',puter:'Free mode runs through Puter. The first message may ask you to sign in to Puter, which pays for your usage from its own free allowance. Your chat goes to Puter.'};
-let eng=store.get('aieng','auto'),voidDown=false;
-function paintEng(){$$('#aiEng button').forEach(b=>b.classList.toggle('on',b.dataset.e===eng));$('#aiNote').textContent=NOTE[eng]}
-$('#aiEng').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;eng=b.dataset.e;store.set('aieng',eng);paintEng()});
-const PUTER_SYSTEM='You are Void AI, a friendly assistant in a games and study hub. Keep answers clear and fairly short. When someone is learning, explain the idea and show the steps. Keep everything age-appropriate: no sexual content, graphic violence, or instructions for hurting people or breaking into systems. If someone seems to be struggling or in distress, be kind and encourage them to talk to a trusted adult or a local crisis line.';
-let puterP=null;
-function loadPuter(){
-  if(window.puter)return Promise.resolve(window.puter);
-  if(puterP)return puterP;
-  puterP=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://js.puter.com/v2/';sc.onload=()=>window.puter?res(window.puter):rej(new Error('no puter'));sc.onerror=()=>{puterP=null;rej(new Error('blocked'))};document.head.appendChild(sc)});
-  return puterP;
-}
-function puterText(r){
-  if(typeof r==='string')return r;
-  const c=r&&r.message&&r.message.content;
-  if(typeof c==='string')return c;
-  if(Array.isArray(c))return c.map(x=>x&&x.text||'').join('\n');
-  return r&&r.toString&&r.toString()!=='[object Object]'?r.toString():'';
-}
-async function askPuter(){
-  const pu=await loadPuter();
-  const msgs=[{role:'system',content:PUTER_SYSTEM},...chat.filter(m=>!m.err).slice(-14).map(({role,content})=>({role,content}))];
-  const r=await pu.ai.chat(msgs,{model:'openai/gpt-5.4-nano'});
-  const t=puterText(r).trim();
-  if(!t)throw new Error('empty');
-  return t;
-}
-async function askVoid(){
-  const r=await fetch('/api/ai',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:chat.filter(m=>!m.err).map(({role,content})=>({role,content}))})});
-  let data={};try{data=await r.json()}catch(e){}
-  if(r.ok&&data.reply)return {ok:1,text:data.reply};
-  return {ok:0,text:data.message||'Something went wrong. Try again.',down:data.error==='not_configured'||data.error==='bad_key'||data.error==='daily_limit'||data.error==='busy'};
-}
-async function aiSend(text){
-  text=text.trim();if(!text||busy)return;
-  chat=chat.filter(m=>!m.err);
-  chat.push({role:'user',content:text});busy=true;$('#aiSend').disabled=true;renderChat();
-  let reply=null,errMsg='';
-  try{
-    if(eng!=='puter'&&!(eng==='auto'&&voidDown)){
-      const v=await askVoid();
-      if(v.ok)reply=v.text;
-      else if(eng==='auto'&&v.down){voidDown=true}
-      else errMsg=v.text;
-    }
-    if(reply===null&&!errMsg){
-      try{reply=await askPuter()}
-      catch(e){errMsg=eng==='puter'||voidDown?"The free AI didn't answer. If a Puter sign-in window was blocked, allow pop-ups and try again.":'Something went wrong. Try again.'}
-    }
-  }catch(e){errMsg="Couldn't reach the AI. Check your connection and try again."}
-  if(reply!==null)chat.push({role:'assistant',content:reply});
-  else chat.push({role:'assistant',content:errMsg||'Something went wrong. Try again.',err:1});
-  busy=false;$('#aiSend').disabled=false;
-  store.set('aihist',chat.filter(m=>!m.err).slice(-30));renderChat();$('#aiIn').focus();
-}
-$('#aiForm').addEventListener('submit',e=>{e.preventDefault();const t=$('#aiIn').value;$('#aiIn').value='';autoGrow();aiSend(t)});
-$('#aiIn').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('#aiForm').requestSubmit()}});
-function autoGrow(){const t=$('#aiIn');t.style.height='auto';t.style.height=Math.min(140,t.scrollHeight)+'px'}
-$('#aiIn').addEventListener('input',autoGrow);
-$('#chat').addEventListener('click',e=>{const c=e.target.closest('.chip');if(c)aiSend(c.dataset.s)});
-$('#aiNew').onclick=()=>{if(busy)return;chat=[];store.del('aihist');renderChat();toast('New chat')};
-
 /* ================= music: radio ================= */
 const STATIONS=[
  {n:'Groove Salad',d:'Chilled electronic beats',u:'https://ice.somafm.com/groovesalad'},
@@ -1241,7 +1137,27 @@ const STATIONS=[
  {n:'Space Station Soma',d:'Spaced-out electronica',u:'https://ice.somafm.com/spacestation'},
  {n:'Indie Pop Rocks!',d:'Indie pop and rock favorites',u:'https://ice.somafm.com/indiepop'},
  {n:'Fluid',d:'Instrumental hip-hop and chill',u:'https://ice.somafm.com/fluid'},
- {n:'PopTron',d:'Electropop and indie dance',u:'https://ice.somafm.com/poptron'}
+ {n:'PopTron',d:'Electropop and indie dance',u:'https://ice.somafm.com/poptron'},
+ {n:'Groove Salad Classic',d:'Early 2000s ambient and downtempo',u:'https://ice.somafm.com/gsclassic'},
+ {n:'Left Coast 70s',d:'Mellow 1970s album rock',u:'https://ice.somafm.com/seventies'},
+ {n:'Underground 80s',d:'Early 80s synthpop and new wave',u:'https://ice.somafm.com/u80s'},
+ {n:'Folk Forward',d:'Indie folk and alt-folk',u:'https://ice.somafm.com/folkfwd'},
+ {n:'Bossa Beyond',d:'Bossa nova and Brazilian styles',u:'https://ice.somafm.com/bossa'},
+ {n:'Sonic Universe',d:'Avant-garde jazz',u:'https://ice.somafm.com/sonicuniverse'},
+ {n:'Boot Liquor',d:'Americana and roots',u:'https://ice.somafm.com/bootliquor'},
+ {n:'Illinois Street Lounge',d:'Exotica and vintage lounge',u:'https://ice.somafm.com/illstreet'},
+ {n:'Seven Inch Soul',d:'Vintage soul from 45s',u:'https://ice.somafm.com/7soul'},
+ {n:'The Trip',d:'Progressive house and trance',u:'https://ice.somafm.com/thetrip'},
+ {n:'Heavyweight Reggae',d:'Reggae, ska and rocksteady',u:'https://ice.somafm.com/reggae'},
+ {n:'Dub Step Beyond',d:'Dubstep, dub and deep bass',u:'https://ice.somafm.com/dubstep'},
+ {n:'Metal Detector',d:'Metal, from doom to thrash',u:'https://ice.somafm.com/metal'},
+ {n:'Vaporwaves',d:'Vaporwave',u:'https://ice.somafm.com/vaporwaves'},
+ {n:'Mission Control',d:'Ambient music for space exploration',u:'https://ice.somafm.com/missioncontrol'},
+ {n:'The Dark Zone',d:'Dark, deep ambient',u:'https://ice.somafm.com/darkzone'},
+ {n:'Synphaera Radio',d:'Modern electronic ambient',u:'https://ice.somafm.com/synphaera'},
+ {n:'DEF CON Radio',d:'Music for hacking',u:'https://ice.somafm.com/defcon'},
+ {n:'cliqhop idm',d:'Intelligent dance music',u:'https://ice.somafm.com/cliqhop'},
+ {n:'Covers',d:'Cover songs',u:'https://ice.somafm.com/covers'}
 ];
 const PLAY='<svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg>',PAUSE='<svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
 const au=new Audio();au.preload='none';au.volume=(store.get('rvol',70))/100;
@@ -1368,7 +1284,7 @@ $('#blank').onclick=()=>{
 let pname=store.get('pname','');
 function paintName(){
   $('#avatar').textContent=pname?pname.trim()[0].toUpperCase():'?';
-  $('#tag').textContent=pname?`Welcome back, ${pname}. No ads. Ever.`:'Games, AI, music and more. No ads. Ever.';
+  $('#tag').textContent=pname?`Welcome back, ${pname}. No ads. Ever.`:'Games, music and more. No ads. Ever.';
 }
 $('#avatar').onclick=()=>{$('#pname').value=pname;openOv('#pmodal');setTimeout(()=>$('#pname').focus(),60)};
 $('#pcancel').onclick=()=>closeOv('#pmodal');
@@ -1399,7 +1315,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnim
 /* ================= boot ================= */
 setAccent(store.get('accent','#f4f4f5'),false);
 tog($('#tgFx'),'fx',true,v=>{fxOn=v;if(v)startFx();else clearFx()});
-paintName();paintEng();renderStations();renderChat();renderAll();
+paintName();renderStations();renderAll();
 Object.keys(mix).forEach(k=>{if(k!=='master'){const r=document.querySelector(`[data-layer="${k}"]`);if(r){r.value=mix[k];fillRange(r)}}});
 const m=location.hash.match(/^#\/(\w+)/);if(m&&VIEWS.includes(m[1]))go(m[1],false);
 })();
