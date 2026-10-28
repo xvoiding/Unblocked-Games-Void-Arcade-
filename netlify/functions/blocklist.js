@@ -16,6 +16,7 @@ const STRONG_SUBSTRINGS = [
   'youporn', 'spankbang', 'chaturbate', 'stripchat', 'bongacams', 'livejasmin', 'brazzers',
   'rule34', 'nhentai', 'hanime', 'eporner', 'fansly', 'motherless', 'thothub', 'bestgore',
   'camgirl', 'sexcam', 'nudist', 'erotica', 'upskirt', 'creampie', 'blowjob', 'handjob',
+  'beheading', 'decapitat', 'dismember', 'mutilat', 'gorevideo', 'goresite', 'snuffvid', 'pornstar',
 ];
 
 // Short terms: only blocked as whole words (so "essex" or "sussex" are fine).
@@ -23,6 +24,8 @@ const STRONG_TOKENS = new Set([
   'sex', 'sexy', 'nude', 'nudes', 'naked', 'nudity', 'erotic', 'fetish', 'bdsm', 'milf',
   'boobs', 'tits', 'nipples', 'escort', 'escorts', 'gore', 'camgirls', 'hookup', 'hookups',
   'topless', 'lingerie', 'stripper', 'strippers', 'onlyfan',
+  'gory', 'snuff', 'rape', 'rapist', 'incest', 'porno', 'xxxx', 'cumshot', 'orgy', 'gangbang',
+  'beheaded', 'mutilated', 'bloodbath', 'dismembered',
 ]);
 
 const PRIVATE_V4 = [
