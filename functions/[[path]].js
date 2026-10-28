@@ -52,7 +52,7 @@ function resolve(v, base) {
 function rewriteCss(css, base) {
   return String(css)
     .replace(/url\(\s*(['"]?)([^'")]+)\1\s*\)/gi, (m, q, v) => `url(${q}${resolve(v, base)}${q})`)
-    .replace(/@import\s+(['"])([^'"]+)\1/gi, (m, q, v) => `@import ${q}${resolve(v, base)}${q}`);
+    .replace(/@import\s+(['"])([^"']+)\1/gi, (m, q, v) => `@import ${q}${resolve(v, base)}${q}`);
 }
 
 function shim(base) {
@@ -122,20 +122,34 @@ if(self.XMLHttpRequest){var op=XMLHttpRequest.prototype.open;XMLHttpRequest.prot
 `;
 }
 
-function rewriteHtml(html, base) {
+function rewriteHtml(html, dir) {
   html = String(html).replace(/<meta[^>]+http-equiv=["']?content-security-policy["']?[^>]*>/gi, '');
+
+  // if the page declares its own <base>, that is the real resolution root — keep it
+  let eff = dir;
+  let ownBase = false;
+  const bm = html.match(/<base\b[^>]*\bhref\s*=\s*["']([^"']+)["']/i);
+  if (bm) {
+    try { eff = new URL(bm[1], dir).href; ownBase = true; } catch (e) { eff = dir; }
+  }
+
   html = html.replace(/\s(src|href|action|poster|formaction|data-src|data-href)\s*=\s*(["'])([^"']*)\2/gi,
-    (m, a, q, v) => ` ${a}=${q}${resolve(v, base)}${q}`);
+    (m, a, q, v) => ` ${a}=${q}${resolve(v, eff)}${q}`);
   html = html.replace(/\s(srcset)\s*=\s*(["'])([^"']*)\2/gi, (m, a, q, v) => {
     const out = v.split(',').map(s => {
       const p = s.trim().split(/\s+/);
-      return resolve(p[0], base) + (p[1] ? ' ' + p[1] : '');
+      return resolve(p[0], eff) + (p[1] ? ' ' + p[1] : '');
     }).join(', ');
     return ` ${a}=${q}${out}${q}`;
   });
-  html = html.replace(/<style([^>]*)>([\s\S]*?)<\/style>/gi, (m, a, c) => `<style${a}>${rewriteCss(c, base)}</style>`);
-  html = html.replace(/style\s*=\s*(["'])([^"']*)\1/gi, (m, q, v) => `style=${q}${rewriteCss(v, base)}${q}`);
-  const inject = `<base href="/go/${encodeURIComponent(base)}/">${shim(base)}`;
+  html = html.replace(/<style([^>]*)>([\s\S]*?)<\/style>/gi, (m, a, c) => `<style${a}>${rewriteCss(c, eff)}</style>`);
+  html = html.replace(/style\s*=\s*(["'])([^"']*)\1/gi, (m, q, v) => `style=${q}${rewriteCss(v, eff)}${q}`);
+
+  // a literal trailing slash is required — %2F is not a directory separator
+  const baseTag = `<base href="/go/${encodeURIComponent(eff)}/">`;
+  const inject = ownBase ? shim(eff) : baseTag + shim(eff);
+  if (ownBase) html = html.replace(/<base\b[^>]*>/i, baseTag);
+
   if (/<head[^>]*>/i.test(html)) return html.replace(/<head([^>]*)>/i, (m, a) => `<head${a}>${inject}`);
   if (/<html[^>]*>/i.test(html)) return html.replace(/<html([^>]*)>/i, (m, a) => `<html${a}><head>${inject}</head>`);
   return inject + html;
@@ -205,7 +219,6 @@ export async function onRequest(ctx) {
   const noEnc = !up.headers.get('content-encoding');
   const path = new URL(finalUrl).pathname.toLowerCase();
 
-  // no-body statuses must not carry a body
   if (req.method === 'HEAD' || up.status === 204 || up.status === 205 || up.status === 304) {
     const oh = new Headers({ ...CORS, ...dbg });
     if (ct) oh.set('content-type', ct);
