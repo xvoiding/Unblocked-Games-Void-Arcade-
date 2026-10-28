@@ -456,7 +456,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
       <div>
         <details open><summary>What is Void Arcade?</summary><p>A clean hub with games, songs and a few small tools. There are no ads on this site.</p></details>
         <details><summary>How do games load?</summary><p>Games load directly by default. If you want them to go through the proxy instead, turn on "Games through proxy" in Settings. Web pages from the browse bar always use the proxy.</p></details>
-        <details><summary>A game or site opened blank.</summary><p>Many big sites can't run inside another page. Try "New tab" in the top bar, or switch to Proxy there. Sites like game hubs open in a new tab when proxy is off.</p></details>
+        <details><summary>A game or site opened blank.</summary><p>Many big sites can't run inside another page. Try "New tab" in the top bar, or switch to Proxy there. Game hubs and other big sites often refuse to load inside another page, so turn on "Games through proxy" in Settings for those.</p></details>
         <details><summary>Where are my favorites saved?</summary><p>On this device, in your browser. Clearing site data or switching devices starts you fresh. You can export a backup in Settings.</p></details>
         <details><summary>Why is some stuff blocked?</summary><p>Adult and other inappropriate content is blocked on this site.</p></details>
       </div>
@@ -1239,7 +1239,6 @@ function noteRecent(g){
 function openGame(g){
   if(!g)return;
   noteRecent(g);
-  if(g.site&&!gproxy){ if(openTab(g.u))toast('Opened '+g.n+' in a new tab'); renderHome(); return }
   cur=g;setVia(gproxy);
   $('#vtitle').innerHTML=cover(g)+'<span><b>'+esc(g.n)+'</b><small>'+esc(g.site?g.d:g.c)+'</small></span>';
   $('#vmode').style.display='';
