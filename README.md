@@ -50,7 +50,7 @@ Vercel limits: 10s function timeout and 4.5 MB per response on the free (Hobby) 
 
 ## What's on the site
 
-- **Games**: open-source games hosted on your own domain under `public/games/open/` (2048, Racer, Maze Ball, Dino Run), each with its license file, plus links to big game sites. The hosted ones always work.
+- **Games**: links to the big game sites, opened through the proxy by default.
 - **AI**: chat assistant (see below).
 - **Music**: ad-free SomaFM radio streams plus a focus mixer (rain, wind, brown noise, soft keys) generated in the browser.
 - **Settings**: accent color, particles, calm mode, tab disguise, default Proxy/Direct for outside sites.
