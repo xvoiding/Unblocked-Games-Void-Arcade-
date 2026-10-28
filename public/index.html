@@ -146,7 +146,7 @@ main{position:relative;z-index:1;margin-left:var(--side);min-height:100vh;displa
 .note{color:var(--dim);font-size:13px;margin-top:14px}
 
 /* ---------- AI ---------- */
-.aiwrap{display:flex;flex-direction:column;height:calc(100vh - 150px);min-height:420px;margin-top:12px;background:rgba(13,13,16,.7);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.aiwrap{display:flex;flex-direction:column;height:calc(100vh - 190px);min-height:420px;margin-top:12px;background:rgba(13,13,16,.7);border:1px solid var(--line);border-radius:22px;overflow:hidden}
 #chat{flex:1;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
 .sugg{margin:auto;text-align:center;max-width:560px}
 .sugg h3{font-size:22px;letter-spacing:-.02em;margin-bottom:6px}
@@ -296,7 +296,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
   .grid,.grid.big{grid-template-columns:repeat(2,1fr);gap:10px}
   .sites{grid-template-columns:1fr}
   .tile{height:88px}.big .tile{height:96px}
-  .aiwrap{height:calc(100vh - 210px)}
+  .aiwrap{height:calc(100vh - 260px)}
   #mini{bottom:76px;right:10px}
   .vbar .hide-m{display:none}
   footer{padding-bottom:80px}
@@ -354,7 +354,8 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
 
   <!-- AI -->
   <section class="view" id="v-ai">
-    <div class="vhead"><div><h2>AI</h2><p>Ask anything. Homework help, ideas, explanations.</p></div><button class="btn" id="aiNew">New chat</button></div>
+    <div class="vhead"><div><h2>AI</h2><p>Ask anything. Homework help, ideas, explanations.</p></div><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><div class="seg" id="aiEng" title="Which AI to use"><button data-e="auto">Auto</button><button data-e="void">Void AI</button><button data-e="puter">Free</button></div><button class="btn" id="aiNew">New chat</button></div></div>
+    <p class="note" id="aiNote" style="margin-top:10px"></p>
     <div class="aiwrap">
       <div id="chat"></div>
       <form class="composer" id="aiForm">
@@ -397,7 +398,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
         <details open><summary>What is Void Arcade?</summary><p>A clean hub with built-in games, links to the big game sites, an AI assistant, free radio and a focus mixer. There are no ads on this site.</p></details>
         <details><summary>Which games always work?</summary><p>The ones under Built-in. They run right on this site, so they don't depend on any other website.</p></details>
         <details><summary>A site I opened won't load.</summary><p>Big game sites are run by other companies, and many of them can't run inside another page. Use "New tab" in the top bar, or switch between Proxy and Direct. The Built-in games are the reliable option.</p></details>
-        <details><summary>How does the AI work?</summary><p>Your messages go to an AI model through this site's server. The site owner has to add an API key first; if it isn't set up you'll see a message saying so. Don't share personal details in chats.</p></details>
+        <details><summary>How does the AI work?</summary><p>Your messages go to an AI model through this site's server. If the site's own AI key isn't set up, it switches to a free option run by Puter, which may ask you to sign in there. Don't share personal details in chats.</p></details>
         <details><summary>Where are my scores and favorites saved?</summary><p>On this device, in your browser. Clearing site data or switching devices starts you fresh.</p></details>
         <details><summary>Why is some stuff blocked?</summary><p>Adult and other inappropriate content is blocked on this site.</p></details>
       </div>
@@ -758,16 +759,58 @@ function renderChat(){
   box.innerHTML=chat.map(m=>m.role==='user'?`<div class="msg u">${esc(m.content).replace(/\n/g,'<br>')}</div>`:`<div class="msg a${m.err?' err':''}">${m.err?esc(m.content):md(m.content)}</div>`).join('')+(busy?`<div class="msg a"><span class="dots"><i></i><i></i><i></i></span></div>`:'');
   box.scrollTop=box.scrollHeight;
 }
+const NOTE={auto:'Auto uses Void AI, and switches to the free option if Void AI is not set up.',void:'Void AI runs on this site’s own AI key.',puter:'Free mode runs through Puter. The first message may ask you to sign in to Puter, which pays for your usage from its own free allowance. Your chat goes to Puter.'};
+let eng=store.get('aieng','auto'),voidDown=false;
+function paintEng(){$$('#aiEng button').forEach(b=>b.classList.toggle('on',b.dataset.e===eng));$('#aiNote').textContent=NOTE[eng]}
+$('#aiEng').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;eng=b.dataset.e;store.set('aieng',eng);paintEng()});
+const PUTER_SYSTEM='You are Void AI, a friendly assistant in a games and study hub. Keep answers clear and fairly short. When someone is learning, explain the idea and show the steps. Keep everything age-appropriate: no sexual content, graphic violence, or instructions for hurting people or breaking into systems. If someone seems to be struggling or in distress, be kind and encourage them to talk to a trusted adult or a local crisis line.';
+let puterP=null;
+function loadPuter(){
+  if(window.puter)return Promise.resolve(window.puter);
+  if(puterP)return puterP;
+  puterP=new Promise((res,rej)=>{const sc=document.createElement('script');sc.src='https://js.puter.com/v2/';sc.onload=()=>window.puter?res(window.puter):rej(new Error('no puter'));sc.onerror=()=>{puterP=null;rej(new Error('blocked'))};document.head.appendChild(sc)});
+  return puterP;
+}
+function puterText(r){
+  if(typeof r==='string')return r;
+  const c=r&&r.message&&r.message.content;
+  if(typeof c==='string')return c;
+  if(Array.isArray(c))return c.map(x=>x&&x.text||'').join('\n');
+  return r&&r.toString&&r.toString()!=='[object Object]'?r.toString():'';
+}
+async function askPuter(){
+  const pu=await loadPuter();
+  const msgs=[{role:'system',content:PUTER_SYSTEM},...chat.filter(m=>!m.err).slice(-14).map(({role,content})=>({role,content}))];
+  const r=await pu.ai.chat(msgs,{model:'openai/gpt-5.4-nano'});
+  const t=puterText(r).trim();
+  if(!t)throw new Error('empty');
+  return t;
+}
+async function askVoid(){
+  const r=await fetch('/api/ai',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:chat.filter(m=>!m.err).map(({role,content})=>({role,content}))})});
+  let data={};try{data=await r.json()}catch(e){}
+  if(r.ok&&data.reply)return {ok:1,text:data.reply};
+  return {ok:0,text:data.message||'Something went wrong. Try again.',down:data.error==='not_configured'||data.error==='bad_key'||data.error==='daily_limit'||data.error==='busy'};
+}
 async function aiSend(text){
   text=text.trim();if(!text||busy)return;
   chat=chat.filter(m=>!m.err);
   chat.push({role:'user',content:text});busy=true;$('#aiSend').disabled=true;renderChat();
+  let reply=null,errMsg='';
   try{
-    const r=await fetch('/api/ai',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({messages:chat.map(({role,content})=>({role,content}))})});
-    let data={};try{data=await r.json()}catch(e){}
-    if(r.ok&&data.reply)chat.push({role:'assistant',content:data.reply});
-    else chat.push({role:'assistant',content:data.message||'Something went wrong. Try again.',err:1});
-  }catch(e){chat.push({role:'assistant',content:"Couldn't reach the AI. Check your connection and try again.",err:1})}
+    if(eng!=='puter'&&!(eng==='auto'&&voidDown)){
+      const v=await askVoid();
+      if(v.ok)reply=v.text;
+      else if(eng==='auto'&&v.down){voidDown=true}
+      else errMsg=v.text;
+    }
+    if(reply===null&&!errMsg){
+      try{reply=await askPuter()}
+      catch(e){errMsg=eng==='puter'||voidDown?"The free AI didn't answer. If a Puter sign-in window was blocked, allow pop-ups and try again.":'Something went wrong. Try again.'}
+    }
+  }catch(e){errMsg="Couldn't reach the AI. Check your connection and try again."}
+  if(reply!==null)chat.push({role:'assistant',content:reply});
+  else chat.push({role:'assistant',content:errMsg||'Something went wrong. Try again.',err:1});
   busy=false;$('#aiSend').disabled=false;
   store.set('aihist',chat.filter(m=>!m.err).slice(-30));renderChat();$('#aiIn').focus();
 }
@@ -947,7 +990,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnim
 /* ================= boot ================= */
 setAccent(store.get('accent','#f4f4f5'),false);
 tog($('#tgFx'),'fx',true,v=>{fxOn=v;if(v)startFx();else clearFx()});
-paintName();renderStations();renderChat();renderAll();
+paintName();paintEng();renderStations();renderChat();renderAll();
 Object.keys(mix).forEach(k=>{if(k!=='master'){const r=document.querySelector(`[data-layer="${k}"]`);if(r){r.value=mix[k];fillRange(r)}}});
 const m=location.hash.match(/^#\/(\w+)/);if(m&&VIEWS.includes(m[1]))go(m[1],false);
 })();

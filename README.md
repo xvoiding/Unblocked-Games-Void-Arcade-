@@ -63,3 +63,7 @@ Vercel limits: 10s function timeout and 4.5 MB per response on the free (Hobby) 
 3. Optional variables: `AI_MODEL` (default `claude-haiku-5-5`), `AI_DAILY_LIMIT` (default 400 requests/day for the whole site), `AI_IP_LIMIT` (default 12 per person per 5 minutes).
 
 Without a key the AI tab simply says it isn't set up yet. The key stays on the server and never reaches the browser.
+
+### Free AI option (no key)
+
+If `ANTHROPIC_API_KEY` isn't set, the AI tab falls back to a free option powered by [Puter.js](https://developer.puter.com/tutorials/free-llm-api/) (user-pays model: each visitor's usage is covered by their own Puter account's free allowance, so it costs you nothing). Visitors may be asked to sign in to Puter, and chats go to Puter. It isn't truly unlimited; Puter sets the limits. The AI tab has an Auto / Void AI / Free switch.
