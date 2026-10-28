@@ -556,7 +556,7 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');cl
 /* ================= data ================= */
 const BASE='https://noahstutoring.academy/';
 /* [name, url, image, category, description] */
-const SITE_CATS=['Game Hubs','Online','Brain'];
+const SITE_CATS=['Game Hubs'];
 const RAW=[
 ["Horsey Game","games/514.html","images/514.jpg","Action","crazy deers mane"],
 ["DEEEER Simulator","games/513.html","images/513.jpg","Sandbox","crazy deers mane"],
@@ -1015,29 +1015,7 @@ const RAW=[
 ["Monkey Mart","games/175.html","images/184.jpg","Idle","Store management tycoon."],
 ["Short Life","games/174.html","images/185.jpg","Action","Quick racing challenges."],
 ["Five Nights at Epstein","games/2019.html","","Horror","A secret escape game where you navigate through mysterious locations."],
-["CrazyGames","https://www.crazygames.com","","Game Hubs","Huge library of free browser games"],
-["Agar.io","https://agar.io","","Online","Eat cells, grow big, avoid getting eaten"],
-["Slither.io","https://slither.io","","Online","Grow the longest snake on the server"],
-["Diep.io","https://diep.io","","Online","Upgrade your tank and take on the arena"],
-["Krunker.io","https://krunker.io","","Online","Fast browser shooter with custom maps"],
-["Shell Shockers","https://shellshock.io","","Online","Egg-based multiplayer shooter"],
-["Skribbl.io","https://skribbl.io","","Online","Draw and guess with friends"],
-["Gartic Phone","https://garticphone.com","","Online","Telephone, but with drawings"],
-["Bonk.io","https://bonk.io","","Online","Physics-based multiplayer duels"],
-["Paper.io 2","https://paper-io.com","","Online","Claim territory without getting cut off"],
-["TETR.IO","https://tetr.io","","Online","Competitive multiplayer Tetris"],
-["Jstris","https://jstris.jezevec10.com","","Online","Free multiplayer block stacking"],
-["TypeRacer","https://play.typeracer.com","","Online","Race other players by typing"],
-["Nitro Type","https://www.nitrotype.com","","Online","Typing races with cars"],
-["Roblox","https://now.gg/apps/a/19900/b.html","","Online","Play Roblox in your browser through now.gg"],
-["Lichess","https://lichess.org","","Brain","Free chess against anyone"],
-["Chess.com","https://www.chess.com/play/online","","Brain","Play chess online"],
-["2048","https://play2048.co","","Brain","Slide tiles and make 2048"],
-["Minesweeper","https://minesweeper.online","","Brain","The classic, online"],
-["Solitaire","https://www.solitr.com","","Brain","Klondike and more"],
-["Monkeytype","https://monkeytype.com","","Brain","Clean typing speed test"],
-["Neal.fun","https://neal.fun","","Brain","Weird and wonderful web toys"],
-["Sandspiel","https://sandspiel.club","","Brain","Falling-sand sandbox"]
+["CrazyGames","https://www.crazygames.com","","Game Hubs","Huge library of free browser games"]
 ];
 const GAMES=RAW.map(([n,u,im,c,t])=>{
   const abs=/^https?:\/\//i.test(u), url=abs?u:BASE+u;
@@ -1049,7 +1027,7 @@ GAMES.forEach((g,i)=>g.id=i);
 const GENRES_G=['Action','Adventure','Horror','Puzzle','Racing','Rhythm','Sandbox','Sports','Retro','Idle'];
 const ORDER=[...GENRES_G,...SITE_CATS];
 const TABS=['All','Favorites',...ORDER];
-const POP=['Roblox','Plants Vs Zombies','Undertale','Deltarune (fixed)','Minecraft 1.12.1','Happy Wheels','Cookie Clicker','Geometry Dash Webport','Slope','Hill Climb Racing','Drift Hunters'];
+const POP=['Plants Vs Zombies','Undertale','Deltarune (fixed)','Minecraft 1.12.1','Happy Wheels','Cookie Clicker','Geometry Dash Webport','Slope','Hill Climb Racing','Drift Hunters'];
 let cat='All',query='',sortBy='';
 let favs=store.get('favs',[]),recent=store.get('recent',[]);
 const byName=n=>GAMES.find(g=>g.n===n);
@@ -1072,7 +1050,7 @@ function tile(g){
 const ARR_L='<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',ARR_R='<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>';
 function shelf(title,list,o){
   o=o||{};
-  return `<div class="shelf"><div class="shead"><h2>${esc(title)}</h2><span class="c">${list.length}</span><span class="sp"></span>${o.more?`<button class="more" data-cat="${esc(o.more)}">See all</button>`:''}<div class="arrows"><button data-sc="-1" aria-label="Scroll left">${ARR_L}</button><button data-sc="1" aria-label="Scroll right">${ARR_R}</button></div></div><div class="row${o.wide?' wide':''}">${list.map(tile).join('')}</div></div>`;
+  return `<div class="shelf"><div class="shead"><h2>${esc(title)}</h2><span class="c">${list.length}</span><span class="sp"></span>${o.more?`<button class="more" data-cat="${esc(o.more)}">See all</button>`:''}${list.length>5?`<div class="arrows"><button data-sc="-1" aria-label="Scroll left">${ARR_L}</button><button data-sc="1" aria-label="Scroll right">${ARR_R}</button></div>`:''}</div><div class="row${o.wide?' wide':''}">${list.map(tile).join('')}</div></div>`;
 }
 const block=(title,list)=>`<div class="shelf"><div class="shead"><h2>${esc(title)}</h2><span class="c">${list.length}</span></div><div class="grid">${list.map(tile).join('')}</div></div>`;
 
@@ -1102,7 +1080,7 @@ function renderGames(){
     else html=block(cat==='All'?'All games':cat,l);
   }
   box.innerHTML=html;
-  $('#gcount').textContent=GAMES.filter(g=>!g.site).length+' games and '+GAMES.filter(g=>g.site).length+' sites';
+  $('#gcount').textContent=GAMES.length+' games';
 }
 
 /* ================= home ================= */
@@ -1114,15 +1092,12 @@ function renderHome(){
   if(r.length)html+=shelf('Continue playing',r);
   if(fl.length)html+=shelf('Your favorites',fl);
   html+=shelf('New on the arcade',games.slice(0,18));
-  html+=shelf('Recommended sites',GAMES.filter(g=>g.c==='Game Hubs'),{wide:true,more:'Game Hubs'});
-  html+=shelf('Play with others',GAMES.filter(g=>g.c==='Online'),{more:'Online'});
-  html+=shelf('Brain and board',GAMES.filter(g=>g.c==='Brain'),{more:'Brain'});
-  const top=POP.map(byName).filter(Boolean);
+  const top=[...GAMES.filter(g=>g.c==='Game Hubs'),...POP.map(byName).filter(Boolean)];
   if(top.length)html+=shelf('Popular',top,{wide:true});
   GENRES_G.forEach(c=>{const l=GAMES.filter(g=>g.c===c);if(l.length)html+=shelf(c,l.slice(0,16),{more:c})});
   $('#hrows').innerHTML=html;
   const plays=store.get('plays',0)||0,mins=Math.round((store.get('ptime',0)||0)/60);
-  $('#hmeta').textContent=games.length+' games · '+GAMES.filter(g=>g.site).length+' sites'+(plays?' · '+plays+' played'+(mins>=1?' · '+(mins>=90?(mins/60).toFixed(1)+' hours':mins+' min')+' in game':''):'');
+  $('#hmeta').textContent=games.length+' games'+(GAMES.some(g=>g.site)?' · '+GAMES.filter(g=>g.site).length+(GAMES.filter(g=>g.site).length===1?' site':' sites'):'')+(plays?' · '+plays+' played'+(mins>=1?' · '+(mins>=90?(mins/60).toFixed(1)+' hours':mins+' min')+' in game':''):'');
 }
 $('#hchips').innerHTML=['Action','Horror','Puzzle','Racing','Rhythm','Sandbox','Sports'].map(c=>`<button class="chip" data-cat="${c}">${c}</button>`).join('');
 
