@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Void Arcade</title>
 <link id="fav" rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23000'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='%23fff' stroke-width='3'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,8 +18,8 @@
   --ease:cubic-bezier(.22,1,.36,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:#26262d transparent}
-body{background:var(--bg);color:var(--ink);font:15.5px/1.5 var(--body);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+html{overflow-x:clip;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:#26262d transparent}
+body{background:var(--bg);color:var(--ink);font:15.5px/1.5 var(--body);min-height:100vh;min-height:100dvh;overflow-x:hidden;overflow-x:clip;-webkit-font-smoothing:antialiased}
 body[data-dens="compact"]{--min:146px}
 body[data-dens="roomy"]{--min:228px}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -262,22 +262,35 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
 }
 @media (max-width:720px){
   :root{--rail:0px}
-  .rail{top:auto;left:0;right:0;bottom:0;width:100%!important;height:64px;flex-direction:row;justify-content:space-around;padding:0 6px;gap:0;border-right:0;border-top:1px solid var(--edge);box-shadow:none!important}
+  main{overflow-x:clip}
+  .toast{bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+  button,.tl,.tab,.chip{touch-action:manipulation}
+  input,select,textarea{font-size:16px!important}
+  .rail{top:auto;left:0;right:0;bottom:0;width:100%!important;height:calc(64px + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px)!important;flex-direction:row;justify-content:space-around;padding:0 6px;gap:0;border-right:0;border-top:1px solid var(--edge);box-shadow:none!important}
   .mark,.nav-gap,.who .lb,.nb .lb,.nb.hide-m{display:none}
-  .who{padding:0;height:auto}
+  .who{padding:0;height:46px;width:46px;justify-content:center;gap:0}
+  .who .av{width:34px;height:34px;font-size:13px}
   .nb{padding:0;width:46px;height:46px;justify-content:center}
+  .hero{gap:22px;padding-top:4px}
+  .wm{font-size:clamp(44px,15vw,60px)}
+  .hero-l p#tag{margin-top:14px;font-size:15.5px}
+  .spot{aspect-ratio:16/10;border-radius:22px}
+  .spot h3{font-size:22px}
   .view{padding:22px 16px 40px}
   .tools-bar{margin:0 -16px;padding:10px 16px 12px}
   .row{padding:6px 16px 14px;margin:0 -16px;scroll-padding-left:16px}
   .grid{grid-template-columns:repeat(2,1fr);gap:18px 12px}
-  main{padding-bottom:70px}
+  main{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
   .vbar .hide-m,#vnew{display:none}
   .vbar{flex-wrap:wrap;gap:6px}
-  .vbar .vt{order:9;flex:1 0 100%;padding:2px 2px 0}
+  .vbar{padding:8px 10px 6px;padding-top:calc(8px + env(safe-area-inset-top,0px))}
+  .vbar .vt{order:9;flex:1 0 100%;padding:0 2px}
+  .vbar .vt .cv,.vbar .vt small{display:none}
+  .vbar .vt b{font-size:13.5px}
   .vbar .btn{padding:7px 11px;font-size:13px;white-space:nowrap}
   .seg button{white-space:nowrap;padding:7px 11px}
-  .hint{flex-wrap:wrap;gap:8px 14px;padding:9px 14px}.hint span{flex:1 0 100%}
-  footer{padding:22px 16px 90px}
+  .hint{flex-wrap:wrap;gap:4px 14px;padding:7px 12px;font-size:12.5px}.hint button{font-size:12.5px;padding:4px 0}.hint span{flex:1 0 100%}
+  footer{padding:22px 16px calc(90px + env(safe-area-inset-bottom,0px))}
   .spot .info{padding:16px}
   .spot .play{width:48px;height:48px}
 }
