@@ -980,7 +980,7 @@ function renderHome(){
   if(r.length)html+=shelf('Continue playing',r);
   if(fl.length)html+=shelf('Your favorites',fl);
   const top=POP.map(byName).filter(Boolean);
-  if(top.length)html+=shelf('Popular',top,{wide:true});
+  if(top.length)html+=shelf('Popular',top);
   GENRES_G.forEach(c=>{const l=GAMES.filter(g=>g.c===c);if(l.length)html+=shelf(c,l.slice(0,16),{more:c})});
   $('#hrows').innerHTML=html;
   const plays=store.get('plays',0)||0,mins=Math.round((store.get('ptime',0)||0)/60);
