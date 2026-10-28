@@ -947,7 +947,19 @@ const RAW=[
 ["Wordle","games/176.html","images/183.jpg","Puzzle","Word guessing puzzle."],
 ["Monkey Mart","games/175.html","images/184.jpg","Idle","Store management tycoon."],
 ["Short Life","games/174.html","images/185.jpg","Action","Quick racing challenges."],
-["Five Nights at Epstein","games/2019.html","","Horror","A secret escape game where you navigate through mysterious locations."]
+["Five Nights at Epstein","games/2019.html","","Horror","A secret escape game where you navigate through mysterious locations."],
+["CrazyGames","https://www.crazygames.com","","Game Hubs","Huge library of free browser games"],
+["Poki","https://poki.com","","Game Hubs","Free online games for everyone"],
+["Y8","https://www.y8.com","","Game Hubs","Classic and new browser games"],
+["Miniclip","https://www.miniclip.com","","Game Hubs","Casual and multiplayer favorites"],
+["Coolmath Games","https://www.coolmathgames.com","","Game Hubs","Brain games and puzzles"],
+["Armor Games","https://armorgames.com","","Game Hubs","Long-running game portal"],
+["Kongregate","https://www.kongregate.com","","Game Hubs","Community game portal"],
+["Newgrounds","https://www.newgrounds.com/games","","Game Hubs","Indie games and animations"],
+["itch.io","https://itch.io/games/platform-web","","Game Hubs","Indie browser games"],
+["Game Jolt","https://gamejolt.com/games","","Game Hubs","Indie games from creators"],
+["Addicting Games","https://www.addictinggames.com","","Game Hubs","Quick, fun casual games"],
+["Silver Games","https://www.silvergames.com","","Game Hubs","Free online games"]
 ];
 const GAMES=RAW.map(([n,u,im,c,t])=>{
   const abs=/^https?:\/\//i.test(u), url=abs?u:BASE+u;
@@ -956,7 +968,7 @@ const GAMES=RAW.map(([n,u,im,c,t])=>{
   return {n,u:url,d,c,t,img:im?BASE+im:''};
 });
 GAMES.forEach((g,i)=>g.id=i);
-const ORDER=['Action','Adventure','Horror','Puzzle','Racing','Rhythm','Sandbox','Sports','Retro','Idle'];
+const ORDER=['Game Hubs','Action','Adventure','Horror','Puzzle','Racing','Rhythm','Sandbox','Sports','Retro','Idle'];
 const TABS=['All','Favorites',...ORDER];
 const POP=['Plants Vs Zombies 2','Hotline Miami','Balatro','Undertale','Deltarune','Minecraft 1.12.1'];
 let cat='All',query='';
@@ -1022,6 +1034,8 @@ function renderHome(){
   const r=recent.map(n=>GAMES.find(g=>g.n===n)).filter(Boolean);
   let html='';
   if(r.length)html+=sec('Continue playing',r.length,gridBlock(r));
+  const hubs=GAMES.filter(g=>g.c==='Game Hubs');
+  if(hubs.length)html+=sec('Recommended',hubs.length,gridBlock(hubs,true));
   const top=GAMES.filter(g=>POP.includes(g.n));
   if(top.length)html+=sec('Popular',top.length,gridBlock(top,true));
   const f=favs.map(n=>GAMES.find(g=>g.n===n)).filter(Boolean);
