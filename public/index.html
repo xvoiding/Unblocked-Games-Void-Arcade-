@@ -231,6 +231,9 @@ footer b{color:var(--mist);font-family:var(--display);letter-spacing:-.03em}
 .vframe{flex:1;position:relative;background:#000}
 .vframe iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#000;opacity:0;transition:opacity .5s var(--ease)}
 .vframe iframe.ready{opacity:1}
+#frame{width:calc(100%/var(--rs,1));height:calc(100%/var(--rs,1));transform:scale(var(--rs,1));transform-origin:0 0}
+#frame:fullscreen{width:100%!important;height:100%!important;transform:none!important}
+body.gaming main,body.gaming .rail,body.gaming #fx,body.gaming footer{visibility:hidden}
 .loader{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;transition:opacity .4s}
 .loader.off{opacity:0}
 .ring-l{width:44px;height:44px;border-radius:50%;border:3px solid #1c1c21;border-top-color:#fff;animation:spin .8s linear infinite}
@@ -353,9 +356,9 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
     <div class="cols">
       <div>
         <details open><summary>What is Void Arcade?</summary><p>A clean hub with games. There are no ads on this site.</p></details>
-        <details><summary>How do games load?</summary><p>Games run through the proxy by default so your progress saves on this site. If a game is slow or breaks, flip it to Direct in the top bar, or turn off "Keep my saves" in Settings.</p></details>
+        <details><summary>How do games load?</summary><p>Games load directly by default, which is the fastest. If a game is blank, try Proxy in the top bar. Web pages from the browse bar always use the proxy.</p></details>
         <details><summary>A game or site opened blank.</summary><p>Many big sites can't run inside another page. Try "New tab" in the top bar, or switch to Proxy there.</p></details>
-        <details><summary>Do my games save?</summary><p>Games run through the proxy save inside this site, one slot per game site, and you can back them up in Settings. Games switched to Direct save in their own site\u2019s storage, and many browsers block or wipe that, so keep "Keep my saves" on in Settings if a game forgets your progress.</p></details>
+        <details><summary>Do my games save?</summary><p>Games run through the proxy save inside this site, one slot per game site, and you can back them up in Settings. Games loaded directly save in their own site\u2019s storage, and many browsers block or wipe that, so if a game forgets your progress, turn on "Run games through the proxy" in Settings.</p></details>
         <details><summary>Where are my favorites saved?</summary><p>On this device, in your browser. Clearing site data or switching devices starts you fresh. You can export a backup in Settings.</p></details>
         <details><summary>Why is some stuff blocked?</summary><p>Adult and other inappropriate content is blocked on this site.</p></details>
       </div>
@@ -378,8 +381,9 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
     <div class="cols">
       <div class="panel">
         <h3 class="ph">Games</h3>
-        <div class="set"><div><b>Keep my saves</b><small>On: games run on this site so progress is saved and can be backed up. Off: games load directly (faster) but your browser may not keep their saves.</small></div><button class="tog" id="tgProxy" aria-label="Toggle keep my saves"></button></div>
+        <div class="set"><div><b>Run games through the proxy</b><small>Off: games load directly (faster, recommended). On: games run on this site, which also lets saves be backed up.</small></div><button class="tog" id="tgProxy" aria-label="Toggle games through proxy"></button></div>
         <div class="set"><div><b>Show load tips</b><small>The bar that appears when a game won't load</small></div><button class="tog" id="tgHint" aria-label="Toggle load tips"></button></div>
+        <div class="set"><div><b>Game quality</b><small>Lower it if games lag, like on a Chromebook. Games render at a smaller size and get scaled up.</small></div><div class="seg" id="qual" role="group"><button data-q="100">Best</button><button data-q="75">Balanced</button><button data-q="50">Fast</button></div></div>
         <div class="set"><div><b>Tile size</b><small>How big game covers are</small></div><div class="seg" id="dens2" role="group"><button data-d="compact">Small</button><button data-d="cozy">Medium</button><button data-d="roomy">Large</button></div></div>
       </div>
       <div class="panel">
@@ -423,7 +427,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
     <button class="btn hide-m" id="vfull">Fullscreen</button>
   </div>
   <div class="hint" id="hint"><span>Blank or stuck? Some games can't run inside another page.</span><button id="hintProxy">Try proxy</button><button id="hintNew">Open in new tab</button><button id="hintOff">Hide</button></div>
-  <div class="vframe"><div class="loader" id="loader"><div class="ring-l"></div></div><iframe id="frame" allow="fullscreen; autoplay; gamepad; clipboard-write" referrerpolicy="no-referrer"></iframe></div>
+  <div class="vframe"><div class="loader" id="loader"><div class="ring-l"></div></div><iframe id="frame" allow="fullscreen; autoplay; gamepad; clipboard-write; accelerometer; gyroscope; cross-origin-isolated" referrerpolicy="no-referrer"></iframe></div>
 </div>
 
 <!-- browse bar -->
@@ -1080,7 +1084,7 @@ $('#sort').addEventListener('change',e=>{sortBy=e.target.value;renderGames()});
 $('#rand').onclick=()=>{const l=GAMES.filter(g=>!g.site);openGame(l[Math.random()*l.length|0])};
 
 /* ================= viewer ================= */
-let gproxy=true,cur=null,viaProxy=false,openedAt=0;
+let gproxy=false,cur=null,viaProxy=false,openedAt=0;
 const proxied=u=>'/go?u='+encodeURIComponent(u);
 function target(){return cur?(viaProxy?proxied(cur.u):cur.u):'about:blank'}
 const HINT_DEFAULT='Blank or stuck? Some games can\u2019t run inside another page.';
@@ -1118,11 +1122,11 @@ function openGame(g){
   $('#vmode').style.display='';
   $('#hint').classList.toggle('show',!!store.get('hints',true));
   syncVfav();openedAt=Date.now();
-  $('#viewer').classList.add('open');load();
+  $('#viewer').classList.add('open');setGaming(true);load();
 }
 function closeViewer(){
   if(openedAt){const s=Math.min(6*3600,(Date.now()-openedAt)/1000);store.set('ptime',(store.get('ptime',0)||0)+s);openedAt=0}
-  $('#viewer').classList.remove('open');
+  $('#viewer').classList.remove('open');setGaming(false);
   setTimeout(()=>{if(!$('#viewer').classList.contains('open')){$('#frame').src='about:blank';cur=null;renderHome();if(view==='games')renderGames()}},380);
 }
 $('#vback').onclick=closeViewer;$('#vreload').onclick=load;
@@ -1132,7 +1136,7 @@ $('#hintProxy').onclick=()=>{if(!cur)return;setVia(true);load();toast('Loading t
 $('#hintOff').onclick=()=>{store.set('hints',false);$('#hint').classList.remove('show');$('#tgHint').classList.remove('on')};
 $('#vfull').onclick=()=>{const f=$('#frame');(f.requestFullscreen||f.webkitRequestFullscreen||(()=>{})).call(f)};
 $('#vfav').onclick=()=>{if(cur&&!cur.web)toggleFav(cur)};
-$('#vmode').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!cur||cur.web)return;setVia(b.dataset.m==='proxy');load();toast(b.dataset.m==='proxy'?'Proxy on for this game':'Direct: saves may not stick')});
+$('#vmode').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!cur||cur.web)return;setVia(b.dataset.m==='proxy');load();toast(b.dataset.m==='proxy'?'Proxy on for this game':'Loading directly')});
 
 /* ================= browse bar (web pages always use the proxy) ================= */
 function toTarget(q){
@@ -1151,7 +1155,7 @@ $('#sin').addEventListener('keydown',e=>{
   cur={n:'Browse',u:t,web:true};setVia(true);
   $('#vtitle').innerHTML='<span><b>'+(/google\.com\/search/.test(t)?'Search':esc(t.slice(0,80)))+'</b><small>Through the proxy</small></span>';
   $('#vmode').style.display='none';$('#hint').classList.remove('show');syncVfav();openedAt=0;
-  $('#viewer').classList.add('open');load();
+  $('#viewer').classList.add('open');setGaming(true);load();
 });
 $('#secret').addEventListener('mousedown',e=>{if(e.target.id==='secret')closeSecret()});
 
@@ -1189,8 +1193,17 @@ function tog(btn,key,def,fn){
 }
 let fxOn=true;
 tog($('#tgCalm'),'calm',false,v=>document.body.classList.toggle('calm',v));
-tog($('#tgProxy'),'gproxy2',true,v=>{gproxy=v});
+tog($('#tgProxy'),'gproxy2',false,v=>{gproxy=v});
 tog($('#tgHint'),'hints',true);
+const LOWEND=/CrOS/.test(navigator.userAgent)||(navigator.deviceMemory&&navigator.deviceMemory<=4)||(navigator.hardwareConcurrency&&navigator.hardwareConcurrency<=4);
+function setQual(q,save){
+  document.documentElement.style.setProperty('--rs',String(q/100));
+  $$('#qual button').forEach(b=>b.classList.toggle('on',+b.dataset.q===q));
+  if(save)store.set('qual',q);
+}
+$('#qual').addEventListener('click',e=>{const b=e.target.closest('button');if(b){setQual(+b.dataset.q,true);toast('Game quality: '+b.textContent)}});
+setQual(store.get('qual',LOWEND?75:100),false);
+function setGaming(on){document.body.classList.toggle('gaming',on)}
 function setDens(d,save){
   document.body.dataset.dens=d;
   $$('#dens button,#dens2 button').forEach(b=>b.classList.toggle('on',b.dataset.d===d));
