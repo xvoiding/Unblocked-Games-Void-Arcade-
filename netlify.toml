@@ -10,3 +10,9 @@
   to = "/.netlify/functions/proxy"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/icon"
+  to = "/.netlify/functions/icon"
+  status = 200
+  force = true

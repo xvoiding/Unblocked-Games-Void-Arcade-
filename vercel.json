@@ -1,9 +1,11 @@
 {
   "outputDirectory": "public",
   "functions": {
-    "api/go.js": { "maxDuration": 10, "includeFiles": "netlify/functions/**" }
+    "api/go.js": { "maxDuration": 10, "includeFiles": "netlify/functions/**" },
+    "api/icon.js": { "maxDuration": 10, "includeFiles": "netlify/functions/**" }
   },
   "rewrites": [
-    { "source": "/go", "destination": "/api/go" }
+    { "source": "/go", "destination": "/api/go" },
+    { "source": "/icon", "destination": "/api/icon" }
   ]
 }
