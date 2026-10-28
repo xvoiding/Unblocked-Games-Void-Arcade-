@@ -50,7 +50,7 @@ Vercel limits: 10s function timeout and 4.5 MB per response on the free (Hobby) 
 
 ## What's on the site
 
-- **Games**: 9 built-in games (Merge, Blocks, Flap, Dash, Snake, Breakout, Pong, Sweeper, Memory) that run on your own domain, plus links to big game sites. Built-ins always work.
+- **Games**: open-source games hosted on your own domain under `public/games/open/` (2048, Racer, Maze Ball, Dino Run), each with its license file, plus links to big game sites. The hosted ones always work.
 - **AI**: chat assistant (see below).
 - **Music**: ad-free SomaFM radio streams plus a focus mixer (rain, wind, brown noise, soft keys) generated in the browser.
 - **Settings**: accent color, particles, calm mode, tab disguise, default Proxy/Direct for outside sites.
@@ -67,3 +67,7 @@ Without a key the AI tab simply says it isn't set up yet. The key stays on the s
 ### Free AI option (no key)
 
 If `ANTHROPIC_API_KEY` isn't set, the AI tab falls back to a free option powered by [Puter.js](https://developer.puter.com/tutorials/free-llm-api/) (user-pays model: each visitor's usage is covered by their own Puter account's free allowance, so it costs you nothing). Visitors may be asked to sign in to Puter, and chats go to Puter. It isn't truly unlimited; Puter sets the limits. The AI tab has an Auto / Void AI / Free switch.
+
+## Adding more hosted games
+
+Only add games you have the right to host: open-source (MIT, BSD, public domain, CC0, etc.) or your own. Copy the game into `public/games/open/<name>/`, keep its LICENSE file, add an entry with `local:1` and `c:'Play here'` to `GAMES` in `public/index.html`, and credit it in the Help tab. Avoid GPL games unless you also publish your site's source.

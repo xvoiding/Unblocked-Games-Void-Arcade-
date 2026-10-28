@@ -395,9 +395,9 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
     <div class="vhead"><div><h2>Help</h2><p>Quick answers and shortcuts.</p></div></div>
     <div class="cols">
       <div>
-        <details open><summary>What is Void Arcade?</summary><p>A clean hub with built-in games, links to the big game sites, an AI assistant, free radio and a focus mixer. There are no ads on this site.</p></details>
-        <details><summary>Which games always work?</summary><p>The ones under Built-in. They run right on this site, so they don't depend on any other website.</p></details>
-        <details><summary>A site I opened won't load.</summary><p>Big game sites are run by other companies, and many of them can't run inside another page. Use "New tab" in the top bar, or switch between Proxy and Direct. The Built-in games are the reliable option.</p></details>
+        <details open><summary>What is Void Arcade?</summary><p>A clean hub with open-source games hosted right here, links to the big game sites, an AI assistant, free radio and a focus mixer. There are no ads on this site.</p></details>
+        <details><summary>Which games always work?</summary><p>The ones under Play here. They run right on this site, so they don't depend on any other website.</p></details>
+        <details><summary>A site I opened won't load.</summary><p>Big game sites are run by other companies, and many of them can't run inside another page. Use "New tab" in the top bar, or switch between Proxy and Direct. The Play here games are the reliable option.</p></details>
         <details><summary>How does the AI work?</summary><p>Your messages go to an AI model through this site's server. If the site's own AI key isn't set up, it switches to a free option run by Puter, which may ask you to sign in there. Don't share personal details in chats.</p></details>
         <details><summary>Where are my scores and favorites saved?</summary><p>On this device, in your browser. Clearing site data or switching devices starts you fresh.</p></details>
         <details><summary>Why is some stuff blocked?</summary><p>Adult and other inappropriate content is blocked on this site.</p></details>
@@ -410,6 +410,16 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
           <div class="krow"><span>Browse bar (alternate)</span><kbd>Ctrl</kbd></div>
           <div class="krow"><span>Close anything</span><kbd>Esc</kbd></div>
           <div class="krow"><span>Jump to Google Classroom</span><kbd>Esc Esc</kbd></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Game credits</h3>
+        <div class="keys" style="font-size:13.5px;color:var(--mute);gap:8px">
+          <div>2048 by Gabriele Cirulli (MIT)</div>
+          <div>Racer by Jake Gordon (MIT)</div>
+          <div>Maze Ball (Astray) by wwwtyro (public domain)</div>
+          <div>Dino Run from the Chromium project via t-rex-runner (BSD-3)</div>
+          <div style="color:var(--dim)">License files sit next to each game in /games/open/.</div>
         </div>
       </div>
     </div>
@@ -457,7 +467,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
     <button class="btn" id="vnew">New tab</button>
     <button class="btn hide-m" id="vfull">Fullscreen</button>
   </div>
-  <div class="hint" id="hint"><span>Heads up: big sites often can't run inside another page. The Built-in games always work.</span><button id="hintNew">Open in new tab</button><button id="hintOff">Hide</button></div>
+  <div class="hint" id="hint"><span>Heads up: big sites often can't run inside another page. The Play here games always work.</span><button id="hintNew">Open in new tab</button><button id="hintOff">Hide</button></div>
   <div class="vframe"><div class="loader" id="loader"><div class="ring"></div></div><iframe id="frame" allow="fullscreen; autoplay; gamepad; clipboard-write" referrerpolicy="no-referrer"></iframe></div>
 </div>
 
@@ -490,26 +500,16 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');cl
 /* ================= data ================= */
 const ic=p=>`<svg viewBox="0 0 24 24">${p}</svg>`;
 const SVG={
- snake:ic('<path d="M5 18h9a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h8"/><circle cx="19" cy="6" r="1.2" fill="#fff"/>'),
- bricks:ic('<rect x="3" y="4" width="5" height="3" rx="1"/><rect x="9.5" y="4" width="5" height="3" rx="1"/><rect x="16" y="4" width="5" height="3" rx="1"/><circle cx="12" cy="14" r="1.4" fill="#fff"/><path d="M8 20h8"/>'),
  merge:ic('<rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2" fill="#fff"/>'),
- blocks:ic('<rect x="2" y="5" width="6" height="6" rx="1.5"/><rect x="9" y="5" width="6" height="6" rx="1.5"/><rect x="16" y="5" width="6" height="6" rx="1.5"/><rect x="9" y="12.5" width="6" height="6" rx="1.5"/>'),
- flap:ic('<circle cx="12" cy="12" r="6"/><path d="M6 12l-4-2M18 10l3 1"/><circle cx="14" cy="10" r="1" fill="#fff"/>'),
- pong:ic('<path d="M4 6v12M20 6v12"/><circle cx="12" cy="12" r="1.8" fill="#fff"/>'),
- sweeper:ic('<circle cx="12" cy="12" r="5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/>'),
- memory:ic('<rect x="3" y="5" width="9" height="13" rx="2"/><rect x="12" y="6" width="9" height="13" rx="2" fill="#fff" fill-opacity=".18"/>'),
- dash:ic('<rect x="4" y="12" width="7" height="7" rx="1.5"/><path d="M14 19l3-8 3 8z"/><path d="M2 20h20"/>')
+ racer:ic('<path d="M3 19h18M6 15l1.5-4.5h9L18 15"/><rect x="4" y="15" width="16" height="3.5" rx="1.5"/><circle cx="8" cy="18.5" r="1" fill="#fff"/><circle cx="16" cy="18.5" r="1" fill="#fff"/><path d="M12 3v4M9 5h6" opacity=".5"/>'),
+ maze:ic('<path d="M3 3h18v18H3z"/><path d="M3 9h10M13 9v6M7 15h6M7 15v6M17 9v12"/><circle cx="19" cy="6" r="1" fill="#fff"/>'),
+ dino:ic('<path d="M4 20h16"/><path d="M13 4h5v5h-4v3h-3v3H8v5"/><circle cx="16" cy="6.2" r=".8" fill="#fff"/><path d="M10 15l-3 1"/>')
 };
 const GAMES=[
- {n:'Merge',u:'/games/merge.html',c:'Built-in',local:1,svg:SVG.merge,ac:'#fbbf24',t:'Slide and combine tiles',rec:'mergebest'},
- {n:'Blocks',u:'/games/blocks.html',c:'Built-in',local:1,svg:SVG.blocks,ac:'#a78bfa',t:'Stack falling pieces',rec:'blocksbest'},
- {n:'Flap',u:'/games/flap.html',c:'Built-in',local:1,svg:SVG.flap,ac:'#f472b6',t:'Tap to fly through gaps',rec:'flapbest'},
- {n:'Dash',u:'/games/dash.html',c:'Built-in',local:1,svg:SVG.dash,ac:'#f97316',t:'Jump the obstacles',rec:'dashbest'},
- {n:'Snake',u:'/games/snake.html',c:'Built-in',local:1,svg:SVG.snake,ac:'#34d399',t:'Eat and grow',rec:'snakebest'},
- {n:'Breakout',u:'/games/breakout.html',c:'Built-in',local:1,svg:SVG.bricks,ac:'#60a5fa',t:'Smash the bricks'},
- {n:'Pong',u:'/games/pong.html',c:'Built-in',local:1,svg:SVG.pong,ac:'#e5e7eb',t:'Beat the AI to 7'},
- {n:'Sweeper',u:'/games/sweeper.html',c:'Built-in',local:1,svg:SVG.sweeper,ac:'#fb7185',t:'Clear the minefield'},
- {n:'Memory',u:'/games/memory.html',c:'Built-in',local:1,svg:SVG.memory,ac:'#22d3ee',t:'Match the pairs',rec:'membest',low:1},
+ {n:'2048',u:'/games/open/2048/index.html',c:'Play here',local:1,svg:SVG.merge,ac:'#fbbf24',t:'Slide and merge the tiles'},
+ {n:'Racer',u:'/games/open/racer/index.html',c:'Play here',local:1,svg:SVG.racer,ac:'#f472b6',t:'Retro pseudo-3D racing'},
+ {n:'Maze Ball',u:'/games/open/maze/index.html',c:'Play here',local:1,svg:SVG.maze,ac:'#60a5fa',t:'Roll through a 3D maze'},
+ {n:'Dino Run',u:'/games/open/dino/index.html',c:'Play here',local:1,svg:SVG.dino,ac:'#34d399',t:'Endless jumping runner'},
 
  {n:'CrazyGames',u:'https://www.crazygames.com',c:'Sites',d:'crazygames.com',t:'Thousands of browser games'},
  {n:'Poki',u:'https://poki.com',c:'Sites',d:'poki.com',t:'Free online games for everyone'},
@@ -535,7 +535,6 @@ const GAMES=[
  {n:'Minecraft Classic',u:'https://classic.minecraft.net',c:'Sandbox',d:'minecraft.net'},
  {n:'Bloxd.io',u:'https://bloxd.io',c:'Sandbox',d:'bloxd.io'},
 
- {n:'2048',u:'https://play2048.co',c:'Puzzle',d:'play2048.co'},
  {n:'Hextris',u:'https://hextris.io',c:'Puzzle',d:'hextris.io'},
  {n:'Wordle',u:'https://www.nytimes.com/games/wordle/index.html',c:'Puzzle',d:'nytimes.com'},
  {n:'TETR.IO',u:'https://tetr.io',c:'Puzzle',d:'tetr.io'},
@@ -543,8 +542,8 @@ const GAMES=[
  {n:'Chess.com',u:'https://www.chess.com/play/online',c:'Puzzle',d:'chess.com'}
 ];
 GAMES.forEach((g,i)=>g.id=i);
-const ORDER=['Built-in','Action','.io','Sandbox','Puzzle'];
-const TABS=['All','Favorites','Built-in','Sites','Action','.io','Sandbox','Puzzle'];
+const ORDER=['Play here','Action','.io','Sandbox','Puzzle'];
+const TABS=['All','Favorites','Play here','Sites','Action','.io','Sandbox','Puzzle'];
 let cat='All',query='';
 let favs=store.get('favs',[]),recent=store.get('recent',[]);
 
@@ -594,10 +593,10 @@ function renderGames(){
     if(s.length)html+=sec('Sites',s.length,sitesBlock(s));
     if(!hit.length)html=`<div class="empty">Nothing matches “${esc(query)}”.</div>`;
   }else if(cat==='All'){
-    const bi=GAMES.filter(g=>g.c==='Built-in');
+    const bi=GAMES.filter(g=>g.c==='Play here');
     html+=sec('Play instantly',bi.length,gridBlock(bi,true));
     const s=GAMES.filter(g=>g.c==='Sites');html+=sec('Sites',s.length,sitesBlock(s));
-    ORDER.filter(c=>c!=='Built-in').forEach(c=>{const l=GAMES.filter(g=>g.c===c);if(l.length)html+=sec(c,l.length,gridBlock(l))});
+    ORDER.filter(c=>c!=='Play here').forEach(c=>{const l=GAMES.filter(g=>g.c===c);if(l.length)html+=sec(c,l.length,gridBlock(l))});
   }else{
     const l=GAMES.filter(g=>matchTab(g,cat));
     if(!l.length)html=`<div class="empty">${cat==='Favorites'?'Star a game or site to pin it here.':'Nothing here yet.'}</div>`;
@@ -605,17 +604,17 @@ function renderGames(){
       const gm=l.filter(g=>g.c!=='Sites'),s=l.filter(g=>g.c==='Sites');
       if(gm.length)html+=sec('Games',gm.length,gridBlock(gm));
       if(s.length)html+=sec('Sites',s.length,sitesBlock(s));
-    }else html=sec(cat,l.length,cat==='Sites'?sitesBlock(l):gridBlock(l,cat==='Built-in'));
+    }else html=sec(cat,l.length,cat==='Sites'?sitesBlock(l):gridBlock(l,cat==='Play here'));
   }
   box.innerHTML=html;
-  $('#gcount').textContent=GAMES.length+' games and sites, '+GAMES.filter(g=>g.local).length+' built in';
+  $('#gcount').textContent=GAMES.length+' games and sites, '+GAMES.filter(g=>g.local).length+' playable here';
   reveal(box);
 }
 function renderHome(){
   const r=recent.map(n=>GAMES.find(g=>g.n===n)).filter(Boolean);
   let html='';
   if(r.length)html+=sec('Continue playing',r.length,gridBlock(r));
-  const bi=GAMES.filter(g=>g.c==='Built-in');
+  const bi=GAMES.filter(g=>g.c==='Play here');
   html+=sec('Play instantly',bi.length,gridBlock(bi,true));
   const f=favs.map(n=>GAMES.find(g=>g.n===n)).filter(Boolean);
   if(f.length)html+=sec('Favorites',f.length,gridBlock(f));
