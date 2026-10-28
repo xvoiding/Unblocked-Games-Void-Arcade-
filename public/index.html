@@ -1109,7 +1109,7 @@ function toTarget(q){
   q=q.trim();if(!q)return null;
   if(/^https?:\/\//i.test(q))return q;
   if(!/\s/.test(q)&&/^[\w-]+(\.[\w-]+)+(:\d+)?(\/.*)?$/i.test(q))return 'https://'+q;
-  return 'https://html.duckduckgo.com/html/?kp=1&q='+encodeURIComponent(q);
+  return 'https://www.google.com/search?q='+encodeURIComponent(q)+'&udm=14&safe=active&hl=en';
 }
 const openOv=id=>{$(id).classList.add('open')},closeOv=id=>{$(id).classList.remove('open')};
 function openSecret(){openOv('#secret');setTimeout(()=>$('#sin').focus(),60)}
@@ -1119,7 +1119,7 @@ $('#sin').addEventListener('keydown',e=>{
   const t=toTarget($('#sin').value);if(!t)return;
   closeSecret();$('#sin').value='';
   cur={n:'Browse',u:t};setMode('proxy');
-  $('#vtitle').innerHTML='<b>'+(/duckduckgo\.com\/html/.test(t)?'Search':esc(t.slice(0,80)))+'</b>';
+  $('#vtitle').innerHTML='<b>'+(/google\.com\/search/.test(t)?'Search':esc(t.slice(0,80)))+'</b>';
   $('#vmode').style.display='none';$('#hint').classList.remove('show');$('#viewer').classList.add('open');load();
 });
 $('#secret').addEventListener('mousedown',e=>{if(e.target.id==='secret')closeSecret()});
