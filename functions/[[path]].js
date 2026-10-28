@@ -1,5 +1,5 @@
 // Cloudflare Pages Function — streaming reverse proxy for /go/*
-// Handles:  /go?u=<encoded>   /go/<encoded>   /go/ping
+// Handles:  /go?u=<encoded>   /go/<encoded>   /go/<encoded dir>/relative/path   /go/ping
 
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 const PASS = ['content-type', 'accept-ranges', 'content-range', 'last-modified', 'etag'];
@@ -21,10 +21,22 @@ function norm(raw) {
 function targetUrl(u) {
   const q = u.searchParams.get('u');
   if (q) return norm(q);
-  let rest = u.pathname.replace(/^\/go\/?/, '');
-  try { rest = decodeURIComponent(rest); } catch (e) {}
-  if (!rest) return null;
-  return norm(rest.includes('?') ? rest : rest + u.search);
+
+  let raw = u.pathname.replace(/^\/go\/?/, '');
+  if (!raw) return null;
+
+  // base form: /go/<encoded dir>/relative/path — split at the first literal slash
+  const i = raw.indexOf('/');
+  if (i > -1) {
+    let head = raw.slice(0, i);
+    try { head = decodeURIComponent(head); } catch (e) {}
+    if (/^https?:\/\//i.test(head)) {
+      try { return new URL(raw.slice(i + 1) + u.search, head).href; } catch (e) {}
+    }
+  }
+
+  try { raw = decodeURIComponent(raw); } catch (e) {}
+  return norm(raw.includes('?') ? raw : raw + u.search);
 }
 
 function resolve(v, base) {
@@ -79,7 +91,7 @@ var f=window.fetch;
 if(f)window.fetch=function(i,o){
   try{
     if(typeof i==='string')i=R(i);
-    else if(i&&i.url)i=new Request(R(i.url),i);
+    else if(i&&i.url){try{i=new Request(R(i.url),i)}catch(e){i=R(i.url)}}
   }catch(e){}
   return f.call(this,i,o);
 };
@@ -90,6 +102,24 @@ window.open=function(u){try{u=R(u)}catch(e){}return wo.apply(window,arguments)};
 if(window.Worker){var W=window.Worker;window.Worker=function(u,o){return new W(R(u),o)};window.Worker.prototype=W.prototype}
 if(window.importScripts){var isc=window.importScripts;window.importScripts=function(){return isc.apply(this,[].map.call(arguments,R))}}
 })();</script>`;
+}
+
+// prepended to worker scripts, which resolve relatives against their own URL
+function jsShim(base) {
+  return `(function(){var B=${JSON.stringify(base)};
+function R(u){try{
+  if(u==null)return u;u=String(u).trim();
+  if(!u||/^(data:|blob:|javascript:|about:|mailto:|tel:|#)/i.test(u))return u;
+  var a=new URL(u,B).href;return /^https?:/i.test(a)?'/go/'+encodeURIComponent(a):a;
+}catch(e){return u}}
+if(self.fetch){var f=self.fetch;self.fetch=function(i,o){try{
+  if(typeof i==='string')i=R(i);
+  else if(i&&i.url){try{i=new Request(R(i.url),i)}catch(e){i=R(i.url)}}
+}catch(e){}return f.call(this,i,o)}}
+if(self.importScripts){var s=self.importScripts;self.importScripts=function(){return s.apply(this,[].map.call(arguments,R))}}
+if(self.XMLHttpRequest){var op=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){try{arguments[1]=R(u)}catch(e){}return op.apply(this,arguments)}}
+})();
+`;
 }
 
 function rewriteHtml(html, base) {
@@ -105,7 +135,7 @@ function rewriteHtml(html, base) {
   });
   html = html.replace(/<style([^>]*)>([\s\S]*?)<\/style>/gi, (m, a, c) => `<style${a}>${rewriteCss(c, base)}</style>`);
   html = html.replace(/style\s*=\s*(["'])([^"']*)\1/gi, (m, q, v) => `style=${q}${rewriteCss(v, base)}${q}`);
-  const inject = `<base href="${base}">${shim(base)}`;
+  const inject = `<base href="/go/${encodeURIComponent(base)}/">${shim(base)}`;
   if (/<head[^>]*>/i.test(html)) return html.replace(/<head([^>]*)>/i, (m, a) => `<head${a}>${inject}`);
   if (/<html[^>]*>/i.test(html)) return html.replace(/<html([^>]*)>/i, (m, a) => `<html${a}><head>${inject}</head>`);
   return inject + html;
@@ -204,6 +234,19 @@ export async function onRequest(ctx) {
       status: 200,
       headers: {
         'content-type': 'text/css; charset=utf-8',
+        'cache-control': 'no-store',
+        ...CORS,
+        ...dbg
+      }
+    });
+  }
+
+  const isJs = ct.includes('javascript') || ct.includes('ecmascript');
+  if (isJs && /(?:\.worker|\.ww|-worker|_worker)\.m?js$/i.test(path)) {
+    return new Response(jsShim(dir) + (await up.text()), {
+      status: 200,
+      headers: {
+        'content-type': 'text/javascript; charset=utf-8',
         'cache-control': 'no-store',
         ...CORS,
         ...dbg
