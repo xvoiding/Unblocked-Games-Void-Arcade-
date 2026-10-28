@@ -53,7 +53,6 @@ Vercel limits: 10s function timeout and 4.5 MB per response on the free (Hobby) 
 - **Games**: 9 built-in games (Merge, Blocks, Flap, Dash, Snake, Breakout, Pong, Sweeper, Memory) that run on your own domain, plus links to big game sites. Built-ins always work.
 - **AI**: chat assistant (see below).
 - **Music**: ad-free SomaFM radio streams plus a focus mixer (rain, wind, brown noise, soft keys) generated in the browser.
-- **Leaderboard**: personal best scores, saved in the visitor's browser only.
 - **Settings**: accent color, particles, calm mode, tab disguise, default Proxy/Direct for outside sites.
 - No ads, no trackers.
 

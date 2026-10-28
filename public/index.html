@@ -309,7 +309,6 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
 <nav class="side" id="side">
   <button class="nb on" data-go="home" data-tip="Home"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></button>
   <button class="nb" data-go="games" data-tip="Games"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></button>
-  <button class="nb" data-go="board" data-tip="Leaderboard"><svg class="i" viewBox="0 0 24 24"><path d="M8 4h8v6a4 4 0 0 1-8 0z"/><path d="M8 6H4v2a3 3 0 0 0 4 2.8M16 6h4v2a3 3 0 0 1-4 2.8M12 14v4M8 21h8M10 18h4"/></svg></button>
   <button class="nb" data-go="ai" data-tip="AI"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></button>
   <button class="nb" data-go="music" data-tip="Music"><svg class="i" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg></button>
   <button class="nb hide-m" data-go="help" data-tip="Help"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9"/></svg></button>
@@ -332,7 +331,6 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
         <button class="tile-b" data-go="games"><span class="ib"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></span>Games</button>
         <button class="tile-b" data-go="ai"><span class="ib"><svg class="i" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg></span>AI</button>
         <button class="tile-b" data-go="music"><span class="ib"><svg class="i" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg></span>Music</button>
-        <button class="tile-b" data-go="board"><span class="ib"><svg class="i" viewBox="0 0 24 24"><path d="M8 4h8v6a4 4 0 0 1-8 0z"/><path d="M8 6H4v2a3 3 0 0 0 4 2.8M16 6h4v2a3 3 0 0 1-4 2.8M12 14v4M8 21h8M10 18h4"/></svg></span>Leaderboard</button>
         <button class="tile-b" data-go="help"><span class="ib"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M5.6 5.6l3.9 3.9M14.5 14.5l3.9 3.9M18.4 5.6l-3.9 3.9M9.5 14.5l-3.9 3.9"/></svg></span>Help</button>
         <button class="tile-b" data-go="settings"><span class="ib"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></span>Settings</button>
       </div>
@@ -353,12 +351,6 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
     <div id="gmain"></div>
   </section>
 
-  <!-- LEADERBOARD -->
-  <section class="view" id="v-board">
-    <div class="vhead"><div><h2>Leaderboard</h2><p>Your personal records across the built-in games.</p></div></div>
-    <div class="stats" id="stats"></div>
-    <div class="sec in"><h2>Records<span class="c" id="reccount"></span></h2><div class="recs" id="recs"></div><p class="note">Scores are saved on this device only.</p></div>
-  </section>
 
   <!-- AI -->
   <section class="view" id="v-ai">
@@ -633,10 +625,10 @@ function reveal(scope){
   if(!io)io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -6% 0px'});
   secs.forEach(s=>io.observe(s));
 }
-function renderAll(){renderTabs();renderGames();renderHome();renderBoard()}
+function renderAll(){renderTabs();renderGames();renderHome()}
 
 /* ================= router ================= */
-const VIEWS=['home','games','board','ai','music','help','settings'];
+const VIEWS=['home','games','ai','music','help','settings'];
 let view='home';
 function go(v,push){
   if(!VIEWS.includes(v))v='home';
@@ -647,7 +639,6 @@ function go(v,push){
   try{if(document.activeElement&&document.activeElement!==document.body)document.activeElement.blur()}catch(e){}
   window.scrollTo(0,0);
   if(v==='home'||v==='games')reveal();
-  if(v==='board')renderBoard();
   if(v==='ai')setTimeout(()=>{if(view==='ai')$('#aiIn').focus()},250);
 }
 addEventListener('popstate',()=>{const m=location.hash.match(/^#\/(\w+)/);const v=m?m[1]:'home';if(v!==view)go(v,false)});
@@ -693,7 +684,7 @@ function openGame(g){
 }
 function closeViewer(){
   $('#viewer').classList.remove('open');
-  setTimeout(()=>{if(!$('#viewer').classList.contains('open')){$('#frame').src='about:blank';cur=null;renderHome();renderBoard();renderGames()}},380);
+  setTimeout(()=>{if(!$('#viewer').classList.contains('open')){$('#frame').src='about:blank';cur=null;renderHome();renderGames()}},380);
 }
 function newTab(){if(cur)window.open(cur.local?cur.u:(mode==='proxy'?'/go?u='+encodeURIComponent(cur.u):cur.u),'_blank','noopener')}
 $('#vback').onclick=closeViewer;$('#vreload').onclick=load;$('#vnew').onclick=newTab;$('#hintNew').onclick=newTab;
@@ -738,18 +729,6 @@ document.addEventListener('keydown',e=>{
     else if(typing)document.activeElement.blur();
   }
 });
-
-/* ================= leaderboard ================= */
-function renderBoard(){
-  const recs=GAMES.filter(g=>g.rec);
-  const vals=recs.map(g=>({g,v:+store.get(g.rec,0)||0}));
-  const saved=vals.filter(x=>x.v>0).length;
-  $('#stats').innerHTML=[['Games played',store.get('plays',0)||0],['Records set',saved],['Favorites',favs.length],['Built-in games',GAMES.filter(g=>g.local).length]]
-    .map(([l,v])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join('');
-  $('#reccount').textContent=recs.length;
-  $('#recs').innerHTML=vals.map(({g,v})=>`<div class="rec">${plate(g)}<div class="tx"><b>${esc(g.n)}</b><small>${g.low?'fewest moves':'best score'}</small></div>${v?`<span class="val">${v.toLocaleString()}</span>`:`<span class="val none">Not yet</span>`}<button class="btn" data-play="${g.id}">Play</button></div>`).join('');
-}
-$('#recs').addEventListener('click',e=>{const b=e.target.closest('[data-play]');if(b)openGame(GAMES[+b.dataset.play])});
 
 /* ================= AI ================= */
 let chat=store.get('aihist',[]),busy=false;
