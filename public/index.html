@@ -1183,9 +1183,23 @@ $('#rand').onclick=()=>{const l=GAMES.filter(g=>!g.site);openGame(l[Math.random(
 let gproxy=false,cur=null,viaProxy=false,openedAt=0;
 const proxied=u=>'/go?u='+encodeURIComponent(u);
 function target(){return cur?(viaProxy?proxied(cur.u):cur.u):'about:blank'}
+const HINT_DEFAULT='Blank or stuck? Some games can\u2019t run inside another page.';
+const HINT_PROXY='Nothing came back through the proxy. The proxy may not be running on this address, or the site blocks it. Try Direct.';
+function setHint(msg,show){const h=$('#hint');h.querySelector('span').textContent=msg;if(show)h.classList.add('show')}
 function load(){
   const f=$('#frame');f.classList.remove('ready');$('#loader').classList.remove('off');
-  f.onload=()=>{f.classList.add('ready');$('#loader').classList.add('off')};
+  setHint(HINT_DEFAULT,false);
+  const proxyLoad=viaProxy&&!!cur;
+  f.onload=()=>{
+    f.classList.add('ready');$('#loader').classList.add('off');
+    if(!proxyLoad||f.getAttribute('src')==='about:blank')return;
+    setTimeout(()=>{
+      try{
+        const d=f.contentDocument;
+        if(d&&d.body&&!d.body.children.length&&!d.body.textContent.trim())setHint(HINT_PROXY,true);
+      }catch(e){}
+    },3000);
+  };
   f.src=target();
   clearTimeout(load.t);load.t=setTimeout(()=>{f.classList.add('ready');$('#loader').classList.add('off')},6000);
 }
