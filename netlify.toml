@@ -16,3 +16,9 @@
   to = "/.netlify/functions/icon"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/api/ai"
+  to = "/.netlify/functions/ai"
+  status = 200
+  force = true

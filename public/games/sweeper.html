@@ -1,0 +1,98 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sweeper</title>
+<style>
+html,body{margin:0;height:100%;background:#070708;color:#f4f4f5;font:14px ui-monospace,Menlo,Consolas,monospace;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;overflow:hidden;-webkit-user-select:none;user-select:none}
+#top{display:flex;gap:18px;align-items:center;color:#8b8b95;letter-spacing:.08em}#top b{color:#fff}
+select,button{background:#101014;color:#f4f4f5;border:1px solid #2b2b32;border-radius:10px;padding:6px 12px;font:inherit;cursor:pointer}
+button{background:#fff;color:#000;font-weight:700;border:0}
+#wrap{position:relative}
+#b{display:grid;gap:3px;padding:8px;background:#0f0f12;border:1px solid #2b2b32;border-radius:14px}
+.c{width:var(--cs);height:var(--cs);border-radius:6px;background:#1b1b21;display:grid;place-items:center;font-weight:800;font-size:calc(var(--cs)*.5);cursor:pointer;transition:background .12s,transform .12s}
+.c:hover{background:#26262e}
+.c.o{background:#0c0c0f;cursor:default}
+.c.m{background:#fff;color:#000!important}
+.c.m2{background:#16161a;color:#c9c9d0}
+.c.f{color:#fff}
+#msg{position:absolute;inset:0;border-radius:14px;display:none;place-items:center;background:rgba(0,0,0,.6);font-size:24px;font-weight:800;letter-spacing:.1em;pointer-events:none}
+</style></head><body>
+<div id="top">
+  <select id="lv"><option value="easy">Easy 9×9</option><option value="medium">Medium 12×12</option><option value="hard">Hard 16×16</option></select>
+  <span>MINES <b id="left">0</b></span><span>TIME <b id="tm">0</b></span><button id="rs">New game</button>
+</div>
+<div id="wrap"><div id="b"></div><div id="msg"></div></div>
+<div style="color:#5a5a63">click reveal · right-click or long-press flag · click a number to chord</div>
+<script>
+const $=id=>document.getElementById(id);
+const LV={easy:[9,9,10],medium:[12,12,24],hard:[16,16,40]};
+const COL=['','#8ab4ff','#7ee787','#ff7b72','#d2a8ff','#ffa657','#56d4dd','#fff','#9a9aa3'];
+let R,C,M,mine,adj,open,flag,first,over,left,t0,tm;
+function init(){
+  [R,C,M]=LV[$('lv').value];
+  mine=Array(R*C).fill(0);adj=Array(R*C).fill(0);open=Array(R*C).fill(0);flag=Array(R*C).fill(0);
+  first=true;over=false;left=M;clearInterval(tm);$('tm').textContent=0;$('msg').style.display='none';
+  const cs=Math.max(22,Math.min(34,Math.floor(Math.min(innerWidth*.9,innerHeight*.62)/C)));
+  const b=$('b');b.style.gridTemplateColumns=`repeat(${C},${cs}px)`;b.style.setProperty('--cs',cs+'px');b.innerHTML='';
+  for(let i=0;i<R*C;i++){const d=document.createElement('div');d.className='c';d.dataset.i=i;b.appendChild(d)}
+  paint();
+}
+function nb(i){const r=i/C|0,q=i%C,o=[];for(let a=-1;a<=1;a++)for(let d=-1;d<=1;d++){if(!a&&!d)continue;const rr=r+a,cc=q+d;if(rr>=0&&rr<R&&cc>=0&&cc<C)o.push(rr*C+cc)}return o}
+function place(safe){
+  const bad=new Set([safe,...nb(safe)]);let n=0;
+  while(n<M){const i=Math.random()*R*C|0;if(!mine[i]&&!bad.has(i)){mine[i]=1;n++}}
+  for(let i=0;i<R*C;i++)adj[i]=nb(i).filter(j=>mine[j]).length;
+}
+function reveal(i){
+  if(flag[i]||open[i]||over)return;
+  if(first){first=false;place(i);t0=Date.now();tm=setInterval(()=>$('tm').textContent=Math.floor((Date.now()-t0)/1000),500)}
+  const st=[i];
+  while(st.length){
+    const k=st.pop();if(open[k]||flag[k])continue;
+    open[k]=1;
+    if(mine[k]){lose();return}
+    if(!adj[k])nb(k).forEach(j=>{if(!open[j]&&!flag[j])st.push(j)});
+  }
+  if(open.reduce((a,v)=>a+v,0)===R*C-M)win();
+  paint();
+}
+function toggle(i){if(over||open[i]||first)return;flag[i]=flag[i]?0:1;left+=flag[i]?-1:1;paint()}
+function chord(i){
+  if(!open[i]||!adj[i])return;
+  const n=nb(i);if(n.filter(j=>flag[j]).length!==adj[i])return;
+  n.forEach(j=>{if(!flag[j]&&!open[j])reveal(j)});
+}
+function lose(){over=true;clearInterval(tm);paint();$('msg').textContent='BOOM';$('msg').style.display='grid'}
+function win(){over=true;clearInterval(tm);for(let i=0;i<R*C;i++)if(mine[i])flag[i]=1;left=0;$('msg').textContent='CLEARED';$('msg').style.display='grid'}
+function paint(){
+  const cells=document.querySelectorAll('#b .c');
+  cells.forEach((d,i)=>{
+    let cl='c',t='';d.style.color='';
+    if(open[i]){cl+=' o';if(mine[i]){cl+=' m';t='✹'}else if(adj[i]){t=adj[i];d.style.color=COL[adj[i]]}}
+    else if(over&&mine[i]&&!flag[i]){cl+=' o m2';t='✹'}
+    else if(flag[i]){cl+=' f';t='⚑'}
+    d.className=cl;d.textContent=t;
+  });
+  $('left').textContent=left;
+}
+const b=$('b');let lp=null,fired=false;
+b.addEventListener('contextmenu',e=>e.preventDefault());
+b.addEventListener('pointerdown',e=>{
+  const d=e.target.closest('.c');if(!d)return;e.preventDefault();
+  const i=+d.dataset.i;
+  if(e.pointerType==='mouse'){
+    if(e.button===2)toggle(i);
+    else if(open[i])chord(i);else reveal(i);
+  }else{
+    fired=false;lp=setTimeout(()=>{fired=true;toggle(i);navigator.vibrate&&navigator.vibrate(20)},380);
+    d._i=i;b._pending=i;
+  }
+});
+function endTouch(){
+  if(lp){clearTimeout(lp);lp=null;
+    if(!fired&&b._pending!=null){const i=b._pending;if(open[i])chord(i);else reveal(i)}}
+  b._pending=null;
+}
+b.addEventListener('pointerup',e=>{if(e.pointerType!=='mouse')endTouch()});
+b.addEventListener('pointercancel',()=>{clearTimeout(lp);lp=null;b._pending=null});
+$('rs').onclick=init;$('lv').onchange=init;addEventListener('resize',()=>{if(first)init()});
+init();
+</script></body></html>

@@ -47,3 +47,20 @@ Drop any HTML5 game folder into `public/games/` and add an entry to the `GAMES` 
 3. CLI route: `npm i -g vercel && vercel --prod`
 
 Vercel limits: 10s function timeout and 4.5 MB per response on the free (Hobby) plan, no WebSockets, and Hobby is for non-commercial use.
+
+## What's on the site
+
+- **Games**: 9 built-in games (Merge, Blocks, Flap, Dash, Snake, Breakout, Pong, Sweeper, Memory) that run on your own domain, plus links to big game sites. Built-ins always work.
+- **AI**: chat assistant (see below).
+- **Music**: ad-free SomaFM radio streams plus a focus mixer (rain, wind, brown noise, soft keys) generated in the browser.
+- **Leaderboard**: personal best scores, saved in the visitor's browser only.
+- **Settings**: accent color, particles, calm mode, tab disguise, default Proxy/Direct for outside sites.
+- No ads, no trackers.
+
+## Turning on the AI tab
+
+1. Get a key at https://console.anthropic.com and **set a monthly spend limit there** (every message costs a little).
+2. Vercel: Project → Settings → Environment Variables → add `ANTHROPIC_API_KEY`, then redeploy. (Netlify: Site settings → Environment variables.)
+3. Optional variables: `AI_MODEL` (default `claude-haiku-5-5`), `AI_DAILY_LIMIT` (default 400 requests/day for the whole site), `AI_IP_LIMIT` (default 12 per person per 5 minutes).
+
+Without a key the AI tab simply says it isn't set up yet. The key stays on the server and never reaches the browser.
