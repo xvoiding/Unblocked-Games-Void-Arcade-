@@ -902,19 +902,8 @@ const RAW=[
 ["Short Life","games/174.html","images/185.jpg","Action","Quick racing challenges."],
 ["Five Nights at Epstein","games/2019.html","","Horror","A secret escape game where you navigate through mysterious locations."],
 ["CrazyGames","https://www.crazygames.com","","Game Hubs","Huge library of free browser games"],
-["Stone Grass","https://www.crazygames.com/game/stone-grass-mowing-simulator","/images/qp/stone-grass.jpg","Quick Play","Mow the lawn and upgrade your mower"],
-["Cubes 2048.io","https://www.crazygames.com/game/cubes-2048-io","/images/qp/cubes-2048.jpg","Quick Play","Merge matching cubes to build bigger numbers"],
-["Slice Master","https://www.crazygames.com/game/slice-master","/images/qp/slice-master.jpg","Quick Play","Slice stacks of colorful blocks"],
-["Count Masters","https://www.crazygames.com/game/count-masters-stickman-games","/images/qp/count-masters.jpg","Quick Play","Grow your crowd and run through the gates"],
-["Helix Jump","https://www.crazygames.com/game/helix-jump","/images/qp/helix-jump.jpg","Quick Play","Bounce the ball down the tower"],
-["Draw Climber","https://www.crazygames.com/game/draw-climber","/images/qp/draw-climber.jpg","Quick Play","Draw the legs that climb the hill"],
-["Color Fill 3D","https://www.crazygames.com/game/color-fill-3d","/images/qp/color-fill.jpg","Quick Play","Paint the whole level without crashing"],
-["Tiny Fishing (Quick Play)","https://html5.gamemonetize.co/0sv6b7mr8ry3mnczviovlrf0ql7e9ob9/","/images/qp/tiny-fishing.jpg","Quick Play","Cast, catch, upgrade your line and go deeper"],
-["Hook King Runner","https://www.crazygames.com/game/hook-king-runner","/images/qp/hook-king.jpg","Quick Play","Grapple and swing your way through the course"],
-["Crazy Flips 3D","https://www.crazygames.com/game/crazy-flips-3d","/images/qp/crazy-flips.jpg","Quick Play","Pull off wild flips and land them clean"],
-["Happy Glass","https://poki.com/en/g/happy-glass","/images/qp/happy-glass.jpg","Quick Play","Draw a line to fill the glass with water"],
-["Bottle Flip Challenge","https://poki.com/en/g/bottle-flip-challenge","/images/qp/bottle-flip.jpg","Quick Play","Flip the bottle and stick the landing"],
-["Flip the Bottle","https://poki.com/en/g/flip-the-bottle","/images/qp/flip-bottle.jpg","Quick Play","Tap to flip and land on target spots"]
+["Slice Master","https://www.crazygames.com/game/slice-master","/images/qp/slice-master.jpg","Action","Slice stacks of colorful blocks"],
+["Tiny Fishing (Fullscreen)","https://html5.gamemonetize.co/0sv6b7mr8ry3mnczviovlrf0ql7e9ob9/","/images/qp/tiny-fishing.jpg","Idle","Cast, catch, upgrade your line and go deeper"],
 ];
 const GAMES=RAW.map(([n,u,im,c,t])=>{
   const abs=/^https?:\/\//i.test(u), url=abs?u:BASE+u;
@@ -923,10 +912,10 @@ const GAMES=RAW.map(([n,u,im,c,t])=>{
   return {n,u:url,d,c,t,img:im?(im[0]==='/'?im:BASE+im):'',site:SITE_CATS.indexOf(c)>-1};
 });
 GAMES.forEach((g,i)=>g.id=i);
-const GENRES_G=['Action','Adventure','Horror','Puzzle','Racing','Rhythm','Sandbox','Sports','Retro','Idle','Quick Play'];
+const GENRES_G=['Action','Adventure','Horror','Puzzle','Racing','Rhythm','Sandbox','Sports','Retro','Idle'];
 const ORDER=[...GENRES_G,...SITE_CATS];
 const TABS=['All','Favorites',...ORDER];
-const POP=['Plants Vs Zombies','Undertale','Deltarune (fixed)','Minecraft 1.12.1','Happy Wheels','Cookie Clicker','Geometry Dash Webport','Slope','Hill Climb Racing','Drift Hunters'];
+const POP=['Minecraft 1.12.1','Geometry Dash Webport','Sonic the Hedgehog 3','FNAF','Tiny Fishing','Ragdoll Archers','Stickman Hook','Slice Master'];
 let cat='All',query='',sortBy='';
 let favs=store.get('favs',[]),recent=store.get('recent',[]);
 const byName=n=>GAMES.find(g=>g.n===n);
@@ -991,12 +980,9 @@ function renderHome(){
   let html='';
   if(r.length)html+=shelf('Continue playing',r);
   if(fl.length)html+=shelf('Your favorites',fl);
-  const qp=GAMES.filter(g=>g.c==='Quick Play');
-  if(qp.length)html+=shelf('Quick Play',qp,{more:'Quick Play'});
-  html+=shelf('New on the arcade',games.slice(0,18));
-  const top=[...GAMES.filter(g=>g.c==='Game Hubs'),...POP.map(byName).filter(Boolean)];
+  const top=POP.map(byName).filter(Boolean);
   if(top.length)html+=shelf('Popular',top,{wide:true});
-  GENRES_G.forEach(c=>{if(c==='Quick Play')return;const l=GAMES.filter(g=>g.c===c);if(l.length)html+=shelf(c,l.slice(0,16),{more:c})});
+  GENRES_G.forEach(c=>{const l=GAMES.filter(g=>g.c===c);if(l.length)html+=shelf(c,l.slice(0,16),{more:c})});
   $('#hrows').innerHTML=html;
   const plays=store.get('plays',0)||0,mins=Math.round((store.get('ptime',0)||0)/60);
   $('#hmeta').textContent=games.length+' games'+(GAMES.some(g=>g.site)?' · '+GAMES.filter(g=>g.site).length+(GAMES.filter(g=>g.site).length===1?' site':' sites'):'')+(plays?' · '+plays+' played'+(mins>=1?' · '+(mins>=90?(mins/60).toFixed(1)+' hours':mins+' min')+' in game':''):'');
