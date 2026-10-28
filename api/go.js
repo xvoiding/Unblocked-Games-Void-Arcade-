@@ -1,5 +1,5 @@
 // api/go.js — streaming reverse proxy (Vercel, Node runtime)
-export const config = { maxDuration: 60 };
+import { Readable } from 'node:stream';
 
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 const PASS = ['content-type', 'content-length', 'accept-ranges', 'content-range', 'last-modified', 'etag'];
@@ -9,14 +9,21 @@ function esc(s) {
 }
 
 function targetUrl(req) {
-  const u = new URL(req.url);
-  const viaQuery = u.searchParams.get('u');
-  let raw = viaQuery ? viaQuery : u.pathname.replace(/^\/go\/?/, '') + u.search;
+  let u;
+  try { u = new URL(req.url, 'http://x'); } catch (e) { return null; }
+  const q = u.searchParams.get('u');
+  let raw;
+  if (q != null) {
+    raw = q;
+  } else {
+    let p = u.pathname.replace(/^\/(?:api\/)?go\/?/, '');
+    try { p = decodeURIComponent(p); } catch (e) {}
+    raw = p + u.search;
+  }
+  raw = raw.trim().replace(/^(https?):\/+/, '$1://');
   if (!raw) return null;
-  try { raw = decodeURIComponent(raw); } catch (e) {}
   if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
-  try { new URL(raw); } catch (e) { return null; }
-  return raw;
+  try { const t = new URL(raw); return /^https?:$/.test(t.protocol) ? t.href : null; } catch (e) { return null; }
 }
 
 function resolve(v, base) {
@@ -25,7 +32,7 @@ function resolve(v, base) {
   if (!v || /^(data:|blob:|javascript:|about:|mailto:|tel:|#)/i.test(v)) return v;
   try {
     const abs = new URL(v, base).href;
-    return /^https?:/i.test(abs) ? '/go/' + abs : abs;
+    return /^https?:/i.test(abs) ? '/go/' + encodeURIComponent(abs) : abs;
   } catch (e) { return v; }
 }
 
@@ -44,7 +51,7 @@ function R(u){
     u=String(u).trim();
     if(!u||/^(data:|blob:|javascript:|about:|mailto:|tel:|#)/i.test(u))return u;
     var a=new URL(u,B).href;
-    return /^https?:/i.test(a)?'/go/'+a:a;
+    return /^https?:/i.test(a)?'/go/'+encodeURIComponent(a):a;
   }catch(e){return u}
 }
 window.__pv=R;
@@ -103,67 +110,78 @@ function rewriteHtml(html, base) {
   return inject + html;
 }
 
-function fail(status, msg) {
-  return new Response(
-    `<!doctype html><meta charset="utf-8"><body style="font:13px/1.6 ui-monospace,monospace;background:#0b0b12;color:#e9e9f2;padding:22px;word-break:break-all">
-     <h3 style="margin:0 0 10px;color:#ff6b81">Proxy ${status}</h3><p style="opacity:.75;margin:0">${esc(msg)}</p></body>`,
-    { status: status >= 400 && status < 600 ? status : 502,
-      headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } }
-  );
+function page(status, msg) {
+  return `<!doctype html><meta charset="utf-8"><body style="font:13px/1.6 ui-monospace,monospace;background:#0b0b12;color:#e9e9f2;padding:22px;word-break:break-all">
+  <h3 style="margin:0 0 10px;color:#ff6b81">Proxy ${status}</h3><p style="opacity:.75;margin:0">${esc(msg)}</p></body>`;
 }
 
-export default async function handler(req) {
+function fail(res, status, msg) {
+  res.statusCode = status >= 400 && status < 600 ? status : 502;
+  res.setHeader('content-type', 'text/html; charset=utf-8');
+  res.setHeader('cache-control', 'no-store');
+  res.end(page(res.statusCode, msg));
+}
+
+export default async function handler(req, res) {
   const target = targetUrl(req);
-  if (!target) return fail(400, 'No target URL. Use /go/https://example.com/page.html');
+  if (!target) return fail(res, 400, 'No target. Use /go/<encoded url> or /go?u=<encoded url>');
 
   const h = {
     'user-agent': UA,
-    'accept': req.headers.get('accept') || '*/*',
+    'accept': req.headers['accept'] || '*/*',
     'accept-language': 'en-US,en;q=0.9',
     'accept-encoding': 'identity',
     'referer': new URL(target).origin + '/'
   };
-  const range = req.headers.get('range');
-  if (range) h.range = range;
+  if (req.headers.range) h.range = req.headers.range;
 
   let up;
   try {
     up = await fetch(target, { method: req.method === 'HEAD' ? 'HEAD' : 'GET', headers: h, redirect: 'follow' });
   } catch (e) {
-    return fail(502, target + '\n' + (e && e.message ? e.message : e));
+    return fail(res, 502, target + '\n' + (e && e.message ? e.message : e));
   }
-  if (up.status >= 400) return fail(up.status, 'Upstream returned ' + up.status + ' for ' + target);
+  if (up.status >= 400) return fail(res, up.status, 'Upstream returned ' + up.status + ' for ' + target);
 
   const ct = (up.headers.get('content-type') || '').toLowerCase();
   const finalUrl = up.url || target;
   const dir = new URL('.', finalUrl).href;
 
   if (req.method === 'HEAD') {
-    const oh = new Headers();
-    if (ct) oh.set('content-type', ct);
+    res.statusCode = up.status;
+    if (ct) res.setHeader('content-type', ct);
     const cl = up.headers.get('content-length');
-    if (cl) oh.set('content-length', cl);
-    return new Response(null, { status: up.status, headers: oh });
+    if (cl) res.setHeader('content-length', cl);
+    return res.end();
   }
 
   if (ct.includes('text/html') || ct.includes('application/xhtml')) {
-    return new Response(rewriteHtml(await up.text(), dir), {
-      status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' }
-    });
+    const body = rewriteHtml(await up.text(), dir);
+    res.statusCode = 200;
+    res.setHeader('content-type', 'text/html; charset=utf-8');
+    res.setHeader('cache-control', 'no-store');
+    return res.end(body);
   }
 
   if (ct.includes('text/css')) {
-    return new Response(rewriteCss(await up.text(), dir), {
-      status: 200, headers: { 'content-type': 'text/css; charset=utf-8', 'cache-control': 'no-store' }
-    });
+    const body = rewriteCss(await up.text(), dir);
+    res.statusCode = 200;
+    res.setHeader('content-type', 'text/css; charset=utf-8');
+    res.setHeader('cache-control', 'no-store');
+    return res.end(body);
   }
 
-  const oh = new Headers();
+  res.statusCode = up.status;
   for (const k of PASS) {
     const v = up.headers.get(k);
-    if (v) oh.set(k, v);
+    if (v) res.setHeader(k, v);
   }
-  if (!ct) oh.set('content-type', 'application/octet-stream');
-  oh.set('cache-control', 'public, max-age=86400');
-  return new Response(up.body, { status: up.status, headers: oh });
+  if (!ct) res.setHeader('content-type', 'application/octet-stream');
+  res.setHeader('cache-control', 'public, max-age=86400');
+  res.setHeader('access-control-allow-origin', '*');
+  if (!up.body) return res.end();
+
+  const body = Readable.fromWeb(up.body);
+  body.on('error', () => { try { res.end(); } catch (e) {} });
+  body.pipe(res);
 }
