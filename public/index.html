@@ -377,14 +377,14 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
 
   <!-- MUSIC -->
   <section class="view" id="v-music">
-    <div class="vhead"><div><h2>Music</h2><p>Search songs and play them, free and ad-free.</p></div></div>
+    <div class="vhead"><div><h2>Music</h2><p>Search for a song or pick a genre. Free and ad-free.</p></div></div>
     <form class="msearch" id="mForm" autocomplete="off">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <input id="mQ" type="search" placeholder="Search songs, artists…" spellcheck="false">
     </form>
     <div class="tabs" id="mTabs"></div>
-    <div class="panel" style="margin-top:14px">
-      <h3 id="mTitle">Trending</h3>
+    <div class="panel" id="mPanel" style="margin-top:14px;display:none">
+      <h3 id="mTitle"></h3>
       <div class="tracks" id="tracks"></div>
     </div>
     <p class="credit">Music from <a href="https://audius.co" target="_blank" rel="noopener noreferrer">Audius</a>, streamed from artists who upload there. Big-label songs aren't on it.</p>
@@ -1142,10 +1142,10 @@ document.addEventListener('keydown',e=>{
 
 /* ================= music: songs (Audius) ================= */
 const API='https://api.audius.co/v1',APP='VOID_ARCADE';
-const GENRES=[['Trending',''],['Electronic','Electronic'],['Hip-Hop/Rap','Hip-Hop/Rap'],['Lo-Fi','Lo-Fi'],['Pop','Pop'],['Rock','Rock'],['R&B/Soul','R&B/Soul'],['Chill','Chill']];
+const GENRES=[['Electronic','Electronic'],['Hip-Hop/Rap','Hip-Hop/Rap'],['Lo-Fi','Lo-Fi'],['Pop','Pop'],['Rock','Rock'],['R&B/Soul','R&B/Soul'],['Chill','Chill']];
 const PLAY='<svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg>',PAUSE='<svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>';
 const au=new Audio();au.preload='none';
-let list=[],cur_i=-1,mtab='Trending',mseq=0;
+let list=[],cur_i=-1,mtab='',mseq=0;
 const fmt=t=>{t=Math.max(0,Math.floor(t||0));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
 function trackOf(t){
   const art=t.artwork||{};
@@ -1159,6 +1159,7 @@ function renderTracks(){
 }
 async function loadTracks(url,title){
   const my=++mseq;
+  $('#mPanel').style.display='';
   $('#mTitle').textContent=title;
   $('#tracks').innerHTML='<div class="empty" style="padding:34px 0">Loading…</div>';
   try{
@@ -1182,14 +1183,13 @@ function showTab(name){
 function openTab(name){
   showTab(name);
   const g=GENRES.find(x=>x[0]===name);
-  if(!g[1])loadTracks(`${API}/tracks/trending?limit=30&app_name=${APP}`,'Trending');
-  else loadTracks(`${API}/tracks/trending?genre=${encodeURIComponent(g[1])}&limit=30&app_name=${APP}`,name);
+  if(g)loadTracks(`${API}/tracks/trending?genre=${encodeURIComponent(g[1])}&limit=30&app_name=${APP}`,name);
 }
 $('#mTabs').addEventListener('click',e=>{const b=e.target.closest('[data-g]');if(!b)return;$('#mQ').value='';openTab(b.dataset.g)});
 $('#mForm').addEventListener('submit',e=>{
   e.preventDefault();
   const q=$('#mQ').value.trim();
-  if(!q){openTab('Trending');return}
+  if(!q)return;
   showTab('');
   loadTracks(`${API}/tracks/search?query=${encodeURIComponent(q)}&limit=30&app_name=${APP}`,'Results for “'+q+'”');
 });
@@ -1238,7 +1238,7 @@ if('mediaSession' in navigator){try{
   navigator.mediaSession.setActionHandler('previoustrack',()=>step(-1));
 }catch(e){}}
 let musicLoaded=false;
-function ensureMusic(){if(!musicLoaded){musicLoaded=true;openTab('Trending')}}
+function ensureMusic(){if(!musicLoaded){musicLoaded=true;showTab('')}}
 
 /* ================= settings ================= */
 const ACCENTS=[['White','#f4f4f5'],['Orange','#ff7a1a'],['Blue','#4c8dff'],['Green','#34d399'],['Purple','#a78bfa'],['Pink','#f472b6']];
