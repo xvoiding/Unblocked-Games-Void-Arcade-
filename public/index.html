@@ -881,7 +881,7 @@ const RAW=[
 ["Jetpack Joyride","games/189.html","images/160.jpg","Action","Endless flying adventure."],
 ["Bloons TD 4","games/188.html","images/161.jpg","Puzzle","Tower defense strategy."],
 ["Sand Game","games/187.html","images/162.jpg","Sandbox","Physics sand simulation."],
-["FNAF","games/166.html","images/164.jpg","Horror","Original horror survival."],
+["Five Nights at Freddy's","games/166.html","images/164.jpg","Horror","Original horror survival."],
 ["FNAF: 2","games/167.html","images/165.jpg","Horror","Sequel horror survival."],
 ["FNAF: 3","games/168.html","images/166.jpg","Horror","Third installment horror."],
 ["FNAF: 4","games/169.html","images/167.jpg","Horror","Nightmare horror survival."],
@@ -914,9 +914,10 @@ GAMES.forEach((g,i)=>g.id=i);
 const GENRES_G=['Action','Adventure','Horror','Puzzle','Racing','Rhythm','Sandbox','Sports','Retro','Idle'];
 const ORDER=[...GENRES_G,...SITE_CATS];
 const TABS=['All','Favorites',...ORDER];
-const POP=['Minecraft 1.12.1','Geometry Dash Webport','Sonic the Hedgehog 3','FNAF','Tiny Fishing','Ragdoll Archers','Stickman Hook','Slice Master'];
+const POP=['Minecraft 1.12.1','Geometry Dash Webport','Sonic Mania','Five Nights at Freddy\'s','Tiny Fishing','Ragdoll Archers','Stickman Hook','Slice Master'];
 let cat='All',query='',sortBy='';
 let favs=store.get('favs',[]),recent=store.get('recent',[]);
+favs=favs.map(n=>n==='FNAF'?"Five Nights at Freddy's":n);recent=recent.map(n=>n==='FNAF'?"Five Nights at Freddy's":n);
 const byName=n=>GAMES.find(g=>g.n===n);
 
 /* ================= covers & tiles ================= */
