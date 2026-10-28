@@ -116,9 +116,10 @@ main{position:relative;z-index:1;margin-left:var(--side);min-height:100vh;displa
 .tile .gl{position:absolute;inset:0;background:radial-gradient(circle at 50% 58%,color-mix(in srgb,var(--gc,#fff) 42%,transparent),transparent 72%);opacity:.7;transition:opacity .5s,transform 1s var(--ease)}
 .card:hover .tile .bg{opacity:.55;transform:scale(1.4)}
 .card:hover .tile .gl{opacity:1;transform:scale(1.2)}
-.tile .im{width:56px;height:56px;border-radius:15px;font-size:26px;box-shadow:0 8px 24px -8px #000;transition:transform .5s var(--ease)}
-.big .tile .im{width:62px;height:62px}
-.card:hover .tile .im{transform:scale(1.1) rotate(-3deg)}
+.tile .im{width:100%;height:100%;border-radius:0;font-size:26px;box-shadow:none;background:#101014;color:#fff}
+.tile .im img{object-fit:cover}
+.big .tile .im{width:100%;height:100%}
+.card:hover .tile .im img{transform:scale(1.06)}
 .cap{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:0 4px}
 .cap .t{min-width:0}
 .cap b{display:block;font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
