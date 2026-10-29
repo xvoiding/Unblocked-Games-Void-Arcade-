@@ -1,1 +1,263 @@
 
+export const config = { runtime: 'edge' };
+
+const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
+const PASS = ['content-type', 'accept-ranges', 'content-range', 'last-modified', 'etag'];
+const CORS = { 'access-control-allow-origin': '*' };
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const isAscii = s => /^[\x20-\x7E]*$/.test(s);
+
+function norm(raw) {
+  raw = String(raw || '').trim().replace(/^(https?):\/+/, '$1://');
+  if (!raw) return null;
+  if (!/^https?:\/\//i.test(raw)) raw = 'https://' + raw;
+  try {
+    const t = new URL(raw);
+    return /^https?:$/.test(t.protocol) ? t.href : null;
+  } catch (e) { return null; }
+}
+
+function targetUrl(u) {
+  const q = u.searchParams.get('u');
+  if (q) return norm(q);
+
+  let raw = u.pathname.replace(/^\/api\/go\/?/, '');
+  if (!raw) return null;
+
+  const i = raw.indexOf('/');
+  if (i > -1) {
+    let head = raw.slice(0, i);
+    try { head = decodeURIComponent(head); } catch (e) {}
+    if (/^https?:\/\//i.test(head)) {
+      try { return new URL(raw.slice(i + 1) + u.search, head).href; } catch (e) {}
+    }
+  }
+
+  try { raw = decodeURIComponent(raw); } catch (e) {}
+  return norm(raw.includes('?') ? raw : raw + u.search);
+}
+
+function resolve(v, base) {
+  if (v == null) return v;
+  v = String(v).trim();
+  if (!v || /^(data:|blob:|javascript:|about:|mailto:|tel:|#)/i.test(v)) return v;
+  try {
+    const abs = new URL(v, base).href;
+    return /^https?:/i.test(abs) ? '/go/' + encodeURIComponent(abs) : abs;
+  } catch (e) { return v; }
+}
+
+function rewriteCss(css, base) {
+  return String(css)
+    .replace(/url\(\s*(['"]?)([^'")]+)\1\s*\)/gi, (m, q, v) => `url(${q}${resolve(v, base)}${q})`)
+    .replace(/@import\s+(['"])([^"']+)\1/gi, (m, q, v) => `@import ${q}${resolve(v, base)}${q}`);
+}
+
+function shim(base) {
+  return `<script>(function(){
+var B=${JSON.stringify(base)};
+function R(u){
+  try{
+    if(u==null)return u;
+    u=String(u).trim();
+    if(!u||/^(data:|blob:|javascript:|about:|mailto:|tel:|#)/i.test(u))return u;
+    var a=new URL(u,B).href;
+    return /^https?:/i.test(a)?'/go/'+encodeURIComponent(a):a;
+  }catch(e){return u}
+}
+window.__pv=R;
+var sa=Element.prototype.setAttribute;
+Element.prototype.setAttribute=function(n,v){
+  if(/^(src|href|action|poster|formaction|data-src|data-href)$/i.test(n)&&typeof v==='string')v=R(v);
+  return sa.call(this,n,v);
+};
+function pp(P,ps){ps.forEach(function(p){
+  var d=Object.getOwnPropertyDescriptor(P,p);
+  if(!d||!d.set)return;
+  Object.defineProperty(P,p,{configurable:true,enumerable:d.enumerable,
+    get:function(){return d.get.call(this)},set:function(v){d.set.call(this,R(v))}});
+})}
+pp(HTMLScriptElement.prototype,['src']);
+pp(HTMLImageElement.prototype,['src','srcset']);
+pp(HTMLMediaElement.prototype,['src']);
+pp(HTMLSourceElement.prototype,['src','srcset']);
+pp(HTMLLinkElement.prototype,['href']);
+pp(HTMLEmbedElement.prototype,['src']);
+pp(HTMLIFrameElement.prototype,['src']);
+pp(HTMLFormElement.prototype,['action']);
+var f=window.fetch;
+if(f)window.fetch=function(i,o){
+  try{
+    if(typeof i==='string')i=R(i);
+    else if(i&&i.url){try{i=new Request(R(i.url),i)}catch(e){i=R(i.url)}}
+  }catch(e){}
+  return f.call(this,i,o);
+};
+var X=window.XMLHttpRequest,op=X.prototype.open;
+X.prototype.open=function(m,u){try{arguments[1]=R(u)}catch(e){}return op.apply(this,arguments)};
+var wo=window.open;
+window.open=function(u){try{u=R(u)}catch(e){}return wo.apply(window,arguments)};
+if(window.Worker){var W=window.Worker;window.Worker=function(u,o){return new W(R(u),o)};window.Worker.prototype=W.prototype}
+if(window.importScripts){var isc=window.importScripts;window.importScripts=function(){return isc.apply(this,[].map.call(arguments,R))}}
+})();</script>`;
+}
+
+function jsShim(base) {
+  return `(function(){var B=${JSON.stringify(base)};
+function R(u){try{
+  if(u==null)return u;u=String(u).trim();
+  if(!u||/^(data:|blob:|javascript:|about:|mailto:|tel:|#)/i.test(u))return u;
+  var a=new URL(u,B).href;return /^https?:/i.test(a)?'/go/'+encodeURIComponent(a):a;
+}catch(e){return u}}
+if(self.fetch){var f=self.fetch;self.fetch=function(i,o){try{
+  if(typeof i==='string')i=R(i);
+  else if(i&&i.url){try{i=new Request(R(i.url),i)}catch(e){i=R(i.url)}}
+}catch(e){}return f.call(this,i,o)}}
+if(self.importScripts){var s=self.importScripts;self.importScripts=function(){return s.apply(this,[].map.call(arguments,R))}}
+if(self.XMLHttpRequest){var op=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){try{arguments[1]=R(u)}catch(e){}return op.apply(this,arguments)}}
+})();
+`;
+}
+
+function rewriteHtml(html, dir) {
+  html = String(html).replace(/<meta[^>]+http-equiv=["']?content-security-policy["']?[^>]*>/gi, '');
+
+  let eff = dir;
+  let ownBase = false;
+  const bm = html.match(/<base\b[^>]*\bhref\s*=\s*["']([^"']+)["']/i);
+  if (bm) {
+    try { eff = new URL(bm[1], dir).href; ownBase = true; } catch (e) { eff = dir; }
+  }
+
+  html = html.replace(/\s(src|href|action|poster|formaction|data-src|data-href)\s*=\s*(["'])([^"']*)\2/gi,
+    (m, a, q, v) => ` ${a}=${q}${resolve(v, eff)}${q}`);
+  html = html.replace(/\s(srcset)\s*=\s*(["'])([^"']*)\2/gi, (m, a, q, v) => {
+    const out = v.split(',').map(s => {
+      const p = s.trim().split(/\s+/);
+      return resolve(p[0], eff) + (p[1] ? ' ' + p[1] : '');
+    }).join(', ');
+    return ` ${a}=${q}${out}${q}`;
+  });
+  html = html.replace(/<style([^>]*)>([\s\S]*?)<\/style>/gi, (m, a, c) => `<style${a}>${rewriteCss(c, eff)}</style>`);
+  html = html.replace(/style\s*=\s*(["'])([^"']*)\1/gi, (m, q, v) => `style=${q}${rewriteCss(v, eff)}${q}`);
+
+  const baseTag = `<base href="/go/${encodeURIComponent(eff)}/">`;
+  const inject = ownBase ? shim(eff) : baseTag + shim(eff);
+  if (ownBase) html = html.replace(/<base\b[^>]*>/i, baseTag);
+
+  if (/<head[^>]*>/i.test(html)) return html.replace(/<head([^>]*)>/i, (m, a) => `<head${a}>${inject}`);
+  if (/<html[^>]*>/i.test(html)) return html.replace(/<html([^>]*)>/i, (m, a) => `<html${a}><head>${inject}</head>`);
+  return inject + html;
+}
+
+function page(status, msg) {
+  return `<!doctype html><meta charset="utf-8"><body style="font:13px/1.6 ui-monospace,monospace;background:#0b0b12;color:#e9e9f2;padding:22px;word-break:break-all">
+  <h3 style="margin:0 0 10px;color:#ff6b81">Proxy ${status}</h3><p style="opacity:.75;margin:0">${esc(msg)}</p></body>`;
+}
+
+function fail(status, msg) {
+  return new Response(page(status, msg), {
+    status: status >= 400 && status < 600 ? status : 502,
+    headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', ...CORS }
+  });
+}
+
+export default async function handler(req) {
+  const u = new URL(req.url);
+
+  if (!/^\/(?:api\/)?go(?:\/|$)/.test(u.pathname)) return new Response('not found', { status: 404 });
+
+  if (/^\/(?:api\/)?go\/ping\/?$/.test(u.pathname)) {
+    return new Response('proxy ok', {
+      status: 200,
+      headers: { 'content-type': 'text/plain', 'cache-control': 'no-store', ...CORS }
+    });
+  }
+
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: { ...CORS, 'access-control-allow-methods': 'GET,HEAD,OPTIONS', 'access-control-allow-headers': '*' }
+    });
+  }
+
+  const target = targetUrl(u);
+  if (!target) return fail(400, 'Use /go/<encoded url> or /go?u=<encoded url>');
+
+  const h = {
+    'user-agent': UA,
+    'accept': req.headers.get('accept') || '*/*',
+    'accept-language': 'en-US,en;q=0.9',
+    'accept-encoding': 'identity',
+    'referer': new URL(target).origin + '/'
+  };
+  const range = req.headers.get('range');
+  if (range) h.range = range;
+
+  let up;
+  try {
+    up = await fetch(target, {
+      method: req.method === 'HEAD' ? 'HEAD' : 'GET',
+      headers: h,
+      redirect: 'follow'
+    });
+  } catch (e) {
+    return fail(502, target + '\n' + (e && e.message ? e.message : e));
+  }
+  if (up.status >= 400) return fail(up.status, 'Upstream returned ' + up.status + ' for ' + target);
+
+  const dbg = isAscii(target) ? { 'x-proxy-target': target } : {};
+  const ct = (up.headers.get('content-type') || '').toLowerCase();
+  const finalUrl = up.url || target;
+  const dir = new URL('.', finalUrl).href;
+  const noEnc = !up.headers.get('content-encoding');
+  const path = new URL(finalUrl).pathname.toLowerCase();
+
+  if (req.method === 'HEAD' || up.status === 204 || up.status === 205 || up.status === 304) {
+    const oh = new Headers({ ...CORS, ...dbg });
+    if (ct) oh.set('content-type', ct);
+    const cl = up.headers.get('content-length');
+    if (cl && noEnc && req.method === 'HEAD') oh.set('content-length', cl);
+    return new Response(null, { status: up.status, headers: oh });
+  }
+
+  const looksHtml = ct.includes('text/html') || ct.includes('application/xhtml') ||
+    (!ct && (path.endsWith('.html') || path.endsWith('.htm') || path.endsWith('/')));
+
+  if (looksHtml) {
+    return new Response(rewriteHtml(await up.text(), dir), {
+      status: 200,
+      headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', ...CORS, ...dbg }
+    });
+  }
+
+  if (ct.includes('text/css')) {
+    return new Response(rewriteCss(await up.text(), dir), {
+      status: 200,
+      headers: { 'content-type': 'text/css; charset=utf-8', 'cache-control': 'no-store', ...CORS, ...dbg }
+    });
+  }
+
+  const isJs = ct.includes('javascript') || ct.includes('ecmascript');
+  if (isJs && /(?:\.worker|\.ww|-worker|_worker)\.m?js$/i.test(path)) {
+    return new Response(jsShim(dir) + (await up.text()), {
+      status: 200,
+      headers: { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'no-store', ...CORS, ...dbg }
+    });
+  }
+
+  const oh = new Headers({ ...CORS, ...dbg });
+  for (const k of PASS) {
+    const v = up.headers.get(k);
+    if (v) oh.set(k, v);
+  }
+  if (!ct) oh.set('content-type', 'application/octet-stream');
+  if (noEnc) {
+    const cl = up.headers.get('content-length');
+    if (cl) oh.set('content-length', cl);
+  }
+  oh.set('cache-control', 'public, max-age=86400');
+
+  return new Response(up.body, { status: up.status, headers: oh });
+}
