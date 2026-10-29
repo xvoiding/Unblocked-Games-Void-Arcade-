@@ -81,6 +81,31 @@ function rewriteCss(css, base, scheme) {
   }), scheme);
 }
 
+// On YouTube watch pages the page is the real youtube.com, but the video plays in YouTube's own embedded player,
+// loaded straight from YouTube instead of through the proxy (the proxy can't fetch video streams).
+function ytPlayer() {
+  return `<script>(function(){
+function vid(){try{var s=new URLSearchParams(location.search).get('u')||'';var x=new URL(s);var h=x.hostname.replace(/^(www|m)\\./,'');
+if(h==='youtu.be')return x.pathname.slice(1).split('/')[0];
+if(x.pathname==='/watch')return x.searchParams.get('v');
+var m=/^\\/(?:shorts|live)\\/([\\w-]{6,20})/.exec(x.pathname);return m?m[1]:''}catch(e){return ''}}
+function tick(){var id=vid();if(!/^[\\w-]{6,20}$/.test(id||''))return;
+var host=document.querySelector('#movie_player')||document.querySelector('ytd-player');if(!host)return;
+var fr=document.getElementById('vx-embed');
+if(fr&&fr.getAttribute('data-v')===id&&host.contains(fr))return;
+if(fr)fr.remove();
+try{document.querySelectorAll('video').forEach(function(v){try{v.pause();v.muted=true}catch(e){}})}catch(e){}
+if(getComputedStyle(host).position==='static')host.style.position='relative';
+fr=document.createElement('iframe');fr.id='vx-embed';fr.setAttribute('data-v',id);
+fr.setAttribute('allow','autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write');
+fr.setAttribute('allowfullscreen','');fr.setAttribute('referrerpolicy','strict-origin-when-cross-origin');
+fr.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;z-index:2147483000;background:#000';
+fr.setAttribute('src','https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1');
+host.appendChild(fr)}
+setInterval(tick,400);tick();
+})();</script>`;
+}
+
 function shim(base, scheme) {
   const B = JSON.stringify(base);
   const SC = JSON.stringify(scheme || '');
@@ -148,7 +173,7 @@ if(!/^https?:/.test(x))return;
 e.preventDefault();e.stopPropagation();
 if(a.getAttribute('target')==='_blank'||e.ctrlKey||e.metaKey||e.shiftKey)window.open(P(x));else location.href=P(x);
 },true);
-})();</script>`;
+})();</script>`+(isYt(hostOf(base)) ? ytPlayer() : '');
 }
 
 function rewriteHtml(html, base, scheme) {
