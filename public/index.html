@@ -354,6 +354,89 @@ body[data-view="browser"] footer{display:none}
   #bFwd,#bHome{display:none}
   .bstrip{padding:8px 8px 0}.btool{padding:6px 8px}
 }
+/* ================= bookmarks, history, retro ================= */
+.tbtn.on{color:var(--ac)}
+.tbtn.on svg{fill:currentColor}
+.bmbar{display:flex;gap:4px;padding:0 12px 6px;background:var(--bg);overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--edge)}
+.bmbar::-webkit-scrollbar{display:none}
+.bmbar[hidden]{display:none}
+.bm{display:flex;align-items:center;gap:7px;max-width:170px;flex-shrink:0;padding:5px 6px 5px 8px;border-radius:99px;color:var(--mist);font-weight:600;font-size:13px;cursor:pointer;border:1px solid transparent}
+.bm:hover{background:var(--hov);color:var(--ink);border-color:var(--edge)}
+.bm .fv{width:16px;height:16px;border-radius:50%;background:var(--raise2);border:1px solid var(--edge);display:grid;place-items:center;font:700 8.5px var(--display);text-transform:uppercase;flex-shrink:0}
+.bm .tt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bm .bx{width:18px;height:18px;border:0;border-radius:50%;background:none;color:inherit;display:none;place-items:center;padding:0;opacity:.7;flex-shrink:0}
+.bm .bx:hover{background:var(--hov);opacity:1}
+.bm:hover .bx{display:grid}
+.bm .bx svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.bsug{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;background:var(--raise);border:1px solid var(--edge2);border-radius:16px;padding:6px;box-shadow:0 20px 50px -20px var(--shadow)}
+.bsug[hidden]{display:none}
+.bsug button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;color:var(--ink);padding:8px 10px;border-radius:10px;font-size:14px}
+.bsug button.on,.bsug button:hover{background:var(--hov)}
+.bsug .tt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bsug small{color:var(--dim);max-width:46%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+.bsug .k{font-size:11px;color:var(--ac);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.ntl{display:flex;gap:10px}
+.ntl button{background:none;border:1px solid var(--edge);color:var(--mist);padding:8px 16px;border-radius:99px;font-weight:600;font-size:13.5px}
+.ntl button:hover{background:var(--hov);color:var(--ink);border-color:var(--edge2)}
+.bpanel{position:absolute;inset:0;z-index:5;background:var(--bg);display:flex;flex-direction:column}
+.bpanel[hidden]{display:none}
+.bph{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--edge);flex-wrap:wrap}
+.bph input{flex:1;min-width:140px;background:var(--raise);border:1px solid var(--edge2);color:var(--ink);padding:9px 14px;border-radius:99px;outline:none;font-size:14px}
+.bph input:focus{border-color:rgba(var(--ac-rgb),.7)}
+.bpl{flex:1;overflow:auto;padding:8px 18px 30px;max-width:860px;width:100%;margin:0 auto}
+.bpd{color:var(--dim);font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin:20px 0 6px}
+.bpr{display:flex;align-items:center;gap:12px;padding:9px 8px;border-radius:12px;cursor:pointer}
+.bpr:hover{background:var(--hov)}
+.bpr .fv{width:24px;height:24px;border-radius:50%;background:var(--raise2);border:1px solid var(--edge);display:grid;place-items:center;font:700 11px var(--display);text-transform:uppercase;flex-shrink:0}
+.bpr .tm{width:58px;color:var(--dim);font-size:12.5px;flex-shrink:0}
+.bpr .tt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:14.5px}
+.bpr small{color:var(--dim);max-width:34%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+.bpr .bx{width:28px;height:28px;border:0;border-radius:50%;background:none;color:var(--mist);display:grid;place-items:center;padding:0;flex-shrink:0}
+.bpr .bx:hover{background:var(--hov);color:var(--ink)}
+.bpr .bx svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.bpe{text-align:center;color:var(--dim);padding:60px 10px}
+#v-retro .rt-drop{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:34px 20px;border:2px dashed var(--edge2);border-radius:22px;background:var(--raise);color:var(--mist);cursor:pointer;transition:border-color .2s,background .2s}
+#v-retro .rt-drop:hover,#v-retro .rt-drop.over{border-color:var(--ac);background:var(--raise2)}
+#v-retro .rt-drop svg{width:34px;height:34px;fill:none;stroke:var(--ac);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#v-retro .rt-drop b{color:var(--ink);font-size:17px}
+.rt-sysl{margin:22px 0 8px;color:var(--dim);font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.rt-sys{display:flex;flex-wrap:wrap;gap:8px}
+.rt-sys button{background:var(--raise);border:1px solid var(--edge);color:var(--mist);padding:7px 14px;border-radius:99px;font-weight:600;font-size:13.5px}
+.rt-sys button:hover{border-color:var(--edge2);color:var(--ink)}
+.rt-sys button.on{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
+.rt-hd{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:30px 0 14px}
+.rt-hd small{color:var(--dim)}
+.rt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.rt-card{background:var(--raise);border:1px solid var(--edge);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px;transition:border-color .2s,transform .25s var(--ease)}
+.rt-card:hover{border-color:var(--edge2);transform:translateY(-2px)}
+.rt-card .rt-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rt-badge{font:800 11px var(--display);letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:99px;background:rgba(var(--ac-rgb),.14);color:var(--ac);border:1px solid rgba(var(--ac-rgb),.3)}
+.rt-card .rx{width:26px;height:26px;border:0;border-radius:50%;background:none;color:var(--dim);display:grid;place-items:center;padding:0}
+.rt-card .rx:hover{background:var(--hov);color:var(--ink)}
+.rt-card .rx svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+.rt-card h4{font:700 16px/1.25 var(--display);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+.rt-card small{color:var(--dim)}
+.rt-card .rt-act{display:flex;gap:8px;margin-top:auto}
+.rt-card .rt-act select{flex:1;min-width:0;padding:8px 10px;font-size:13px}
+.rt-card .rt-act .btn{padding:8px 16px}
+.rt-empty{grid-column:1/-1;text-align:center;color:var(--dim);padding:38px 10px;border:1px dashed var(--edge);border-radius:18px}
+.rt-note{color:var(--dim);font-size:13px;margin-top:26px;max-width:640px}
+#v-retro.playing{padding:0;max-width:none;margin:0;display:flex;flex-direction:column;height:100vh;height:100dvh}
+.rt-play{flex:1;min-height:0;display:flex;flex-direction:column}
+.rt-play[hidden]{display:none}
+.rt-bar{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bar);border-bottom:1px solid var(--edge)}
+.rt-bar b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14.5px}
+.rt-bar .btn{padding:7px 13px}
+.rt-play iframe{flex:1;min-height:0;width:100%;border:0;background:#000}
+body[data-view="retro"] footer{display:none}
+body.dv-hideRetro .nb[data-go="retro"]{display:none}
+@media (max-width:720px){
+  #v-retro.playing{height:calc(100dvh - 64px - env(safe-area-inset-bottom,0px));padding:0}
+  body[data-view="retro"] main{padding-bottom:0}
+  .bmbar{padding:0 8px 6px}
+  .bpr small,.bsug small{display:none}
+  .rt-grid{grid-template-columns:1fr 1fr}
+}
 /* ================= dev menu ================= */
 body.dv-hideSpot #spot{display:none}
 body.dv-hideEcl .eclipse{display:none}
@@ -476,6 +559,7 @@ textarea.dv-in{min-height:140px;font:13px/1.5 ui-monospace,Menlo,Consolas,monosp
   <button class="nb on" data-go="home"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span class="lb">Home</span></button>
   <button class="nb" data-go="games"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span class="lb">Games</span></button>
   <button class="nb" data-go="browser" aria-label="Web browser"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9S9.4 5.8 12 3z"/></svg><span class="lb">Browser</span></button>
+  <button class="nb" data-go="retro" aria-label="Retro emulators"><svg class="i" viewBox="0 0 24 24"><rect x="2.5" y="7" width="19" height="10" rx="5"/><path d="M8 10v4M6 12h4"/><path d="M15.5 11.5h.01M18 13h.01"/></svg><span class="lb">Retro</span></button>
   <button class="nb hide-m" data-go="help"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg><span class="lb">Help</span></button>
   <button class="nb" data-go="settings"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span class="lb">Settings</span></button>
   <div class="nav-gap"></div>
@@ -529,17 +613,51 @@ textarea.dv-in{min-height:140px;font:13px/1.5 ui-monospace,Menlo,Consolas,monosp
         <button class="tbtn" id="bFwd" aria-label="Forward" title="Forward"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
         <button class="tbtn" id="bReload" aria-label="Reload" title="Reload"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
         <button class="tbtn" id="bHome" aria-label="New tab page" title="New tab page"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></button>
-        <form class="omni" id="bform" autocomplete="off"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="bin" placeholder="Search Google or type a link" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="go"></form>
+        <form class="omni" id="bform" autocomplete="off"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="bin" placeholder="Search Google or type a link" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="go"><div class="bsug" id="bsug" hidden></div></form>
+        <button class="tbtn" id="bStar" aria-label="Bookmark this page" title="Bookmark this page"><svg viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9-5.2-2.8-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z"/></svg></button>
+        <button class="tbtn" id="bMenu" aria-label="Bookmarks and history" title="Bookmarks and history"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></button>
       </div>
+      <div class="bmbar" id="bmbar" hidden></div>
       <div class="bprog" id="bprog"></div>
     </div>
     <div class="bbody" id="bbody">
+      <div class="bpanel" id="bpanel" hidden>
+        <div class="bph">
+          <div class="seg" id="bpTabs"><button class="on" data-t="bm">Bookmarks</button><button data-t="hist">History</button></div>
+          <input id="bpq" type="search" placeholder="Search" spellcheck="false" autocomplete="off">
+          <button class="btn ghost" id="bpClear">Clear all</button>
+          <button class="tbtn" id="bpClose" aria-label="Close" title="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>
+        <div class="bpl" id="bpl"></div>
+      </div>
       <div class="ntp" id="ntp">
         <div class="big">Void</div>
         <form id="nform" autocomplete="off"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="nin" placeholder="Search Google or type a link" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="search"></form>
         <div class="ql" id="ql"></div>
+        <div class="ntl"><button type="button" data-p="bm">Bookmarks</button><button type="button" data-p="hist">History</button></div>
         <small>Pages load through the proxy · inappropriate sites are blocked</small>
       </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-retro">
+    <div id="rtLib">
+      <div class="vhead"><div><h2 class="page">Retro</h2><p>Play classic consoles right here. Bring your own game files, nothing is bundled.</p></div><button class="btn solid" id="rtAdd">Add a game</button></div>
+      <div class="rt-drop" id="rtDrop" tabindex="0" role="button" aria-label="Add game files">
+        <svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+        <b>Drop game files here</b>
+        <span>or click to browse. They stay on this device.</span>
+      </div>
+      <input type="file" id="rtFile" multiple hidden>
+      <div class="rt-sysl"><span>System for files I can't detect, like .zip or .bin</span></div>
+      <div class="rt-sys" id="rtSys"></div>
+      <div class="rt-hd"><h3>Your games</h3><small id="rtInfo"></small></div>
+      <div class="rt-grid" id="rtGrid"></div>
+      <p class="rt-note">Controls: arrow keys, Z / X / A / S and Enter by default, and USB or Bluetooth controllers work automatically. Open the emulator menu at the bottom to save, load or change controls.</p>
+    </div>
+    <div class="rt-play" id="rtPlay" hidden>
+      <div class="rt-bar"><button class="btn" id="rtBack"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Library</button><b id="rtTitle"></b><button class="btn" id="rtFs">Fullscreen</button></div>
+      <iframe id="rtFrame" title="Emulator" allow="fullscreen; autoplay; gamepad"></iframe>
     </div>
   </section>
 
@@ -552,6 +670,8 @@ textarea.dv-in{min-height:140px;font:13px/1.5 ui-monospace,Menlo,Consolas,monosp
         <details><summary>A game or site opened blank.</summary><p>Many big sites can't run inside another page. Try "New tab" in the top bar, or switch to Proxy there.</p></details>
         <details><summary>Do my games save?</summary><p>Games run through the proxy save inside this site, one slot per game site, and you can back them up in Settings. Games loaded directly save in their own site’s storage, and many browsers block or wipe that, so if a game forgets your progress, turn on "Run games through the proxy" in Settings.</p></details>
         <details><summary>Where are my favorites saved?</summary><p>On this device, in your browser. Clearing site data or switching devices starts you fresh. You can export a backup in Settings.</p></details>
+        <details><summary>How do I play retro games?</summary><p>Open Retro in the side bar, then drop in your own game files (NES, SNES, Game Boy, GBA, Genesis, N64 and more). Nothing is bundled. Your games stay on this device, so clearing site data removes them.</p></details>
+        <details><summary>Can I bookmark pages and see my history?</summary><p>Yes. In the Browser tab, tap the star to bookmark a page and the clock button to open your bookmarks and history. Both are saved on this device.</p></details>
         <details><summary>Why is some stuff blocked?</summary><p>Adult and other inappropriate content is blocked on this site.</p></details>
       </div>
       <div class="panel">
@@ -1266,11 +1386,11 @@ $('#spot').addEventListener('mouseleave',()=>{sp.hold=false;$('#spot').classList
 function renderAll(){renderTabs();renderGames();renderHome()}
 
 /* ================= router ================= */
-const VIEWS=['home','games','browser','help','settings'];
+const VIEWS=['home','games','browser','retro','help','settings'];
 let view='home';
 function go(v,push){
   if(!VIEWS.includes(v))v='home';
-  view=v;document.body.dataset.view=v;if(v==='browser')bInit();
+  view=v;document.body.dataset.view=v;if(v==='browser')bInit();if(v!=='retro')rtStop();else rtInit();
   $$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));
   $$('.rail .nb').forEach(b=>b.classList.toggle('on',b.dataset.go===v));
   if(push!==false&&location.hash!=='#/'+v)history.pushState(null,'','#/'+v);
@@ -1414,6 +1534,7 @@ function bNew(url){
 }
 function bOpen(url){bInit();go('browser');bNew(url)}
 function bGo(t,input,fromHist){
+  bpClose();sugHide();
   const url=fromHist?input:(input?toTarget(input):'');
   if(!fromHist&&!url)return;
   if(!fromHist){t.hist=t.hist.slice(0,t.i+1);t.hist.push(url);t.i=t.hist.length-1}
@@ -1439,10 +1560,10 @@ function bLoaded(t){
     d.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[target="_blank"]');if(!a)return;const u=realUrl(a.getAttribute('href')||'');if(/^https?:/i.test(u)){e.preventDefault();e.stopPropagation();bNew(u)}},true);
     t.fr.contentWindow.open=u=>{const r=u?realUrl(String(u)):'';if(/^https?:/i.test(r))bNew(r);return null};
   }catch(e){}
-  t.title=ti||hostOf(t.url);t.loading=false;bPaint();bSave();
+  t.title=ti||hostOf(t.url);t.loading=false;histAdd(t.url,t.title);bPaint();bSave();
 }
 function bAct(id){
-  BR.act=id;const t=bCur();
+  bpClose();BR.act=id;const t=bCur();
   if(t&&t.url&&!t.fr)bLoad(t,t.url);
   bPaint();
 }
@@ -1461,6 +1582,7 @@ function bPaint(){
   $('#bBack').disabled=!t||t.i<=0;$('#bFwd').disabled=!t||t.i>=t.hist.length-1;$('#bReload').disabled=!t||!t.url;
   $('#bprog').classList.toggle('on',!!(t&&t.loading));
   if(document.activeElement!==$('#bin'))$('#bin').value=t&&t.url?t.url:'';
+  const on=!!(t&&t.url&&bmFind(t.url)>=0);$('#bStar').classList.toggle('on',on);$('#bStar').disabled=!(t&&t.url);$('#bStar').title=on?'Remove bookmark':'Bookmark this page';
 }
 $('#btabs').addEventListener('click',e=>{const x=e.target.closest('[data-x]');if(x){e.stopPropagation();bClose(+x.dataset.x);return}const b=e.target.closest('.btab');if(b)bAct(+b.dataset.id)});
 $('#btabs').addEventListener('auxclick',e=>{const b=e.target.closest('.btab');if(b&&e.button===1){e.preventDefault();bClose(+b.dataset.id)}});
@@ -1474,10 +1596,235 @@ $('#nform').addEventListener('submit',e=>{e.preventDefault();const t=bCur(),v=$(
 $('#bin').addEventListener('focus',e=>e.target.select());
 $('#ql').addEventListener('click',e=>{const b=e.target.closest('[data-u]');const t=bCur();if(b&&t)bGo(t,b.dataset.u)});
 
+/* ===== browser: bookmarks + history ===== */
+const BM={list:store.get('bmk',[]),hist:store.get('bhist',[]),tab:'bm',sug:[],si:-1};
+if(!Array.isArray(BM.list))BM.list=[];
+if(!Array.isArray(BM.hist))BM.hist=[];
+const bmNorm=u=>String(u||'').replace(/#.*$/,'').replace(/\/$/,'');
+const bmFind=u=>BM.list.findIndex(b=>bmNorm(b.u)===bmNorm(u));
+const X_SVG='<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+function bmSave(){store.set('bmk',BM.list)}
+function bmToggle(){
+  const t=bCur();if(!t||!t.url){toast('Open a page first');return}
+  const i=bmFind(t.url);
+  if(i>=0){BM.list.splice(i,1);toast('Bookmark removed')}
+  else{if(BM.list.length>=200){toast('Bookmark limit reached');return}BM.list.push({u:t.url,t:t.title||hostOf(t.url)});toast('Bookmarked')}
+  bmSave();bmPaint();bPaint();if(!$('#bpanel').hidden)bpRender();
+}
+function bmPaint(){
+  const el=$('#bmbar');el.hidden=!BM.list.length;
+  el.innerHTML=BM.list.map((b,i)=>`<div class="bm" data-i="${i}" title="${esc(b.t)}"><span class="fv">${esc(hostOf(b.u)[0]||'?')}</span><span class="tt">${esc(b.t)}</span><button class="bx" data-bx="${i}" aria-label="Remove bookmark">${X_SVG}</button></div>`).join('');
+}
+function histAdd(url,title){
+  if(!/^https?:/i.test(url||''))return;
+  const h=BM.hist[0];
+  if(h&&bmNorm(h.u)===bmNorm(url)){if(title&&h.t!==title){h.t=title;store.set('bhist',BM.hist)}return}
+  BM.hist.unshift({u:url,t:title||hostOf(url),ts:Date.now()});
+  if(BM.hist.length>500)BM.hist.length=500;
+  store.set('bhist',BM.hist);
+}
+function bmOpen(u,newTab){const t=bCur();if(newTab||!t)bNew(u);else bGo(t,u)}
+$('#bStar').onclick=bmToggle;
+$('#bmbar').addEventListener('click',e=>{
+  const x=e.target.closest('[data-bx]');
+  if(x){e.stopPropagation();BM.list.splice(+x.dataset.bx,1);bmSave();bmPaint();bPaint();return}
+  const b=e.target.closest('.bm');if(b&&BM.list[+b.dataset.i])bmOpen(BM.list[+b.dataset.i].u,e.ctrlKey||e.metaKey);
+});
+$('#bmbar').addEventListener('auxclick',e=>{const b=e.target.closest('.bm');if(b&&e.button===1&&BM.list[+b.dataset.i]){e.preventDefault();bmOpen(BM.list[+b.dataset.i].u,true)}});
+/* manager panel */
+function bpOpen(tab){
+  if(tab)BM.tab=tab;
+  $('#bpanel').hidden=false;$('#bpq').value='';
+  $$('#bpTabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===BM.tab));
+  bpRender();
+}
+function bpClose(){const p=$('#bpanel');if(p)p.hidden=true}
+function dayLabel(ts){
+  const d=new Date(ts),n=new Date();
+  const a=new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime(),b=new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime();
+  const df=Math.round((b-a)/864e5);
+  if(df===0)return'Today';if(df===1)return'Yesterday';
+  return d.toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'});
+}
+function bpRow(x,kind,i){
+  const tm=kind==='hist'?`<span class="tm">${new Date(x.ts).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}</span>`:'';
+  return `<div class="bpr" data-u="${esc(x.u)}"><span class="fv">${esc(hostOf(x.u)[0]||'?')}</span>${tm}<span class="tt">${esc(x.t)}</span><small>${esc(hostOf(x.u))}</small><button class="bx" data-k="${kind}" data-i="${i}" aria-label="Remove">${X_SVG}</button></div>`;
+}
+function bpRender(){
+  const q=$('#bpq').value.trim().toLowerCase(),box=$('#bpl');
+  const hit=x=>!q||(x.t+' '+x.u).toLowerCase().includes(q);
+  $('#bpClear').textContent=BM.tab==='bm'?'Remove all':'Clear history';
+  let out='';
+  if(BM.tab==='bm'){
+    out=BM.list.map((b,i)=>hit(b)?bpRow(b,'bm',i):'').join('');
+    if(!out)out=`<div class="bpe">${q?'No bookmarks match that.':'No bookmarks yet. Tap the star next to the address bar to save a page.'}</div>`;
+  }else{
+    let last='';
+    BM.hist.forEach((h,i)=>{
+      if(!hit(h))return;
+      const d=dayLabel(h.ts);
+      if(d!==last){out+=`<div class="bpd">${esc(d)}</div>`;last=d}
+      out+=bpRow(h,'hist',i);
+    });
+    if(!out)out=`<div class="bpe">${q?'No history matches that.':'Nothing here yet. Pages you visit show up here.'}</div>`;
+  }
+  box.innerHTML=out;
+}
+$('#bMenu').onclick=()=>{if($('#bpanel').hidden)bpOpen();else bpClose()};
+$('#bpClose').onclick=bpClose;
+$('#bpTabs').addEventListener('click',e=>{const b=e.target.closest('button');if(b){BM.tab=b.dataset.t;bpOpen()}});
+$('#bpq').addEventListener('input',bpRender);
+$('#bpl').addEventListener('click',e=>{
+  const x=e.target.closest('.bx');
+  if(x){
+    e.stopPropagation();
+    if(x.dataset.k==='bm'){BM.list.splice(+x.dataset.i,1);bmSave();bmPaint();bPaint()}
+    else{BM.hist.splice(+x.dataset.i,1);store.set('bhist',BM.hist)}
+    bpRender();return;
+  }
+  const r=e.target.closest('.bpr');if(!r)return;
+  const u=r.dataset.u;bpClose();bmOpen(u,e.ctrlKey||e.metaKey);
+});
+$('#bpClear').onclick=()=>{
+  if(BM.tab==='bm'){if(!BM.list.length)return;if(confirm('Remove all bookmarks?')){BM.list=[];bmSave();bmPaint();bPaint();bpRender()}}
+  else{if(!BM.hist.length)return;if(confirm('Clear your browsing history?')){BM.hist=[];store.set('bhist',BM.hist);bpRender();toast('History cleared')}}
+};
+document.querySelector('.ntl').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(b)bpOpen(b.dataset.p)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&view==='browser'&&!$('#bpanel').hidden)bpClose()});
+/* address bar suggestions from bookmarks and history */
+function sugHide(){const s=$('#bsug');if(s){s.hidden=true;BM.sug=[];BM.si=-1}}
+function sugPaint(){
+  const s=$('#bsug');
+  s.innerHTML=BM.sug.map((x,i)=>`<button type="button" class="${i===BM.si?'on':''}" data-i="${i}"><span class="tt">${esc(x.t)}</span>${x.k?`<span class="k">${x.k}</span>`:''}<small>${esc(hostOf(x.u))}</small></button>`).join('');
+  s.hidden=!BM.sug.length;
+}
+function sugUpdate(){
+  const q=$('#bin').value.trim().toLowerCase();
+  if(!q){sugHide();return}
+  const seen=new Set(),out=[];
+  const add=(x,k)=>{const n=bmNorm(x.u);if(seen.has(n)||out.length>=6)return;if((x.t+' '+x.u).toLowerCase().includes(q)){seen.add(n);out.push({u:x.u,t:x.t,k})}};
+  BM.list.forEach(x=>add(x,'Bookmark'));BM.hist.forEach(x=>add(x,''));
+  BM.sug=out;BM.si=-1;sugPaint();
+}
+function sugPick(i){const x=BM.sug[i];if(!x)return;const t=bCur();sugHide();$('#bin').blur();if(t)bGo(t,x.u)}
+$('#bin').addEventListener('input',sugUpdate);
+$('#bin').addEventListener('keydown',e=>{
+  if(e.key==='Escape'){sugHide();return}
+  if(!BM.sug.length)return;
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();const n=BM.sug.length;BM.si=e.key==='ArrowDown'?(BM.si+1)%n:(BM.si<=0?n-1:BM.si-1);sugPaint()}
+  else if(e.key==='Enter'&&BM.si>=0){e.preventDefault();sugPick(BM.si)}
+});
+$('#bin').addEventListener('blur',()=>setTimeout(sugHide,120));
+$('#bsug').addEventListener('mousedown',e=>{const b=e.target.closest('button');if(b){e.preventDefault();sugPick(+b.dataset.i)}});
+bmPaint();
+
+/* ===== retro: bring-your-own games, played with EmulatorJS ===== */
+const RT_SYS=[['nes','NES',['nes','fds','unf','unif']],['snes','SNES',['sfc','smc','swc','fig']],['gb','Game Boy',['gb','gbc']],['gba','GBA',['gba']],['segaMD','Genesis',['md','gen','smd']],['segaMS','Master System',['sms']],['segaGG','Game Gear',['gg']],['n64','N64',['z64','n64','v64']],['psx','PlayStation',['cue','pbp','chd','iso','img','ccd','m3u']],['nds','DS',['nds']],['atari2600','Atari 2600',['a26']],['pce','PC Engine',['pce']],['arcade','Arcade',[]]];
+const RT_EXT={};RT_SYS.forEach(([k,n,ex])=>ex.forEach(e=>{RT_EXT[e]=k}));
+const RT_NAME={};RT_SYS.forEach(([k,n])=>{RT_NAME[k]=n});
+var rt={sys:store.get('rtsys',''),list:[],on:false,id:'',ready:false,db:null};
+if(!RT_NAME[rt.sys])rt.sys='';
+const rtClean=n=>String(n).replace(/\.[^.]+$/,'').replace(/[(\[][^)\]]*[)\]]/g,'').replace(/_+/g,' ').replace(/\s+/g,' ').trim()||String(n);
+const rtSize=b=>b>=1048576?(b/1048576).toFixed(b>=1.05e8?0:1)+' MB':Math.max(1,Math.round(b/1024))+' KB';
+function rtDb(){
+  return rt.db||(rt.db=new Promise((res,rej)=>{
+    let r;try{r=indexedDB.open('void-retro',1)}catch(e){rej(e);return}
+    r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains('roms'))r.result.createObjectStore('roms',{keyPath:'id'})};
+    r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);
+  }));
+}
+function rtTx(fn){
+  return rtDb().then(db=>new Promise((res,rej)=>{
+    const tx=db.transaction('roms','readwrite');fn(tx.objectStore('roms'));
+    tx.oncomplete=()=>res();tx.onerror=tx.onabort=()=>rej(tx.error);
+  }));
+}
+function rtLoad(){
+  return rtDb().then(db=>new Promise((res,rej)=>{
+    const out=[],c=db.transaction('roms').objectStore('roms').openCursor();
+    c.onsuccess=()=>{const cur=c.result;if(cur){const v=cur.value;out.push({id:v.id,name:v.name,sys:v.sys||'',size:v.size||0,added:v.added||0,played:v.played||0});cur.continue()}else res(out)};
+    c.onerror=()=>rej(c.error);
+  }));
+}
+function rtPatch(id,p){
+  return rtDb().then(db=>new Promise((res,rej)=>{
+    const tx=db.transaction('roms','readwrite'),s=tx.objectStore('roms'),g=s.get(id);
+    g.onsuccess=()=>{if(g.result)s.put(Object.assign(g.result,p))};
+    tx.oncomplete=()=>res();tx.onerror=tx.onabort=()=>rej(tx.error);
+  }));
+}
+function rtRefresh(){
+  return rtLoad().then(l=>{rt.list=l.sort((a,b)=>(b.played||b.added)-(a.played||a.added));rtPaint('')})
+    .catch(()=>{rt.list=[];rtPaint('Your browser is blocking local storage, so games can’t be kept here.')});
+}
+function rtPaint(err){
+  $('#rtSys').innerHTML=`<button data-s="" class="${rt.sys?'':'on'}">Ask me</button>`+RT_SYS.map(([k,n])=>`<button data-s="${k}" class="${rt.sys===k?'on':''}">${n}</button>`).join('');
+  const tot=rt.list.reduce((a,g)=>a+g.size,0);
+  $('#rtInfo').textContent=rt.list.length?rt.list.length+(rt.list.length===1?' game':' games')+' · '+rtSize(tot)+' on this device':'';
+  const opts=cur=>`<option value=""${cur?'':' selected'}>Pick system</option>`+RT_SYS.map(([k,n])=>`<option value="${k}"${cur===k?' selected':''}>${n}</option>`).join('');
+  $('#rtGrid').innerHTML=rt.list.length?rt.list.map(g=>`<div class="rt-card" data-id="${esc(g.id)}"><div class="rt-top"><span class="rt-badge">${esc(RT_NAME[g.sys]||'Unknown')}</span><button class="rx" data-del="${esc(g.id)}" aria-label="Remove game" title="Remove from this device">${X_SVG}</button></div><h4>${esc(rtClean(g.name))}</h4><small>${rtSize(g.size)}</small><div class="rt-act"><select class="btn" data-sel="${esc(g.id)}" aria-label="System">${opts(g.sys)}</select><button class="btn solid" data-play="${esc(g.id)}">Play</button></div></div>`).join('')
+    :`<div class="rt-empty">${esc(err||'No games yet. Drop a game file above to get started.')}</div>`;
+}
+async function rtAddFiles(files){
+  files=[...files];if(!files.length)return;
+  let n=0;
+  for(const f of files){
+    if(f.size>768*1048576){toast(f.name+' is too big (max 768 MB)');continue}
+    const ext=(f.name.split('.').pop()||'').toLowerCase();
+    if(/^(txt|html?|js|json|png|jpe?g|gif|webp|pdf|exe|dll|apk|docx?|xlsx?|pptx?|mp[34]|mov|avi|css|md|svg)$/.test(ext)){toast(f.name+' isn’t a game file');continue}
+    const sys=RT_EXT[ext]||rt.sys||'';
+    try{
+      const id=Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+      await rtTx(s=>s.put({id,name:f.name,sys,size:f.size,added:Date.now(),played:0,blob:f}));n++;
+    }catch(e){toast('Couldn’t save '+f.name+'. This device may be out of space.');break}
+  }
+  if(n)toast(n+(n===1?' game added':' games added'));
+  rtRefresh();
+}
+function rtInit(){if(rt.ready)return;rt.ready=true;rtRefresh()}
+function rtPlay(id){
+  const g=rt.list.find(x=>x.id===id);if(!g)return;
+  if(!g.sys){toast('Pick a system for this game first');return}
+  rt.on=true;rt.id=id;g.played=Date.now();rtPatch(id,{played:g.played}).catch(()=>{});
+  $('#v-retro').classList.add('playing');$('#rtLib').hidden=true;$('#rtPlay').hidden=false;
+  $('#rtTitle').textContent=rtClean(g.name)+' · '+(RT_NAME[g.sys]||'');
+  const ac=getComputedStyle(document.documentElement).getPropertyValue('--ac').trim()||'#ffffff';
+  $('#rtFrame').src='/emu.html?id='+encodeURIComponent(id)+'&core='+encodeURIComponent(g.sys)+'&ac='+encodeURIComponent(ac);
+  window.scrollTo(0,0);
+}
+function rtStop(){
+  if(!rt||!rt.on)return;
+  rt.on=false;rt.id='';
+  try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}
+  $('#rtFrame').src='about:blank';
+  $('#rtPlay').hidden=true;$('#rtLib').hidden=false;$('#v-retro').classList.remove('playing');
+  rtRefresh();
+}
+$('#rtBack').onclick=rtStop;
+$('#rtFs').onclick=()=>{const f=$('#rtFrame');try{(f.requestFullscreen||f.webkitRequestFullscreen).call(f)}catch(e){toast('Fullscreen isn’t available here')}};
+$('#rtAdd').onclick=()=>$('#rtFile').click();
+$('#rtDrop').onclick=()=>$('#rtFile').click();
+$('#rtDrop').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('#rtFile').click()}});
+$('#rtFile').addEventListener('change',e=>{rtAddFiles(e.target.files);e.target.value=''});
+const rtV=$('#v-retro');
+rtV.addEventListener('dragover',e=>{if(rt.on)return;e.preventDefault();$('#rtDrop').classList.add('over')});
+rtV.addEventListener('dragleave',e=>{if(!e.relatedTarget||!rtV.contains(e.relatedTarget))$('#rtDrop').classList.remove('over')});
+rtV.addEventListener('drop',e=>{if(rt.on)return;e.preventDefault();$('#rtDrop').classList.remove('over');if(e.dataTransfer&&e.dataTransfer.files)rtAddFiles(e.dataTransfer.files)});
+$('#rtSys').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;rt.sys=b.dataset.s;store.set('rtsys',rt.sys);rtPaint('')});
+$('#rtGrid').addEventListener('click',e=>{
+  const p=e.target.closest('[data-play]');if(p){rtPlay(p.dataset.play);return}
+  const d=e.target.closest('[data-del]');
+  if(d){
+    const g=rt.list.find(x=>x.id===d.dataset.del);if(!g)return;
+    if(confirm('Remove "'+rtClean(g.name)+'" from this device? Its save files stay in the emulator.'))rtTx(s=>s.delete(g.id)).then(()=>{toast('Game removed');rtRefresh()}).catch(()=>toast('Couldn’t remove it'));
+  }
+});
+$('#rtGrid').addEventListener('change',e=>{const s=e.target.closest('[data-sel]');if(s)rtPatch(s.dataset.sel,{sys:s.value}).then(rtRefresh).catch(()=>toast('Couldn’t save that'))});
+
 /* ================= dev menu (type 001) ================= */
 const DEF={tag:$('#tag').textContent,word2:$('#logo span:nth-child(2)').textContent,foot:'No ads. Ever.',name:'Void Arcade'};
 const dv={tab:'games',q:'',f:'all',open:new Set()};
-const UI_TOG=[['hideSpot','Hide the featured card'],['hideEcl','Hide the hero ring art'],['hideCont','Hide "Continue playing"'],['hideFavs','Hide "Your favorites"'],['hidePop','Hide "Popular"'],['hideGen','Hide the genre shelves'],['hideHelp','Hide the Help tab'],['hideFoot','Hide the footer']];
+const UI_TOG=[['hideSpot','Hide the featured card'],['hideEcl','Hide the hero ring art'],['hideCont','Hide "Continue playing"'],['hideFavs','Hide "Your favorites"'],['hidePop','Hide "Popular"'],['hideGen','Hide the genre shelves'],['hideHelp','Hide the Help tab'],['hideRetro','Hide the Retro tab'],['hideFoot','Hide the footer']];
 const REMOVED=[["Five Nights at Epstein","games/2019.html","","Horror","A secret escape game where you navigate through mysterious locations.","Removed this session"],["CrazyGames","https://www.crazygames.com","","Game Hubs","Huge library of free browser games","Removed this session"],["Stone Grass","https://www.crazygames.com/game/stone-grass-mowing-simulator","/images/qp/stone-grass.jpg","Sandbox","Mow the lawn and upgrade your mower","Removed this session"],["Cubes 2048.io","https://www.crazygames.com/game/cubes-2048-io","/images/qp/cubes-2048.jpg","Puzzle","Merge matching cubes to build bigger numbers","Removed this session"],["Count Masters","https://www.crazygames.com/game/count-masters-stickman-games","/images/qp/count-masters.jpg","Action","Grow your crowd and run through the gates","Removed this session"],["Helix Jump","https://www.crazygames.com/game/helix-jump","/images/qp/helix-jump.jpg","Action","Bounce the ball down the tower","Removed this session"],["Draw Climber","https://www.crazygames.com/game/draw-climber","/images/qp/draw-climber.jpg","Action","Draw the legs that climb the hill","Removed this session"],["Color Fill 3D","https://www.crazygames.com/game/color-fill-3d","/images/qp/color-fill.jpg","Action","Paint the whole level without crashing","Removed this session"],["Tiny Fishing (Quick Play)","https://html5.gamemonetize.co/0sv6b7mr8ry3mnczviovlrf0ql7e9ob9/","/images/qp/tiny-fishing.jpg","Idle","Cast, catch, upgrade your line and go deeper","Removed this session"],["Hook King Runner","https://www.crazygames.com/game/hook-king-runner","/images/qp/hook-king.jpg","Action","Grapple and swing your way through the course","Removed this session"],["Crazy Flips 3D","https://www.crazygames.com/game/crazy-flips-3d","/images/qp/crazy-flips.jpg","Action","Pull off wild flips and land them clean","Removed this session"],["Happy Glass","https://poki.com/en/g/happy-glass","/images/qp/happy-glass.jpg","Puzzle","Draw a line to fill the glass with water","Removed this session"],["Bottle Flip Challenge","https://poki.com/en/g/bottle-flip-challenge","/images/qp/bottle-flip.jpg","Sports","Flip the bottle and stick the landing","Removed this session"],["Flip the Bottle","https://poki.com/en/g/flip-the-bottle","/images/qp/flip-bottle.jpg","Sports","Tap to flip and land on target spots","Removed this session"],["Sky Riders","https://www.crazygames.com/game/sky-riders","","Action","Race cars and bikes over wild sky tracks","Removed this session"],["Tiny Fishing (CrazyGames)","https://www.crazygames.com/game/tiny-fishing","","Idle","Cast, catch, upgrade your line and go deeper","Removed this session"],["Agar.io","https://agar.io","","Action","Eat cells, grow big, avoid getting eaten","Removed earlier"],["Slither.io","https://slither.io","","Action","Grow the longest snake on the server","Removed earlier"],["Diep.io","https://diep.io","","Action","Upgrade your tank and take on the arena","Removed earlier"],["Krunker.io","https://krunker.io","","Action","Fast browser shooter with custom maps","Removed earlier"],["Shell Shockers","https://shellshock.io","","Action","Egg-based multiplayer shooter","Removed earlier"],["Skribbl.io","https://skribbl.io","","Puzzle","Draw and guess with friends","Removed earlier"],["Gartic Phone","https://garticphone.com","","Puzzle","Telephone, but with drawings","Removed earlier"],["Bonk.io","https://bonk.io","","Action","Physics-based multiplayer duels","Removed earlier"],["TETR.IO","https://tetr.io","","Puzzle","Competitive multiplayer Tetris","Removed earlier"],["Jstris","https://jstris.jezevec10.com","","Puzzle","Free multiplayer block stacking","Removed earlier"],["TypeRacer","https://play.typeracer.com","","Sports","Race other players by typing","Removed earlier"],["Nitro Type","https://www.nitrotype.com","","Racing","Typing races with cars","Removed earlier"],["Roblox","https://now.gg/apps/a/19900/b.html","","Sandbox","Play Roblox in your browser through now.gg","Roblox"],["Lichess","https://lichess.org","","Puzzle","Free chess against anyone","Removed earlier"],["Chess.com","https://www.chess.com/play/online","","Puzzle","Play chess online","Removed earlier"],["2048","https://play2048.co","","Puzzle","Slide tiles and make 2048","Removed earlier"],["Minesweeper","https://minesweeper.online","","Puzzle","The classic, online","Removed earlier"],["Solitaire","https://www.solitr.com","","Puzzle","Klondike and more","Removed earlier"],["Monkeytype","https://monkeytype.com","","Puzzle","Clean typing speed test","Removed earlier"],["Neal.fun","https://neal.fun","","Sandbox","Weird and wonderful web toys","Removed earlier"],["Sandspiel","https://sandspiel.club","","Sandbox","Falling-sand sandbox","Removed earlier"],["Roblox: Brookhaven","https://now.gg/Brookhaven/19905/Brookhaven.html","","Action","Roblox roleplay town, played in the browser through now.gg","Roblox"],["Roblox: Adopt Me","https://now.gg/adopt-me/19912/adopt-me.html","","Action","Raise pets and trade in Roblox, played through now.gg","Roblox"],["Roblox: Blox Fruits","https://now.gg/Blox-fruit/19901/Blox-fruit.html","","Action","Roblox pirate adventure, played through now.gg","Roblox"],["Roblox: Rivals","https://now.gg/rivals/19911/rivals.html","","Action","Roblox shooter duels, played through now.gg","Roblox"],["Roblox: The Strongest Battlegrounds","https://now.gg/the-strongest-battle/19913/the-strongest-battle.html","","Action","Roblox fighting arena, played through now.gg","Roblox"],["Roblox: 99 Nights in the Forest","https://now.gg/99-Nights/19902/99-Nights.html","","Action","Roblox survival horror, played through now.gg","Roblox"],["Poki","https://poki.com","","Game Hubs","Free online games for everyone","Removed earlier"],["Y8","https://www.y8.com","","Game Hubs","Classic and new browser games","Removed earlier"],["Miniclip","https://www.miniclip.com","","Game Hubs","Casual and multiplayer favorites","Removed earlier"],["Coolmath Games","https://www.coolmathgames.com","","Game Hubs","Brain games and puzzles","Removed earlier"],["Armor Games","https://armorgames.com","","Game Hubs","Long-running game portal","Removed earlier"],["Kongregate","https://www.kongregate.com","","Game Hubs","Community game portal","Removed earlier"],["Newgrounds","https://www.newgrounds.com/games","","Game Hubs","Indie games and animations","Removed earlier"],["itch.io","https://itch.io/games/platform-web","","Game Hubs","Indie browser games","Removed earlier"],["Game Jolt","https://gamejolt.com/games","","Game Hubs","Indie games from creators","Removed earlier"],["Addicting Games","https://www.addictinggames.com","","Game Hubs","Quick, fun casual games","Removed earlier"],["Silver Games","https://www.silvergames.com","","Game Hubs","Free online games","Removed earlier"],["Arkadium","https://www.arkadium.com/games","","Game Hubs","Puzzle, card and word games","Removed earlier"],["Pogo","https://www.pogo.com","","Game Hubs","Casual games from EA","Removed earlier"],["Kizi","https://kizi.com","","Game Hubs","Free games for all ages","Removed earlier"],["Playgama","https://playgama.com","","Game Hubs","Free online games for every taste","Removed earlier"],["Math Playground","https://www.mathplayground.com","","Game Hubs","Logic and math games","Removed earlier"]];
 function applyUi(){
   const u=DEV.ui,b=document.body;
@@ -1838,7 +2185,7 @@ function setDens(d,save){
 $('#dens').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setDens(b.dataset.d,true)});
 $('#dens2').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setDens(b.dataset.d,true)});
 $('#exp').onclick=()=>{
-  const data={app:'void-arcade',favs,recent,name:pname,plays:store.get('plays',0),saves:saveDump()};
+  const data={app:'void-arcade',favs,recent,name:pname,plays:store.get('plays',0),saves:saveDump(),bookmarks:BM.list};
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,1)],{type:'application/json'}));a.download='void-arcade-backup.json';document.body.appendChild(a);a.click();a.remove();toast('Backup downloaded');
 };
 $('#imp').onclick=()=>$('#impf').click();
@@ -1852,6 +2199,7 @@ $('#impf').addEventListener('change',e=>{
       favs=names(d.favs);recent=names(d.recent).slice(0,12);store.set('favs',favs);store.set('recent',recent);
       if(typeof d.name==='string'){pname=d.name.slice(0,20);store.set('pname',pname);paintName()}
       if(d.saves&&typeof d.saves==='object')saveLoad(d.saves);
+      if(Array.isArray(d.bookmarks)){BM.list=d.bookmarks.filter(b=>b&&typeof b.u==='string'&&/^https?:/i.test(b.u)).slice(0,200).map(b=>({u:b.u,t:String(b.t||hostOf(b.u)).slice(0,120)}));bmSave();bmPaint()}
       renderAll();toast('Backup restored');
     }catch(err){toast('That file isn’t a Void Arcade backup')}
   };
