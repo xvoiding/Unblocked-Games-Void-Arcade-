@@ -22,6 +22,34 @@ div{max-width:420px;padding:24px;border:1px solid #333}h1{font-size:18px;margin:
   };
 }
 
+// Ad and tracker hosts are answered instantly with an empty response instead of being fetched.
+// That makes pages load faster, saves proxy time, and keeps the site ad-free.
+const TRACKERS = [
+  'doubleclick.net', 'googlesyndication.com', 'googleadservices.com', 'googletagservices.com', 'googletagmanager.com',
+  'google-analytics.com', 'adservice.google.com', 'pagead2.googlesyndication.com', 'adnxs.com', 'adsrvr.org', 'taboola.com',
+  'outbrain.com', 'criteo.com', 'criteo.net', 'scorecardresearch.com', 'quantserve.com', 'amazon-adsystem.com',
+  'moatads.com', 'pubmatic.com', 'rubiconproject.com', 'openx.net', 'casalemedia.com', '2mdn.net', 'adform.net',
+  'smartadserver.com', 'adsafeprotected.com', 'imrworldwide.com', 'hotjar.com', 'bat.bing.com', 'clarity.ms',
+  'connect.facebook.net', 'ads-twitter.com', 'analytics.tiktok.com', 'adroll.com', 'mathtag.com', 'bidswitch.net',
+];
+function isTracker(url) {
+  try {
+    const h = new URL(url).hostname.toLowerCase();
+    return TRACKERS.some((d) => h === d || h.endsWith('.' + d));
+  } catch { return false; }
+}
+function trackerStub(url) {
+  const headers = { 'cache-control': 'public, max-age=86400, s-maxage=86400' };
+  if (/\.js(\?|$)|\/gtm\.js|\/analytics\.js|\/gtag\//i.test(url)) {
+    return { statusCode: 200, headers: { ...headers, 'content-type': 'application/javascript; charset=utf-8' }, body: '/* blocked */' };
+  }
+  return { statusCode: 204, headers, body: '' };
+}
+
+// Static files are the same for everyone (no cookies are forwarded), so the CDN can keep them.
+const CACHE_STATIC = 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400';
+const CACHE_PAGE = 'private, max-age=120';
+
 const prox = (abs) => '/go?u=' + encodeURIComponent(abs);
 
 function absolutize(value, base) {
@@ -122,6 +150,7 @@ exports.handler = async (event) => {
     for (let hop = 0; hop < 6; hop++) {
       const check = checkUrl(url);
       if (!check.ok) return infoPage(403, 'Blocked', check.reason);
+      if (isTracker(url)) return trackerStub(url);
       // The timer only covers waiting for the response headers, so big downloads aren't cut off.
       const ac = new AbortController();
       const timer = setTimeout(() => ac.abort(), 8500);
@@ -142,7 +171,8 @@ exports.handler = async (event) => {
   if (!res) return infoPage(508, 'Too many redirects', 'That site kept bouncing the request around.');
 
   const ct = res.headers.get('content-type') || 'application/octet-stream';
-  const outHeaders = { 'content-type': ct, 'cache-control': 'no-store' };
+  const canCache = method === 'GET' && event.httpMethod !== 'POST' && res.status === 200 && !event.headers.range;
+  const outHeaders = { 'content-type': ct, 'cache-control': canCache ? CACHE_PAGE : 'no-store' };
 
   try {
     if (/text\/html|application\/xhtml/i.test(ct)) {
@@ -153,11 +183,12 @@ exports.handler = async (event) => {
     }
     if (/text\/css/i.test(ct)) {
       outHeaders['content-type'] = 'text/css; charset=utf-8';
+      if (canCache) outHeaders['cache-control'] = CACHE_STATIC;
       return { statusCode: res.status, headers: outHeaders, body: rewriteCss(await decodeText(res, ct), url) };
     }
 
     // Everything else is passed through untouched. Keep range/partial-content info so big media can seek.
-    const passHeaders = { 'content-type': ct, 'cache-control': 'private, max-age=600' };
+    const passHeaders = { 'content-type': ct, 'cache-control': canCache ? CACHE_STATIC : 'private, max-age=600' };
     for (const h of ['content-range', 'accept-ranges', 'etag', 'last-modified']) {
       const v = res.headers.get(h);
       if (v) passHeaders[h] = v;

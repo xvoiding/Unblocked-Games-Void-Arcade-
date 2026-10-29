@@ -1389,7 +1389,7 @@ $('#btabs').addEventListener('auxclick',e=>{const b=e.target.closest('.btab');if
 $('#bNew').onclick=()=>bNew();
 $('#bBack').onclick=()=>{const t=bCur();if(t&&t.i>0){t.i--;bLoad(t,t.hist[t.i])}};
 $('#bFwd').onclick=()=>{const t=bCur();if(t&&t.i<t.hist.length-1){t.i++;bLoad(t,t.hist[t.i])}};
-$('#bReload').onclick=()=>{const t=bCur();if(t&&t.url)bLoad(t,t.url)};
+$('#bReload').onclick=()=>{const t=bCur();if(!t||!t.url)return;try{t.loading=true;bPaint();t.fr.contentWindow.location.reload()}catch(e){bLoad(t,t.url)}};
 $('#bHome').onclick=()=>{const t=bCur();if(t){bGo(t,'');$('#nin').focus()}};
 $('#bform').addEventListener('submit',e=>{e.preventDefault();const t=bCur();if(t){bGo(t,$('#bin').value);$('#bin').blur()}});
 $('#nform').addEventListener('submit',e=>{e.preventDefault();const t=bCur(),v=$('#nin').value;if(t&&v.trim()){bGo(t,v);$('#nin').value=''}});
