@@ -1,8 +1,24 @@
 {
   "rewrites": [
-    { "source": "/go", "destination": "/api/go" },
-    { "source": "/go/:p*", "destination": "/api/go/:p*" },
-    { "source": "/s/:p*", "destination": "https://api.piped.private.coffee/:p*" },
-    { "source": "/m/:p*", "destination": "https://proxy.piped.private.coffee/:p*" }
+    {
+      "source": "/go",
+      "destination": "/api/go"
+    },
+    {
+      "source": "/go/:p*",
+      "destination": "/api/go/:p*"
+    },
+    {
+      "source": "/s/:p*",
+      "destination": "https://api.piped.private.coffee/:p*"
+    },
+    {
+      "source": "/m/:p*",
+      "destination": "https://proxy.piped.private.coffee/:p*"
+    },
+    {
+      "source": "/:fbp*",
+      "destination": "/api/go?fbp=/:fbp*"
+    }
   ]
 }

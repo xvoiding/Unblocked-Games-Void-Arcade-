@@ -50,7 +50,34 @@ function trackerStub(url) {
 const CACHE_STATIC = 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400';
 const CACHE_PAGE = 'private, max-age=120';
 
-const prox = (abs) => '/go?u=' + encodeURIComponent(abs);
+const prox = (abs, scheme) => '/go?u=' + encodeURIComponent(abs) + (scheme ? '&vs=' + scheme : '');
+
+// The site's theme decides whether pages should think the browser is in dark or light mode.
+// The page sets a "vscheme" cookie; here we rewrite (prefers-color-scheme: dark|light) so it is always true for
+// the chosen scheme and always false for the other one.
+const SCHEME_RE = /\(\s*prefers-color-scheme\s*:\s*(dark|light)\s*\)/gi;
+const schemeCss = (s, sc) => (sc ? s.replace(SCHEME_RE, (m, v) => (v.toLowerCase() === sc ? '(min-width:0px)' : '(max-width:0px)')) : s);
+function schemeOf(h) {
+  const m = /(?:^|;\s*)vscheme=(dark|light)/.exec((h && h.cookie) || '');
+  return m ? m[1] : '';
+}
+
+// YouTube has its own player page (see public/yt.html) because the real site can't run inside the proxy.
+function ytRoute(u) {
+  try {
+    const x = new URL(u);
+    const h = x.hostname.toLowerCase().replace(/^(www|m|music)\./, '');
+    const v = (id) => (/^[\w-]{6,20}$/.test(id || '') ? '/yt.html?v=' + id : null);
+    if (h === 'youtu.be') return v(x.pathname.slice(1).split('/')[0]);
+    if (h !== 'youtube.com' && h !== 'youtube-nocookie.com') return null;
+    const p = x.pathname.replace(/\/+$/, '') || '/';
+    if (p === '/' || p === '/feed/trending' || p === '/feed/explore') return '/yt.html';
+    if (p === '/results') return '/yt.html?q=' + encodeURIComponent(x.searchParams.get('search_query') || '');
+    if (p === '/watch') return v(x.searchParams.get('v'));
+    const m = /^\/(?:shorts|live)\/([\w-]{6,20})$/.exec(p);
+    return m ? v(m[1]) : null;
+  } catch { return null; }
+}
 
 function absolutize(value, base) {
   const v = value.trim();
@@ -61,16 +88,17 @@ function absolutize(value, base) {
   } catch { return null; }
 }
 
-function rewriteCss(css, base) {
-  return css.replace(/url\(\s*(['"]?)(.*?)\1\s*\)/gi, (m, q, val) => {
+function rewriteCss(css, base, scheme) {
+  return schemeCss(css.replace(/url\(\s*(['"]?)(.*?)\1\s*\)/gi, (m, q, val) => {
     const abs = absolutize(val, base);
-    return abs ? `url(${q}${prox(abs)}${q})` : m;
-  });
+    return abs ? `url(${q}${prox(abs, scheme)}${q})` : m;
+  }), scheme);
 }
 
-function shim(base) {
+function shim(base, scheme) {
   const B = JSON.stringify(base);
-  return `<script>(function(){var B=${B};
+  const SC = JSON.stringify(scheme || '');
+  return `<script>(function(){var B=${B},SC=${SC};
 try{var NS='vx|'+new URL(B).origin+'|';
 function wrapS(real){function keys(){var a=[];for(var i=0;i<real.length;i++){var k=real.key(i);if(k&&k.indexOf(NS)===0)a.push(k.slice(NS.length))}return a}
 var api={getItem:function(k){return real.getItem(NS+k)},setItem:function(k,v){real.setItem(NS+k,v)},removeItem:function(k){real.removeItem(NS+k)},clear:function(){keys().forEach(function(k){real.removeItem(NS+k)})},key:function(i){var a=keys();return i>=0&&i<a.length?a[i]:null}};
@@ -83,7 +111,26 @@ IDBFactory.prototype.open=function(n){var a=[].slice.call(arguments);a[0]=NS+n;r
 IDBFactory.prototype.deleteDatabase=function(n){var a=[].slice.call(arguments);a[0]=NS+n;return Fd.apply(this,a)};
 if(Fs)IDBFactory.prototype.databases=function(){return Fs.call(this).then(function(l){return l.filter(function(d){return d.name&&d.name.indexOf(NS)===0}).map(function(d){return{name:d.name.slice(NS.length),version:d.version}})})}}
 }catch(e){}
-function P(u){try{u=String(u);if(!u)return u;if(u.indexOf('/go?u=')===0)return u;var a=new URL(u,B).href;if(!/^https?:/.test(a))return u;return '/go?u='+encodeURIComponent(a);}catch(e){return u}}
+function CURF(){try{var s=new URLSearchParams(location.search).get('u');return s||B}catch(e){return B}}
+function P(u){try{u=String(u);if(!u)return u;if(u.indexOf('/go?u=')===0)return u;var a=new URL(u,CURF()).href;if(!/^https?:/.test(a))return u;return '/go?u='+encodeURIComponent(a)+(SC?'&vs='+SC:'');}catch(e){return u}}
+if(SC&&window.matchMedia){var mm=window.matchMedia.bind(window);window.matchMedia=function(q){return mm(String(q).replace(/\(\s*prefers-color-scheme\s*:\s*(dark|light)\s*\)/gi,function(_,v){return v.toLowerCase()===SC?'(min-width:0px)':'(max-width:0px)'}))}}
+var hp=history.pushState,hr=history.replaceState;
+function HH(fn){return function(s,t,u){if(u!=null&&u!==''){var x=String(u);if(x.charAt(0)!=='#')try{u=P(x)}catch(e){}}return fn.call(history,s,t,u)}}
+history.pushState=HH(hp);history.replaceState=HH(hr);
+function FS(f,sub){try{
+var fa=sub&&sub.hasAttribute&&sub.hasAttribute('formaction');
+var m=String((sub&&sub.getAttribute&&sub.getAttribute('formmethod'))||f.getAttribute('method')||'get').toLowerCase();
+var act=(fa?sub.getAttribute('formaction'):f.getAttribute('action'))||'',real='';
+if(act.indexOf('/go?u=')===0){real=new URL(act,location.href).searchParams.get('u')||''}
+if(!real)real=new URL(act,CURF()).href;
+if(!/^https?:/.test(real))return false;
+if(m==='post'){if(act.indexOf('/go?u=')!==0)(fa?sub:f).setAttribute(fa?'formaction':'action',P(real));return false}
+var u=new URL(real);u.search='';
+new FormData(f).forEach(function(v,k){if(typeof v==='string')u.searchParams.append(k,v)});
+if(sub&&sub.name&&!u.searchParams.has(sub.name))u.searchParams.append(sub.name,sub.value||'');
+location.href=P(u.href);return true}catch(e){return false}}
+document.addEventListener('submit',function(e){var f=e.target;if(f&&f.tagName==='FORM'&&!e.defaultPrevented&&FS(f,e.submitter))e.preventDefault()},true);
+var fsub=HTMLFormElement.prototype.submit;HTMLFormElement.prototype.submit=function(){if(!FS(this,null))fsub.call(this)};
 var f=window.fetch;if(f){window.fetch=function(i,o){try{if(typeof i==='string'||i instanceof URL)i=P(i);else if(i&&i.url)i=new Request(P(i.url),i);}catch(e){}return f.call(this,i,o)}}
 var x=XMLHttpRequest.prototype.open;XMLHttpRequest.prototype.open=function(m,u){arguments[1]=P(u);return x.apply(this,arguments)};
 var w=window.open;window.open=function(u){return w.call(window,u?P(u):u)};
@@ -97,31 +144,41 @@ pp(window.HTMLMediaElement&&HTMLMediaElement.prototype,'src');
 pp(window.HTMLLinkElement&&HTMLLinkElement.prototype,'href');
 pp(window.HTMLEmbedElement&&HTMLEmbedElement.prototype,'src');
 pp(window.HTMLIFrameElement&&HTMLIFrameElement.prototype,'src');
-document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[href]');if(a&&a.getAttribute('href').indexOf('/go?u=')!==0){var h=a.getAttribute('href');if(/^https?:/i.test(h)){e.preventDefault();location.href=P(h)}}},true);
+document.addEventListener('click',function(e){
+if(e.defaultPrevented||e.button!==0)return;
+var a=e.target.closest&&e.target.closest('a[href]');if(!a||a.hasAttribute('download'))return;
+var h=a.getAttribute('href');
+if(!h||h.charAt(0)==='#'||h.indexOf('/go?u=')===0||/^(javascript|mailto|tel|data|blob|about):/i.test(h))return;
+var x;try{x=new URL(h,CURF()).href}catch(er){return}
+if(!/^https?:/.test(x))return;
+e.preventDefault();e.stopPropagation();
+if(a.getAttribute('target')==='_blank'||e.ctrlKey||e.metaKey||e.shiftKey)window.open(P(x));else location.href=P(x);
+},true);
 })();</script>`;
 }
 
-function rewriteHtml(html, base) {
+function rewriteHtml(html, base, scheme) {
   let out = html
     .replace(/<base\b[^>]*>/gi, '')
+    .replace(/<meta[^>]+name=["']?referrer["']?[^>]*>/gi, '')
     .replace(/<meta[^>]+http-equiv=["']?(content-security-policy|refresh)[^>]*>/gi, '')
     .replace(/\s(integrity|nonce|crossorigin)\s*=\s*(["']).*?\2/gi, '')
     .replace(/(\s(?:href|src|action|poster|data-src)\s*=\s*)(["'])(.*?)\2/gi, (m, pre, q, val) => {
       const abs = absolutize(val, base);
-      return abs ? `${pre}${q}${prox(abs)}${q}` : m;
+      return abs ? `${pre}${q}${prox(abs, scheme)}${q}` : m;
     })
     .replace(/(\ssrcset\s*=\s*)(["'])(.*?)\2/gi, (m, pre, q, val) => {
       const parts = val.split(',').map((p) => {
         const [u, ...rest] = p.trim().split(/\s+/);
         const abs = absolutize(u, base);
-        return (abs ? prox(abs) : u) + (rest.length ? ' ' + rest.join(' ') : '');
+        return (abs ? prox(abs, scheme) : u) + (rest.length ? ' ' + rest.join(' ') : '');
       });
       return `${pre}${q}${parts.join(', ')}${q}`;
     })
-    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, (m) => rewriteCss(m, base));
-  const tag = shim(base);
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, (m) => rewriteCss(m, base, scheme));
+  const tag = shim(base, scheme);
   out = /<head[^>]*>/i.test(out) ? out.replace(/<head[^>]*>/i, (m) => m + tag) : tag + out;
-  return out;
+  return schemeCss(out, scheme);
 }
 
 // Decodes a text response using its real charset (header, then <meta charset>), defaulting to UTF-8.
@@ -138,6 +195,10 @@ async function decodeText(res, ct) {
 exports.handler = async (event) => {
   const target = event.queryStringParameters && event.queryStringParameters.u;
   if (!target) return infoPage(400, 'No address', 'Nothing to load.');
+  const yt = ytRoute(target);
+  if (yt) return { statusCode: 302, headers: { location: yt, 'cache-control': 'no-store' }, body: '' };
+  const qs = event.queryStringParameters || {};
+  const scheme = /^(dark|light)$/.test(qs.vs || '') ? qs.vs : schemeOf(event.headers);
 
   let method = event.httpMethod === 'POST' ? 'POST' : 'GET';
   let body = method === 'POST' && event.body ? (event.isBase64Encoded ? Buffer.from(event.body, 'base64') : event.body) : undefined;
@@ -179,12 +240,13 @@ exports.handler = async (event) => {
       const html = await decodeText(res, ct);
       if (looksAdultHtml(html)) return infoPage(403, 'Blocked', 'This page looks like adult content.');
       outHeaders['content-type'] = 'text/html; charset=utf-8';
-      return { statusCode: res.status, headers: outHeaders, body: rewriteHtml(html, url) };
+      return { statusCode: res.status, headers: outHeaders, body: rewriteHtml(html, url, scheme) };
     }
     if (/text\/css/i.test(ct)) {
       outHeaders['content-type'] = 'text/css; charset=utf-8';
-      if (canCache) outHeaders['cache-control'] = CACHE_STATIC;
-      return { statusCode: res.status, headers: outHeaders, body: rewriteCss(await decodeText(res, ct), url) };
+      const css = await decodeText(res, ct);
+      if (canCache) outHeaders['cache-control'] = CACHE_STATIC; // the scheme is part of the URL, so each scheme caches separately
+      return { statusCode: res.status, headers: outHeaders, body: rewriteCss(css, url, scheme) };
     }
 
     // Everything else is passed through untouched. Keep range/partial-content info so big media can seek.
@@ -211,3 +273,4 @@ exports.handler = async (event) => {
 };
 
 exports.rewriteHtml = rewriteHtml;
+exports.ytRoute = ytRoute;

@@ -1489,7 +1489,19 @@ $('#secret').addEventListener('mousedown',e=>{if(e.target.id==='secret')closeSec
 const BR={tabs:[],act:0,seq:0,max:8,ready:false};
 const QL=[['Google','https://www.google.com/'],['YouTube','https://www.youtube.com/'],['Wikipedia','https://en.wikipedia.org/'],['GitHub','https://github.com/'],['Twitch','https://www.twitch.tv/'],['Weather','https://weather.com/']];
 const hostOf=u=>{try{return new URL(u).hostname.replace(/^www\./,'')}catch(e){return u}};
-function realUrl(src){try{const u=new URL(src,location.href);if(u.origin===location.origin&&u.pathname==='/go')return u.searchParams.get('u')||'';return u.href}catch(e){return ''}}
+function realUrl(src){try{
+  const u=new URL(src,location.href);
+  if(u.origin===location.origin){
+    if(u.pathname==='/go')return u.searchParams.get('u')||'';
+    if(u.pathname==='/yt.html'){
+      const v=u.searchParams.get('v');
+      if(v)return 'https://www.youtube.com/watch?v='+encodeURIComponent(v);
+      return u.searchParams.has('q')&&u.searchParams.get('q')?'https://www.youtube.com/results?search_query='+encodeURIComponent(u.searchParams.get('q')):'https://www.youtube.com/';
+    }
+    return '';
+  }
+  return u.href;
+}catch(e){return ''}}
 const bCur=()=>BR.tabs.find(t=>t.id===BR.act);
 function bSave(){store.set('btabs',{urls:BR.tabs.map(t=>t.url),act:Math.max(0,BR.tabs.findIndex(t=>t.id===BR.act))})}
 function bInit(){
@@ -1512,17 +1524,18 @@ function bOpen(url){bInit();go('browser');bNew(url)}
 function bGo(t,input,fromHist){
   bpClose();sugHide();
   const url=fromHist?input:(input?toTarget(input):'');
-  if(!fromHist&&!url)return;
+  if(!fromHist&&input&&!url)return;
   if(!fromHist){t.hist=t.hist.slice(0,t.i+1);t.hist.push(url);t.i=t.hist.length-1}
   bLoad(t,url);
 }
+const bProx=x=>proxied(x)+'&vs='+(LIGHT_THEMES.includes(document.documentElement.dataset.theme||'')?'light':'dark');
 function bLoad(t,url){
   t.url=url;
   if(!url){t.title='New Tab';t.loading=false;if(t.fr)t.fr.src='about:blank'}
   else{
     t.title=hostOf(url);t.loading=true;
-    if(!t.fr){const f=document.createElement('iframe');f.className='bfr';f.setAttribute('allow','fullscreen; autoplay; clipboard-write; encrypted-media');f.addEventListener('load',()=>bLoaded(t));f.src=proxied(url);$('#bbody').appendChild(f);t.fr=f}
-    else t.fr.src=proxied(url);
+    if(!t.fr){const f=document.createElement('iframe');f.className='bfr';f.setAttribute('allow','fullscreen; autoplay; clipboard-write; encrypted-media');f.addEventListener('load',()=>bLoaded(t));f.src=bProx(url);$('#bbody').appendChild(f);t.fr=f}
+    else t.fr.src=bProx(url);
   }
   bPaint();bSave();
 }
@@ -1533,7 +1546,7 @@ function bLoaded(t){
   let ti='';
   try{
     const d=t.fr.contentDocument;ti=(d.title||'').trim();
-    d.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[target="_blank"]');if(!a)return;const u=realUrl(a.getAttribute('href')||'');if(/^https?:/i.test(u)){e.preventDefault();e.stopPropagation();bNew(u)}},true);
+    d.addEventListener('click',e=>{if(e.defaultPrevented)return;const a=e.target.closest&&e.target.closest('a[target="_blank"]');if(!a)return;const u=realUrl(a.getAttribute('href')||'');if(/^https?:/i.test(u)){e.preventDefault();e.stopPropagation();bNew(u)}},true);
     t.fr.contentWindow.open=u=>{const r=u?realUrl(String(u)):'';if(/^https?:/i.test(r))bNew(r);return null};
   }catch(e){}
   t.title=ti||hostOf(t.url);t.loading=false;histAdd(t.url,t.title);bPaint();bSave();
@@ -2255,7 +2268,15 @@ function setTheme(t,save){
   if(!THEMES[t])t='normal';
   if(t==='normal')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=t;
   $('#theme').value=t;
+  setScheme(t,!!save);
   if(save){store.set('theme',t);setAccent(THEMES[t][1],true);toast('Theme: '+THEMES[t][0])}
+}
+// Pages in the Browser tab follow the theme: light themes look like light mode, the rest like dark mode.
+const LIGHT_THEMES=['light','paper','candy'];
+function setScheme(t,reload){
+  const sc=LIGHT_THEMES.includes(t)?'light':'dark';
+  try{document.cookie='vscheme='+sc+'; path=/; max-age=31536000; SameSite=Lax'}catch(e){}
+  if(reload)setTimeout(()=>{if(typeof BR!=='undefined')BR.tabs.forEach(x=>{if(x.fr&&x.url)bLoad(x,x.url)})},80);
 }
 $('#theme').addEventListener('change',e=>setTheme(e.target.value,true));
 function tog(btn,key,def,fn){
