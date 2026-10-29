@@ -50,6 +50,7 @@ function trackerStub(url) {
 const CACHE_STATIC = 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400';
 const CACHE_PAGE = 'private, max-age=120';
 
+const hostOf = (u) => { try { return new URL(u).hostname; } catch { return ''; } };
 const prox = (abs, scheme) => '/go?u=' + encodeURIComponent(abs) + (scheme ? '&vs=' + scheme : '');
 
 // The site's theme decides whether pages should think the browser is in dark or light mode.
@@ -61,6 +62,8 @@ function schemeOf(h) {
   const m = /(?:^|;\s*)vscheme=(dark|light)/.exec((h && h.cookie) || '');
   return m ? m[1] : '';
 }
+
+const isYt = (h) => /(^|\.)youtube\.com$/i.test(h || '');
 
 // YouTube has its own player page (see public/yt.html) because the real site can't run inside the proxy.
 function ytRoute(u) {
@@ -112,11 +115,11 @@ IDBFactory.prototype.deleteDatabase=function(n){var a=[].slice.call(arguments);a
 if(Fs)IDBFactory.prototype.databases=function(){return Fs.call(this).then(function(l){return l.filter(function(d){return d.name&&d.name.indexOf(NS)===0}).map(function(d){return{name:d.name.slice(NS.length),version:d.version}})})}}
 }catch(e){}
 function CURF(){try{var s=new URLSearchParams(location.search).get('u');return s||B}catch(e){return B}}
-function P(u){try{u=String(u);if(!u)return u;if(u.indexOf('/go?u=')===0)return u;var a=new URL(u,CURF()).href;if(!/^https?:/.test(a))return u;return '/go?u='+encodeURIComponent(a)+(SC?'&vs='+SC:'');}catch(e){return u}}
+function P(u){try{u=String(u);if(!u)return u;if(u.indexOf('/go?u=')===0)return u;var x=new URL(u,CURF());if(x.origin===location.origin){if(x.pathname==='/go'&&x.searchParams.get('u'))return x.pathname+x.search+x.hash;x=new URL(x.pathname+x.search+x.hash,CURF())}var a=x.href;if(!/^https?:/.test(a))return u;return '/go?u='+encodeURIComponent(a)+(SC?'&vs='+SC:'');}catch(e){return u}}
 if(SC&&window.matchMedia){var mm=window.matchMedia.bind(window);window.matchMedia=function(q){return mm(String(q).replace(/\(\s*prefers-color-scheme\s*:\s*(dark|light)\s*\)/gi,function(_,v){return v.toLowerCase()===SC?'(min-width:0px)':'(max-width:0px)'}))}}
-var hp=history.pushState,hr=history.replaceState;
-function HH(fn){return function(s,t,u){if(u!=null&&u!==''){var x=String(u);if(x.charAt(0)!=='#')try{u=P(x)}catch(e){}}return fn.call(history,s,t,u)}}
-history.pushState=HH(hp);history.replaceState=HH(hr);
+var HP=window.History&&History.prototype||history,hp=HP.pushState,hr=HP.replaceState;
+function HH(fn){return function(s,t,u){if(u!=null&&u!==''){var x=String(u);if(x.charAt(0)!=='#')try{u=P(x)}catch(e){}}return fn.call(this,s,t,u)}}
+HP.pushState=HH(hp);HP.replaceState=HH(hr);
 function FS(f,sub){try{
 var fa=sub&&sub.hasAttribute&&sub.hasAttribute('formaction');
 var m=String((sub&&sub.getAttribute&&sub.getAttribute('formmethod'))||f.getAttribute('method')||'get').toLowerCase();
@@ -203,6 +206,15 @@ exports.handler = async (event) => {
   const headers = { 'user-agent': UA, accept: event.headers.accept || '*/*', 'accept-language': event.headers['accept-language'] || 'en-US,en;q=0.9' };
   if (body && event.headers['content-type']) headers['content-type'] = event.headers['content-type'];
   if (event.headers.range) headers.range = event.headers.range;
+  // YouTube and its video servers expect to be talked to by youtube.com, so present ourselves that way.
+  const th = hostOf(target);
+  if (isYt(th) || /(^|\.)(googlevideo\.com|googleapis\.com|ytimg\.com|ggpht\.com|gstatic\.com)$/i.test(th)) {
+    const dest = event.headers['sec-fetch-dest'] || '';
+    headers.referer = 'https://www.youtube.com/';
+    if (dest !== 'document' && dest !== 'iframe' && dest !== 'image' && dest !== 'style' && dest !== 'script') headers.origin = 'https://www.youtube.com';
+    if (isYt(th)) headers.cookie = (scheme === 'light' ? 'PREF=hl=en' : 'PREF=f6=400&hl=en') + '; SOCS=CAI; CONSENT=YES+1';
+    for (const k of Object.keys(event.headers)) if (/^x-(goog|youtube)-/i.test(k)) headers[k] = event.headers[k];
+  }
 
   let url = target, res;
   try {
