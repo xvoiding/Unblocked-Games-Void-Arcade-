@@ -1824,23 +1824,87 @@ function rtPaint(){
   $('#rtGrid').innerHTML=list.map(rtTile).join('');
 }
 function rtInit(){if(rt.ready)return;rt.ready=true;rtPaint()}
-function rtPlay(c,s){
+/* ===== retro player: EmulatorJS driven in-app, ROMs same-origin through /go ===== */
+const RT_DATA='https://cdn.emulatorjs.org/stable/data/';
+const RT_CZ='https://classicgamezone.com/games/roms/';
+const RT_CZCDN='https://roms.classicgamezone.com/';
+const RT_EBS='https://emubrowser.com/sites/default/files/games/consoles/';
+const RT_SRC={
+  nes:{core:'nes',cz:['nes','nes'],eb:'nes'},
+  snes:{core:'snes',cz:['snes','smc'],eb:'snes'},
+  gb:{core:'gb',cz:['gb','zip'],eb:'gameboy'},
+  gba:{core:'gba',cz:['gba','gba'],eb:'gba',cdn:1},
+  genesis:{core:'segaMD',cz:['genesis','md'],eb:'genesis'},
+  atari2600:{core:'atari2600',eb:'atari2600'},
+  n64:{core:'n64',cz:['n64','n64'],eb:'n64',cdn:1},
+  nds:{core:'nds',cz:['nds','nds'],eb:'nds',cdn:1},
+  psx:{core:'psx',cz:['ps','psx'],eb:'psx',cdn:1},
+  saturn:{core:'segaSaturn',cz:['ss','zip'],eb:'saturn',cdn:1}
+};
+function rtEbName(n){return n.replace(/['\u2019]/g,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,'')}
+function rtCands(c,s,n){
+  const S=RT_SRC[c]||{},out=[];
+  if(S.cz)out.push((S.cdn?RT_CZCDN:RT_CZ)+S.cz[0]+'/'+s+'.'+S.cz[1]);
+  if(S.eb)out.push(RT_EBS+S.eb+'/'+rtEbName(n)+'.zip');
+  return out;
+}
+function rtProbe(u){
+  const p=proxied(u);
+  return fetch(p,{method:'HEAD'}).then(r=>r.ok).catch(()=>fetch(p,{headers:{Range:'bytes=0-1'}}).then(r=>r.ok).catch(()=>false));
+}
+async function rtResolve(c,s,n){
+  const list=rtCands(c,s,n);
+  for(const u of list){if(await rtProbe(u))return u}
+  return list[0]||'';
+}
+var rtEjs=null;
+function rtKill(){
+  try{const e=window.EJS_emulator;if(e){e.pause&&e.pause();e.callEvent&&e.callEvent('pause')}}catch(e){}
+  window.EJS_emulator=null;
+  if(rtEjs&&rtEjs.parentNode)rtEjs.parentNode.removeChild(rtEjs);
+  rtEjs=null;
+  const m=$('#rtMount');if(m)m.innerHTML='';
+}
+function rtBoot(c,rom){
+  const S=RT_SRC[c]||{};
+  rtKill();
+  $('#rtMount').innerHTML='<div id="rtEjs"></div>';
+  window.EJS_player='#rtEjs';
+  window.EJS_core=S.core||'nes';
+  window.EJS_gameUrl=proxied(rom);
+  window.EJS_pathtodata=proxied(RT_DATA);
+  window.EJS_startOnLoaded=true;
+  window.EJS_backgroundColor='#000000';
+  window.EJS_volume=0.7;
+  rtEjs=document.createElement('script');
+  rtEjs.src=proxied(RT_DATA+'loader.js');
+  rtEjs.onerror=()=>{$('#rtMount').innerHTML='<div class="rt-load">The emulator could not be loaded.</div>'};
+  document.head.appendChild(rtEjs);
+}
+async function rtPlay(c,s){
   const g=(RT_EB[c]||[]).find(x=>x[1]===s);if(!g)return;
   rt.on=true;
   $('#v-retro').classList.add('playing');$('#rtLib').hidden=true;$('#rtPlay').hidden=false;
   $('#rtTitle').textContent=g[0]+' · '+(RT_NAME[c]||'');
-  $('#rtFrame').src=proxied(rtUrl(c,s));
+  $('#rtMount').innerHTML='<div class="rt-load"><span class="sp"></span>Loading '+esc(g[0])+'…</div>';
   window.scrollTo(0,0);
+  const rom=await rtResolve(c,s,g[0]);
+  if(!rt.on)return;
+  if(!rom){$('#rtMount').innerHTML='<div class="rt-load">No ROM found for this title.</div>';return}
+  rtBoot(c,rom);
 }
 function rtStop(){
   if(!rt.on)return;
   rt.on=false;
   try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}
-  $('#rtFrame').src='about:blank';
+  rtKill();
   $('#rtPlay').hidden=true;$('#rtLib').hidden=false;$('#v-retro').classList.remove('playing');
 }
 $('#rtBack').onclick=rtStop;
-$('#rtFs').onclick=()=>{const f=$('#rtFrame');try{(f.requestFullscreen||f.webkitRequestFullscreen).call(f)}catch(e){toast('Fullscreen isn’t available here')}};
+$('#rtFs').onclick=()=>{
+  const f=$('#rtPlay').querySelector('.rt-stage');
+  try{(f.requestFullscreen||f.webkitRequestFullscreen).call(f)}catch(e){toast('Fullscreen isn’t available here')}
+};
 $('#rtSys').addEventListener('click',e=>{const b=e.target.closest('[data-rc]');if(!b)return;rt.fil=b.dataset.rc;rtPaint()});
 $('#rtGrid').addEventListener('click',e=>{const t=e.target.closest('[data-es]');if(t)rtPlay(t.dataset.ec,t.dataset.es)});
 $('#rtGrid').addEventListener('keydown',e=>{
