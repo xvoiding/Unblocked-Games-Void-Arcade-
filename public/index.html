@@ -302,6 +302,58 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
   .spot .info{padding:16px}
   .spot .play{width:48px;height:48px}
 }
+/* ================= browser ================= */
+:root{--br:12px;--bpill:99px}
+#v-browser{padding:0;max-width:none;margin:0}
+#v-browser.on{display:flex;flex-direction:column;height:100vh;height:100dvh}
+body[data-view="browser"] footer{display:none}
+.bchrome{position:relative;flex-shrink:0;background:var(--bar);border-bottom:1px solid var(--edge)}
+.bstrip{display:flex;align-items:flex-end;gap:6px;padding:10px 12px 0}
+.btabs{display:flex;gap:4px;min-width:0;flex:0 1 auto;overflow-x:auto;scrollbar-width:none}
+.btabs::-webkit-scrollbar{display:none}
+.btab{display:flex;align-items:center;gap:8px;min-width:96px;width:208px;flex:0 1 208px;height:36px;padding:0 6px 0 12px;border:1px solid transparent;border-bottom:0;border-radius:var(--br) var(--br) 0 0;color:var(--mist);cursor:pointer;font-weight:600;font-size:13.5px;transition:background .2s,color .2s}
+.btab:hover{background:var(--hov);color:var(--ink)}
+.btab.on{background:var(--bg);border-color:var(--edge);color:var(--ink);margin-bottom:-1px;height:37px}
+.btab .fv{width:18px;height:18px;border-radius:50%;background:var(--raise2);border:1px solid var(--edge);display:grid;place-items:center;font:700 9.5px var(--display);flex-shrink:0;text-transform:uppercase}
+.btab .tt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btab .x{width:22px;height:22px;border:0;border-radius:50%;background:none;display:grid;place-items:center;color:inherit;opacity:.65;flex-shrink:0;padding:0}
+.btab .x:hover{background:var(--hov);opacity:1}
+.btab .x svg,.tbtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tbtn{width:34px;height:34px;border:0;border-radius:var(--br);background:transparent;color:var(--mist);display:grid;place-items:center;flex-shrink:0;padding:0}
+.tbtn svg{width:18px;height:18px}
+.tbtn:hover:not(:disabled){background:var(--hov);color:var(--ink)}
+.tbtn:disabled{opacity:.3;cursor:default}
+#bNew{margin-bottom:1px}
+.btool{display:flex;align-items:center;gap:4px;padding:8px 12px;background:var(--bg)}
+.omni{flex:1;min-width:0;position:relative;margin:0 4px}
+.omni input{width:100%;background:var(--raise);border:1px solid var(--edge2);color:var(--ink);padding:9px 14px 9px 38px;border-radius:var(--bpill);outline:none;font-size:14.5px;transition:border-color .2s,box-shadow .2s}
+.omni input:focus{border-color:rgba(var(--ac-rgb),.7);box-shadow:0 0 0 4px rgba(var(--ac-rgb),.1)}
+.omni svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;fill:none;stroke:var(--dim);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.bprog{position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--ac),transparent) -40% 0/40% 100% no-repeat;opacity:0;pointer-events:none}
+.bprog.on{opacity:1;animation:bprog 1.1s linear infinite}
+@keyframes bprog{to{background-position:140% 0}}
+.bbody{flex:1;position:relative;min-height:0;background:var(--bg)}
+.bfr{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;display:none}
+.bfr.on{display:block}
+.ntp{position:absolute;inset:0;overflow:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 20px 40px;gap:24px;text-align:center}
+.ntp.hide{display:none}
+.ntp .big{font:800 clamp(38px,7vw,72px)/1 var(--display);letter-spacing:-.05em}
+.ntp form{width:min(620px,100%);position:relative}
+.ntp form input{width:100%;background:var(--raise);border:1px solid var(--edge2);color:var(--ink);padding:16px 22px 16px 52px;border-radius:var(--bpill);outline:none;font-size:16px;transition:border-color .2s,box-shadow .2s}
+.ntp form input:focus{border-color:rgba(var(--ac-rgb),.7);box-shadow:0 0 0 5px rgba(var(--ac-rgb),.09)}
+.ntp form svg{position:absolute;left:19px;top:50%;transform:translateY(-50%);width:20px;height:20px;fill:none;stroke:var(--dim);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.ntp small{color:var(--dim);font-size:13px}
+.ql{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:12px;width:min(620px,100%)}
+.ql button{background:var(--raise);border:1px solid var(--edge);border-radius:var(--br);padding:14px 8px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;font-weight:600;font-size:13px;color:var(--ink);transition:background .2s,border-color .2s,transform .25s var(--ease)}
+.ql button:hover{background:var(--raise2);border-color:var(--edge2);transform:translateY(-2px)}
+.ql .ic{width:40px;height:40px;border-radius:50%;background:var(--raise2);border:1px solid var(--edge);display:grid;place-items:center;font:800 16px var(--display)}
+@media (max-width:720px){
+  #v-browser.on{height:calc(100dvh - 64px - env(safe-area-inset-bottom,0px))}
+  body[data-view="browser"] main{padding-bottom:0}
+  .btab{width:150px;flex-basis:150px;min-width:84px}
+  #bFwd,#bHome{display:none}
+  .bstrip{padding:8px 8px 0}.btool{padding:6px 8px}
+}
 /* ================= themes ================= */
 :root[data-theme="light"]{--bg:#f5f5f2;--raise:#fff;--raise2:#eeeeea;--edge:rgba(0,0,0,.09);--edge2:rgba(0,0,0,.18);--ink:#131316;--mist:#52525b;--dim:#85858f;--rail-bg:rgba(255,255,255,.84);--hov:rgba(0,0,0,.06);--bar:rgba(255,255,255,.96);--tog-off:#cfcfd6;--toast-bg:#131316;--toast-ink:#fff;--input:#fff;--opt-bg:#fff;--ov:rgba(245,245,242,.72);--shadow:rgba(0,0,0,.3)}
 :root[data-theme="light"] .danger{color:#d12d2d!important}
@@ -366,6 +418,18 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
 :root[data-theme="glass"] .spot{border-radius:32px}
 :root[data-theme="glass"] .cv,:root[data-theme="glass"] .tl .ring{border-radius:20px}
 :root[data-theme] .spot .cv{border-radius:0}
+
+:root[data-theme="terminal"]{--br:3px;--bpill:3px}
+:root[data-theme="paper"]{--br:0px;--bpill:0px}
+:root[data-theme="candy"]{--br:18px}
+:root[data-theme="glass"]{--br:18px}
+:root[data-theme="terminal"] body[data-view="browser"]::after{display:none}
+:root[data-theme="paper"] .btab.on,:root[data-theme="paper"] .omni input,:root[data-theme="paper"] .ql button,:root[data-theme="paper"] .ntp form input{border-width:2px}
+:root[data-theme="paper"] .ql button,:root[data-theme="paper"] .ntp form input{box-shadow:4px 4px 0 #111}
+:root[data-theme="paper"] .bchrome{border-bottom:2px solid #111}
+:root[data-theme="glass"] .bchrome,:root[data-theme="glass"] .btool{backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+:root[data-theme="glass"] .btool{background:transparent}
+:root[data-theme="synthwave"] .btab.on{box-shadow:0 -2px 18px -6px rgba(var(--ac-rgb),.6)}
 </style>
 </head>
 <body>
@@ -375,7 +439,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
   <button class="mark" data-go="home" aria-label="Void Arcade home"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="9" fill="none" stroke="currentColor" stroke-width="4"/></svg><b>Void Arcade</b></button>
   <button class="nb on" data-go="home"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span class="lb">Home</span></button>
   <button class="nb" data-go="games"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span class="lb">Games</span></button>
-  <button class="nb" id="navBrowse" aria-label="Web browser"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9S9.4 5.8 12 3z"/></svg><span class="lb">Browser</span></button>
+  <button class="nb" data-go="browser" aria-label="Web browser"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9S9.4 5.8 12 3z"/></svg><span class="lb">Browser</span></button>
   <button class="nb hide-m" data-go="help"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg><span class="lb">Help</span></button>
   <button class="nb" data-go="settings"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span class="lb">Settings</span></button>
   <div class="nav-gap"></div>
@@ -421,6 +485,28 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
   </section>
 
   <!-- HELP -->
+  <section class="view" id="v-browser">
+    <div class="bchrome">
+      <div class="bstrip"><div class="btabs" id="btabs" role="tablist"></div><button class="tbtn" id="bNew" aria-label="New tab" title="New tab"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button></div>
+      <div class="btool">
+        <button class="tbtn" id="bBack" aria-label="Back" title="Back"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <button class="tbtn" id="bFwd" aria-label="Forward" title="Forward"><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+        <button class="tbtn" id="bReload" aria-label="Reload" title="Reload"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
+        <button class="tbtn" id="bHome" aria-label="New tab page" title="New tab page"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></button>
+        <form class="omni" id="bform" autocomplete="off"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="bin" placeholder="Search Google or type a link" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="go"></form>
+      </div>
+      <div class="bprog" id="bprog"></div>
+    </div>
+    <div class="bbody" id="bbody">
+      <div class="ntp" id="ntp">
+        <div class="big">Void</div>
+        <form id="nform" autocomplete="off"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="nin" placeholder="Search Google or type a link" spellcheck="false" autocapitalize="off" autocorrect="off" enterkeyhint="search"></form>
+        <div class="ql" id="ql"></div>
+        <small>Pages load through the proxy · inappropriate sites are blocked</small>
+      </div>
+    </div>
+  </section>
+
   <section class="view" id="v-help">
     <div class="vhead"><div><h2 class="page">Help</h2><p>Quick answers and shortcuts.</p></div></div>
     <div class="cols">
@@ -1102,11 +1188,11 @@ $('#spot').addEventListener('mouseleave',()=>{sp.hold=false;$('#spot').classList
 function renderAll(){renderTabs();renderGames();renderHome()}
 
 /* ================= router ================= */
-const VIEWS=['home','games','help','settings'];
+const VIEWS=['home','games','browser','help','settings'];
 let view='home';
 function go(v,push){
   if(!VIEWS.includes(v))v='home';
-  view=v;
+  view=v;document.body.dataset.view=v;if(v==='browser')bInit();
   $$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));
   $$('.rail .nb').forEach(b=>b.classList.toggle('on',b.dataset.go===v));
   if(push!==false&&location.hash!=='#/'+v)history.pushState(null,'','#/'+v);
@@ -1221,14 +1307,94 @@ function closeSecret(){closeOv('#secret');$('#sin').blur()}
 $('#sin').addEventListener('keydown',e=>{
   if(e.key!=='Enter')return;
   const t=toTarget($('#sin').value);if(!t)return;
-  closeSecret();$('#sin').value='';
-  cur={n:'Browse',u:t,web:true};setVia(true);
-  $('#vtitle').innerHTML='<span><b>'+(/google\.com\/search/.test(t)?'Search':esc(t.slice(0,80)))+'</b><small>Through the proxy</small></span>';
-  $('#vmode').style.display='none';$('#hint').classList.remove('show');syncVfav();openedAt=0;
-  $('#viewer').classList.add('open');setGaming(true);load();
+  closeSecret();$('#sin').value='';bOpen(t);
 });
-$('#navBrowse').onclick=openSecret;
 $('#secret').addEventListener('mousedown',e=>{if(e.target.id==='secret')closeSecret()});
+
+/* ================= browser tab: tabs + address bar, pages load through the proxy ================= */
+const BR={tabs:[],act:0,seq:0,max:8,ready:false};
+const QL=[['Google','https://www.google.com/'],['YouTube','https://www.youtube.com/'],['Wikipedia','https://en.wikipedia.org/'],['GitHub','https://github.com/'],['Twitch','https://www.twitch.tv/'],['Weather','https://weather.com/']];
+const hostOf=u=>{try{return new URL(u).hostname.replace(/^www\./,'')}catch(e){return u}};
+function realUrl(src){try{const u=new URL(src,location.href);if(u.origin===location.origin&&u.pathname==='/go')return u.searchParams.get('u')||'';return u.href}catch(e){return ''}}
+const bCur=()=>BR.tabs.find(t=>t.id===BR.act);
+function bSave(){store.set('btabs',{urls:BR.tabs.map(t=>t.url),act:Math.max(0,BR.tabs.findIndex(t=>t.id===BR.act))})}
+function bInit(){
+  if(BR.ready)return;BR.ready=true;
+  $('#ql').innerHTML=QL.map(([n,u])=>`<button type="button" data-u="${u}"><span class="ic">${n[0]}</span>${n}</button>`).join('');
+  const sv=store.get('btabs',null);
+  if(sv&&Array.isArray(sv.urls)&&sv.urls.length){
+    sv.urls.slice(0,BR.max).forEach(u=>{const t={id:++BR.seq,url:typeof u==='string'?u:'',title:'',hist:[typeof u==='string'?u:''],i:0,fr:null,loading:false};t.title=t.url?hostOf(t.url):'New Tab';BR.tabs.push(t)});
+    bAct(BR.tabs[Math.min(sv.act||0,BR.tabs.length-1)].id);
+  }else bNew();
+}
+function bNew(url){
+  if(BR.tabs.length>=BR.max){toast('Close a tab first (max '+BR.max+')');return null}
+  const t={id:++BR.seq,url:'',title:'New Tab',hist:[''],i:0,fr:null,loading:false};
+  BR.tabs.push(t);bAct(t.id);
+  if(url)bGo(t,url);else setTimeout(()=>{if(view==='browser')$('#nin').focus()},60);
+  return t;
+}
+function bOpen(url){bInit();go('browser');bNew(url)}
+function bGo(t,input,fromHist){
+  const url=fromHist?input:(input?toTarget(input):'');
+  if(!fromHist&&!url)return;
+  if(!fromHist){t.hist=t.hist.slice(0,t.i+1);t.hist.push(url);t.i=t.hist.length-1}
+  bLoad(t,url);
+}
+function bLoad(t,url){
+  t.url=url;
+  if(!url){t.title='New Tab';t.loading=false;if(t.fr)t.fr.src='about:blank'}
+  else{
+    t.title=hostOf(url);t.loading=true;
+    if(!t.fr){const f=document.createElement('iframe');f.className='bfr';f.setAttribute('allow','fullscreen; autoplay; clipboard-write; encrypted-media');f.addEventListener('load',()=>bLoaded(t));f.src=proxied(url);$('#bbody').appendChild(f);t.fr=f}
+    else t.fr.src=proxied(url);
+  }
+  bPaint();bSave();
+}
+function bLoaded(t){
+  let cu='';try{cu=realUrl(t.fr.contentWindow.location.href)}catch(e){}
+  if(!/^https?:/i.test(cu)){if(!t.url)t.loading=false;bPaint();return}
+  if(cu!==t.url){t.url=cu;t.hist=t.hist.slice(0,t.i+1);t.hist.push(cu);t.i=t.hist.length-1}
+  let ti='';
+  try{
+    const d=t.fr.contentDocument;ti=(d.title||'').trim();
+    d.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[target="_blank"]');if(!a)return;const u=realUrl(a.getAttribute('href')||'');if(/^https?:/i.test(u)){e.preventDefault();e.stopPropagation();bNew(u)}},true);
+    t.fr.contentWindow.open=u=>{const r=u?realUrl(String(u)):'';if(/^https?:/i.test(r))bNew(r);return null};
+  }catch(e){}
+  t.title=ti||hostOf(t.url);t.loading=false;bPaint();bSave();
+}
+function bAct(id){
+  BR.act=id;const t=bCur();
+  if(t&&t.url&&!t.fr)bLoad(t,t.url);
+  bPaint();
+}
+function bClose(id){
+  const i=BR.tabs.findIndex(t=>t.id===id);if(i<0)return;
+  const t=BR.tabs[i];if(t.fr)t.fr.remove();
+  BR.tabs.splice(i,1);
+  if(!BR.tabs.length){bNew();return}
+  if(BR.act===id)bAct(BR.tabs[Math.min(i,BR.tabs.length-1)].id);else{bPaint();bSave()}
+}
+function bPaint(){
+  const t=bCur();
+  $('#btabs').innerHTML=BR.tabs.map(x=>`<div class="btab${x.id===BR.act?' on':''}" role="tab" data-id="${x.id}" title="${esc(x.title)}"><span class="fv">${esc((x.url?hostOf(x.url):'+')[0]||'+')}</span><span class="tt">${esc(x.title)}</span><button class="x" data-x="${x.id}" aria-label="Close tab"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`).join('');
+  BR.tabs.forEach(x=>{if(x.fr)x.fr.classList.toggle('on',x.id===BR.act&&!!x.url)});
+  $('#ntp').classList.toggle('hide',!!(t&&t.url));
+  $('#bBack').disabled=!t||t.i<=0;$('#bFwd').disabled=!t||t.i>=t.hist.length-1;$('#bReload').disabled=!t||!t.url;
+  $('#bprog').classList.toggle('on',!!(t&&t.loading));
+  if(document.activeElement!==$('#bin'))$('#bin').value=t&&t.url?t.url:'';
+}
+$('#btabs').addEventListener('click',e=>{const x=e.target.closest('[data-x]');if(x){e.stopPropagation();bClose(+x.dataset.x);return}const b=e.target.closest('.btab');if(b)bAct(+b.dataset.id)});
+$('#btabs').addEventListener('auxclick',e=>{const b=e.target.closest('.btab');if(b&&e.button===1){e.preventDefault();bClose(+b.dataset.id)}});
+$('#bNew').onclick=()=>bNew();
+$('#bBack').onclick=()=>{const t=bCur();if(t&&t.i>0){t.i--;bLoad(t,t.hist[t.i])}};
+$('#bFwd').onclick=()=>{const t=bCur();if(t&&t.i<t.hist.length-1){t.i++;bLoad(t,t.hist[t.i])}};
+$('#bReload').onclick=()=>{const t=bCur();if(t&&t.url)bLoad(t,t.url)};
+$('#bHome').onclick=()=>{const t=bCur();if(t){bGo(t,'');$('#nin').focus()}};
+$('#bform').addEventListener('submit',e=>{e.preventDefault();const t=bCur();if(t){bGo(t,$('#bin').value);$('#bin').blur()}});
+$('#nform').addEventListener('submit',e=>{e.preventDefault();const t=bCur(),v=$('#nin').value;if(t&&v.trim()){bGo(t,v);$('#nin').value=''}});
+$('#bin').addEventListener('focus',e=>e.target.select());
+$('#ql').addEventListener('click',e=>{const b=e.target.closest('[data-u]');const t=bCur();if(b&&t)bGo(t,b.dataset.u)});
 
 /* ================= keys ================= */
 let lastEsc=0;
