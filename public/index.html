@@ -375,6 +375,7 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
   <button class="mark" data-go="home" aria-label="Void Arcade home"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="9" fill="none" stroke="currentColor" stroke-width="4"/></svg><b>Void Arcade</b></button>
   <button class="nb on" data-go="home"><svg class="i" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg><span class="lb">Home</span></button>
   <button class="nb" data-go="games"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span class="lb">Games</span></button>
+  <button class="nb" id="navBrowse" aria-label="Web browser"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.6 2.8 3.9 5.8 3.9 9s-1.3 6.2-3.9 9c-2.6-2.8-3.9-5.8-3.9-9S9.4 5.8 12 3z"/></svg><span class="lb">Browser</span></button>
   <button class="nb hide-m" data-go="help"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg><span class="lb">Help</span></button>
   <button class="nb" data-go="settings"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span class="lb">Settings</span></button>
   <div class="nav-gap"></div>
@@ -1226,6 +1227,7 @@ $('#sin').addEventListener('keydown',e=>{
   $('#vmode').style.display='none';$('#hint').classList.remove('show');syncVfav();openedAt=0;
   $('#viewer').classList.add('open');setGaming(true);load();
 });
+$('#navBrowse').onclick=openSecret;
 $('#secret').addEventListener('mousedown',e=>{if(e.target.id==='secret')closeSecret()});
 
 /* ================= keys ================= */
