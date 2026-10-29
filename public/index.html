@@ -1273,7 +1273,7 @@ $('#vmode').addEventListener('click',e=>{const b=e.target.closest('button');if(!
 function toTarget(q){
   q=q.trim();if(!q)return null;
   if(/^https?:\/\//i.test(q))return q;
-  if(!/\s/.test(q)&&/^[\w-]+(\.[\w-]+)+(:\d+)?(\/.*)?$/i.test(q))return 'https://'+q;
+  if(!/\s/.test(q)&&/^[\w-]+(\.[\w-]+)+(:\\d+)?(\/.*)?$/i.test(q))return 'https://'+q;
   return 'https://www.google.com/search?q='+encodeURIComponent(q)+'&udm=14&safe=active&hl=en';
 }
 const openOv=id=>{$(id).classList.add('open')},closeOv=id=>{$(id).classList.remove('open')};
@@ -1371,7 +1371,7 @@ function paintLib(){
 function rowHtml(t,i,inPl){
   const playing=curT()&&curT().id===t.id;
   const n=playing&&!au.paused?'♪':(i+1);
-  return `<div class="mrow${playing?' on':''}${t.ok===false?' dead':''}" data-i="${i}"><span class="n">${n}</span><span class="tt"><span class="art">${t.img?`<img src="${esc(t.img)}" alt="" loading="lazy" onerror="this.remove()">`:''}</span><span class="tx"><b>${esc(t.title)}</b><small>${esc(t.artist)}</small></span></span><button class="ico hl${isLiked(t.id)?' on':''}" data-like="${i}" aria-label="Like">${isLiked(t.id)?IC.heartOn:IC.heart}</button><button class="ico hl" data-add="${i}" aria-label="Add to playlist">${IC.plus}</button><span class="dur">${t.dur?fmt(t.dur):''}</span>${inPl?`<button class="ico hl" data-rmpl="${i}" aria-label="Remove from playlist">${IC.trash}</button>`:'<span></span>'}</div>`;
+  return `<div class="mrow${playing?' on':''}${t.ok===false?' dead':''}" data-i="${i}"><span class="n">${n}</span><span class="tt"><span class="art">${t.img?`<img src="${esc(px(t.img))}" alt="" loading="lazy" onerror="this.remove()">`:''}</span><span class="tx"><b>${esc(t.title)}</b><small>${esc(t.artist)}</small></span></span><button class="ico hl${isLiked(t.id)?' on':''}" data-like="${i}" aria-label="Like">${isLiked(t.id)?IC.heartOn:IC.heart}</button><button class="ico hl" data-add="${i}" aria-label="Add to playlist">${IC.plus}</button><span class="dur">${t.dur?fmt(t.dur):''}</span>${inPl?`<button class="ico hl" data-rmpl="${i}" aria-label="Remove from playlist">${IC.trash}</button>`:'<span></span>'}</div>`;
 }
 function listHtml(inPl){
   if(!shown.length)return '<div class="mmsg">Nothing here yet.</div>';
@@ -1461,7 +1461,7 @@ function playHls(url){
     };
     if(window.Hls)return go();
     const s=document.createElement('script');
-    s.src='https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js';
+    s.src=px('https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js');
     s.onload=go;s.onerror=()=>rej(new Error('hls lib'));
     document.head.appendChild(s);
   });
@@ -1479,15 +1479,15 @@ async function startTrack(){
       if(j.hls){await playHls(j.hls);if(my!==loadSeq)return}
       else throw new Error('no stream');
     }else{
-      const u=await media(picked);
+      const u=localMedia(picked);
       if(my!==loadSeq)return;
       if(hls){hls.destroy();hls=null}
       au.src=u;
-      const u=localMedia(picked);
+      await au.play();
     }
     paintBar();
     if('mediaSession' in navigator){
-      try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,artwork:t.img?[{src:t.img,sizes:'320x180'}]:[]})}catch(e){}
+      try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,artwork:t.img?[{src:px(t.img),sizes:'320x180'}]:[]})}catch(e){}
       try{
         navigator.mediaSession.setActionHandler('play',()=>au.play().catch(()=>{}));
         navigator.mediaSession.setActionHandler('pause',()=>au.pause());
@@ -1515,7 +1515,7 @@ function paintBar(){
   if(!t){bar.classList.remove('show');return}
   bar.classList.add('show');
   $('#pName').textContent=t.title;$('#pArtist').textContent=t.artist;
-  $('#pArt').innerHTML=t.img?`<img src="${esc(t.img)}" alt="">`:'';
+  $('#pArt').innerHTML=t.img?`<img src="${esc(px(t.img))}" alt="">`:'';
   $('#pPlay').innerHTML=au.paused?IC.play:IC.pause;
   $('#pLike').innerHTML=isLiked(t.id)?IC.heartOn:IC.heart;$('#pLike').classList.toggle('on',isLiked(t.id));
   $('#pShuf').classList.toggle('on',shuf);$('#pRep').classList.toggle('on',rep>0);
