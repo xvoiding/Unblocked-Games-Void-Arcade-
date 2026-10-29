@@ -1479,7 +1479,7 @@ function toTarget(q){
   q=q.trim();if(!q)return null;
   if(/^https?:\/\//i.test(q))return q;
   if(!/\s/.test(q)&&/^[\w-]+(\.[\w-]+)+(:\\d+)?(\/.*)?$/i.test(q))return 'https://'+q;
-  return 'https://www.google.com/search?q='+encodeURIComponent(q)+'&udm=14&safe=active&hl=en';
+  return 'https://www.bing.com/search?q='+encodeURIComponent(q)+'&adlt=strict&setlang=en';
 }
 const openOv=id=>{$(id).classList.add('open')},closeOv=id=>{$(id).classList.remove('open')};
 function openSecret(){openOv('#secret');setTimeout(()=>$('#sin').focus(),60)}
