@@ -1827,28 +1827,28 @@ const RT_ORDER=['nes','snes','gb','gba','genesis','atari2600','n64','nds','psx',
 const RT_PLAT=[
  {k:'nes',n:'NES',p:'nes-games',f:'nes',core:'nes',x:'nes',eb:'nes'},
  {k:'snes',n:'SNES',p:'snes-games',f:'snes',core:'snes',x:'smc',eb:'snes'},
- {k:'gb',n:'Game Boy',p:'game-boy-games',f:'gb',core:'gb',x:'zip',eb:'gameboy'},
- {k:'gba',n:'GBA',p:'game-boy-advance-games',f:'gba',core:'gba',x:'gba',eb:'gba',cdn:1},
+ {k:'gb',n:'Game Boy',p:'gb-games',f:'gb',core:'gb',x:'zip',eb:'gameboy'},
+ {k:'gba',n:'GBA',p:'gba-games',f:'gba',core:'gba',x:'gba',eb:'gba',cdn:1},
  {k:'genesis',n:'Genesis',p:'genesis-games',f:'genesis',core:'segaMD',x:'md',eb:'genesis'},
- {k:'sms',n:'Master System',p:'sega-master-system-games',f:'sms',core:'segaMS',x:'zip'},
+ {k:'sms',n:'Master System',p:'sms-games',f:'sms',core:'segaMS',x:'zip'},
  {k:'gg',n:'Game Gear',p:'game-gear-games',f:'gamegear',core:'segaGG',x:'gg'},
  {k:'segacd',n:'Sega CD',p:'sega-cd-games',f:'segacd',core:'segaCD',x:'zip'},
  {k:'sega32x',n:'32X',p:'sega-32x-games',f:'sega32x',core:'sega32x',x:'zip'},
- {k:'pce',n:'PC Engine CD',p:'pc-engine-cd-games',f:'pce',core:'pce',x:'zip'},
+ {k:'pce',n:'PC Engine CD',p:'pce-games',f:'pce',core:'pce',x:'zip'},
  {k:'atari2600',n:'Atari 2600',p:'',f:'atari2600',core:'atari2600',x:'bin',eb:'atari2600'},
- {k:'jaguar',n:'Jaguar',p:'atari-jaguar-games',f:'jaguar',core:'jaguar',x:'zip'},
- {k:'n64',n:'N64',p:'nintendo-64-games',f:'n64',core:'n64',x:'n64',eb:'n64',cdn:1},
- {k:'nds',n:'DS',p:'nintendo-ds-games',f:'nds',core:'nds',x:'nds',eb:'nds',cdn:1},
- {k:'psx',n:'PlayStation',p:'playstation-games',f:'ps',core:'psx',x:'psx',eb:'psx',cdn:1},
- {k:'saturn',n:'Saturn',p:'sega-saturn-games',f:'ss',core:'segaSaturn',x:'zip',eb:'saturn',cdn:1},
+ {k:'jaguar',n:'Jaguar',p:'jaguar-games',f:'jaguar',core:'jaguar',x:'zip'},
+ {k:'n64',n:'N64',p:'n64-games',f:'n64',core:'n64',x:'n64',eb:'n64',cdn:1},
+ {k:'nds',n:'DS',p:'nds-games',f:'nds',core:'nds',x:'nds',eb:'nds',cdn:1},
+ {k:'psx',n:'PlayStation',p:'ps-games',f:'ps',core:'psx',x:'psx',eb:'psx',cdn:1},
+ {k:'saturn',n:'Saturn',p:'ss-games',f:'ss',core:'segaSaturn',x:'zip',eb:'saturn',cdn:1},
  {k:'arcade',n:'Arcade',p:'arcade-games',f:'arcade',core:'arcade',x:'zip',cdn:1},
- {k:'ngp',n:'Neo Geo Pocket',p:'neogeo-pocket-games',f:'ngp',core:'ngp',x:'ngc'},
- {k:'ws',n:'WonderSwan',p:'bandai-wonderswan-games',f:'ws',core:'ws',x:'ws'},
- {k:'vb',n:'Virtual Boy',p:'virtual-boy-games',f:'vb',core:'vb',x:'zip'},
- {k:'fds',n:'Famicom Disk',p:'famicom-disk-system-games',f:'fds',core:'nes',x:'zip'},
+ {k:'ngp',n:'Neo Geo Pocket',p:'ngp-games',f:'ngp',core:'ngp',x:'ngc'},
+ {k:'ws',n:'WonderSwan',p:'ws-games',f:'ws',core:'ws',x:'ws'},
+ {k:'vb',n:'Virtual Boy',p:'vb-games',f:'vb',core:'vb',x:'zip'},
+ {k:'fds',n:'Famicom Disk',p:'fds-games',f:'fds',core:'nes',x:'zip'},
  {k:'msx2',n:'MSX2',p:'msx2-games',f:'msx2',core:'msx',x:'7z'},
- {k:'coleco',n:'ColecoVision',p:'colecovision-games',f:'cv',core:'coleco',x:'zip'},
- {k:'c64',n:'C64',p:'commodore-64-games',f:'c64',core:'c64',x:'zip'}
+ {k:'coleco',n:'ColecoVision',p:'coleco-vision-games',f:'cv',core:'coleco',x:'zip'},
+ {k:'c64',n:'C64',p:'c64-games',f:'c64',core:'c64',x:'zip'}
 ];
 const RT_PL=k=>RT_PLAT.find(x=>x.k===k)||{};
 const rtCat={};
@@ -1862,7 +1862,7 @@ function rtAll(){
     return a.concat(seed,live.filter(x=>!seen.has(x.s)));
   },[]);
 }
-function rtCacheGet(k){try{const o=JSON.parse(localStorage.getItem('vx|rtcat:'+k)||'0');if(o&&o.t>Date.now()-2592e6)return o.g}catch(e){}return null}
+function rtCacheGet(k){try{const o=JSON.parse(localStorage.getItem('vx|rt2:'+k)||'0');if(o&&o.t>Date.now()-2592e6)return o.g}catch(e){}return null}
 function rtCacheSet(k,g){try{localStorage.setItem('vx|rtcat:'+k,JSON.stringify({t:Date.now(),g}))}catch(e){}}
 async function rtPage(k,page){
   const P=RT_PL(k);if(!P.p)return null;
@@ -1876,7 +1876,7 @@ async function rtPage(k,page){
   });
   const out=[],seen=new Set();
   doc.querySelectorAll('a[href^="/games/"]').forEach(a=>{
-    const m=(a.getAttribute('href')||'').match(/^\/games\/([a-z0-9-]+)$/);if(!m)return;
+    const m=(a.getAttribute('href')||'').match(/\/games\/([a-z0-9-]+)$/);if(!m)return;
     const s=m[1];if(seen.has(s))return;seen.add(s);
     const t=(a.getAttribute('title')||a.getAttribute('aria-label')||'').replace(/^Play /,'');
     const n=t.split(' | ')[0].trim();if(!n)return;
