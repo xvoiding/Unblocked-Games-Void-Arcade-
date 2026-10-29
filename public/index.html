@@ -214,6 +214,20 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 #mini svg{width:14px;height:14px;fill:currentColor;stroke:none}
 #mini .seek{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
 
+.ytwrap{margin-top:18px;max-width:720px}
+.ytbox{position:relative;aspect-ratio:16/9;background:#000;border:1px solid var(--edge);border-radius:18px;overflow:hidden}
+.ytbox iframe,.ytbox #ytPlayer{position:absolute;inset:0;width:100%;height:100%}
+#mAud{display:none}
+body[data-msrc="aud"] #mAud{display:block}
+body[data-msrc="aud"] #mYt{display:none}
+.ytrow{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;cursor:pointer;border:1px solid transparent}
+.ytrow:hover{background:var(--raise2)}
+.ytrow.on{border-color:rgba(var(--ac-rgb),.5);background:rgba(var(--ac-rgb),.08)}
+.ytrow b{display:block;font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ytrow small{color:var(--dim);font-size:12.5px}
+.ytrow>div{flex:1;min-width:0}
+.ytrow button{background:none;border:0;color:var(--dim);font-size:18px;padding:4px 8px}
+.ytrow button:hover{color:#fff}
 /* ================= help & settings ================= */
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px;align-items:start}
 details{background:var(--raise);border:1px solid var(--edge);border-radius:16px;padding:0 20px;margin-bottom:10px;transition:border-color .25s}
@@ -389,7 +403,8 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
 
   <!-- MUSIC -->
   <section class="view" id="v-music">
-    <div class="vhead"><div><h2 class="page">Music</h2><p>Search for a song or pick a genre. Free and ad-free.</p></div></div>
+    <div class="vhead"><div><h2 class="page">Music</h2><p>Play from YouTube or search free songs on Audius. No ads from us.</p></div><div class="seg" id="mSrc" role="group"><button data-s="yt">YouTube</button><button data-s="aud">Audius</button></div></div>
+    <div id="mAud">
     <form class="msearch" id="mForm" autocomplete="off">
       <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
       <input id="mQ" type="search" placeholder="Search songs, artists…" spellcheck="false">
@@ -400,6 +415,21 @@ body.calm *,body.calm *::before,body.calm *::after{animation-duration:.01ms!impo
       <div class="tracks" id="tracks"></div>
     </div>
     <p class="credit">Music from <a href="https://audius.co" target="_blank" rel="noopener noreferrer">Audius</a>, streamed from artists who upload there. Big-label songs aren't on it.</p>
+    </div>
+    <div id="mYt">
+      <form class="msearch" id="ytForm" autocomplete="off">
+        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+        <input id="ytIn" type="text" placeholder="Paste a YouTube or YouTube Music link…" spellcheck="false">
+      </form>
+      <p class="credit" style="margin-top:8px">Paste a song, playlist or livestream link from youtube.com or music.youtube.com and hit Enter.</p>
+      <div class="ytwrap"><div class="ytbox"><div id="ytPlayer"></div></div></div>
+      <div class="panel" style="margin-top:16px">
+        <h3 class="ph">Your queue</h3>
+        <div class="tracks" id="ytList"></div>
+        <div class="btns" style="margin-top:12px"><button class="btn" id="ytPrev">Prev</button><button class="btn" id="ytNext">Next</button><button class="btn" id="ytClear">Clear queue</button></div>
+      </div>
+      <p class="credit">Plays through YouTube's official player, so videos you pick may show YouTube's own ads. The player has to stay on this page to keep playing.</p>
+    </div>
   </section>
 
   <!-- HELP -->
@@ -1091,7 +1121,7 @@ let view='home';
 function go(v,push){
   if(!VIEWS.includes(v))v='home';
   view=v;
-  if(v==='music'&&typeof ensureMusic==='function')ensureMusic();
+  if(v==='music'&&document.body.dataset.msrc==='aud'&&typeof ensureMusic==='function')ensureMusic();
   $$('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));
   $$('.rail .nb').forEach(b=>b.classList.toggle('on',b.dataset.go===v));
   if(push!==false&&location.hash!=='#/'+v)history.pushState(null,'','#/'+v);
@@ -1331,6 +1361,75 @@ if('mediaSession' in navigator){try{
 }catch(e){}}
 let musicLoaded=false;
 function ensureMusic(){if(!musicLoaded){musicLoaded=true;showTab('')}}
+
+/* ================= music: YouTube (official player) ================= */
+let ytq=store.get('ytq',[]),yti=-1,ytp=null,ytReady=false,ytPending=null;
+function ytParse(t){
+  t=(t||'').trim();let u;
+  try{u=new URL(/^https?:\/\//i.test(t)?t:'https://'+t)}catch(e){return null}
+  const h=u.hostname.replace(/^(www|m|music)\./,'');
+  let id='',list=u.searchParams.get('list')||'';
+  if(h==='youtu.be')id=u.pathname.slice(1).split('/')[0];
+  else if(h==='youtube.com'){
+    if(u.pathname==='/watch')id=u.searchParams.get('v')||'';
+    else{const m=u.pathname.match(/^\/(embed|shorts|live)\/([\w-]{11})/);if(m)id=m[2]}
+  }else return null;
+  if(id&&!/^[\w-]{11}$/.test(id))id='';
+  if(!id&&!list)return null;
+  return id?{t:'v',id}:{t:'l',id:list};
+}
+function ytSave(){store.set('ytq',ytq.slice(0,60))}
+function ytPaint(){
+  const el=$('#ytList');
+  if(!ytq.length){el.innerHTML='<div class="empty" style="padding:26px 0"><b>Nothing queued</b>Paste a link above to start.</div>';return}
+  el.innerHTML=ytq.map((q,i)=>`<div class="ytrow${i===yti?' on':''}" data-i="${i}"><div><b>${esc(q.title||(q.t==='l'?'Playlist':'Video'))}</b><small>${esc(q.by||(q.t==='l'?'YouTube playlist':'YouTube'))}</small></div><button data-rm="${i}" aria-label="Remove">×</button></div>`).join('');
+}
+function ytLoadApi(cb){
+  if(window.YT&&YT.Player){cb();return}
+  window.onYouTubeIframeAPIReady=()=>{cb()};
+  if(!document.getElementById('ytapi')){const sc=document.createElement('script');sc.id='ytapi';sc.src='https://www.youtube.com/iframe_api';sc.onerror=()=>toast('Couldn’t reach YouTube');document.head.appendChild(sc)}
+}
+function ytPlay(i){
+  if(i<0||i>=ytq.length)return;
+  yti=i;ytPaint();const q=ytq[i];
+  const go=()=>{
+    if(!ytp){
+      ytp=new YT.Player('ytPlayer',{width:'100%',height:'100%',playerVars:{playsinline:1,rel:0,modestbranding:1,autoplay:1},events:{onReady:()=>{ytReady=true;ytStart(q)},onStateChange:e=>{if(e.data===0&&ytq[yti]&&ytq[yti].t==='v')ytStep(1)},onError:()=>{toast('That one can’t be played here, skipping');ytStep(1)}}});
+    }else if(ytReady)ytStart(q);
+  };
+  ytLoadApi(go);
+}
+function ytStart(q){
+  if(q.t==='l')ytp.loadPlaylist({list:q.id,listType:'playlist'});else ytp.loadVideoById(q.id);
+}
+function ytStep(d){if(!ytq.length)return;const n=yti+d;if(n<0||n>=ytq.length)return;ytPlay(n)}
+async function ytAdd(raw){
+  const p=ytParse(raw);
+  if(!p){toast('That doesn’t look like a YouTube link');return}
+  const url=p.t==='v'?'https://www.youtube.com/watch?v='+p.id:'https://www.youtube.com/playlist?list='+p.id;
+  const item={t:p.t,id:p.id,title:'',by:''};
+  ytq.push(item);ytSave();ytPaint();
+  if(yti<0)ytPlay(ytq.length-1);
+  try{
+    const r=await fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent(url));
+    if(r.ok){const d=await r.json();item.title=d.title||'';item.by=d.author_name||'';ytSave();ytPaint()}
+  }catch(e){}
+}
+$('#ytForm').addEventListener('submit',e=>{e.preventDefault();const v=$('#ytIn').value;$('#ytIn').value='';if(v.trim())ytAdd(v)});
+$('#ytList').addEventListener('click',e=>{
+  const rm=e.target.closest('[data-rm]');
+  if(rm){const i=+rm.dataset.rm;ytq.splice(i,1);if(i<yti)yti--;else if(i===yti){yti=-1;try{ytp&&ytp.stopVideo()}catch(x){}}ytSave();ytPaint();return}
+  const r=e.target.closest('.ytrow');if(r)ytPlay(+r.dataset.i);
+});
+$('#ytNext').onclick=()=>ytStep(1);$('#ytPrev').onclick=()=>ytStep(-1);
+$('#ytClear').onclick=()=>{ytq=[];yti=-1;try{ytp&&ytp.stopVideo()}catch(x){}ytSave();ytPaint()};
+function setMsrc(v,save){
+  document.body.dataset.msrc=v;$$('#mSrc button').forEach(b=>b.classList.toggle('on',b.dataset.s===v));
+  if(save)store.set('msrc',v);
+  if(v==='aud'&&typeof ensureMusic==='function')ensureMusic();
+}
+$('#mSrc').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setMsrc(b.dataset.s,true)});
+setMsrc(store.get('msrc','yt'),false);ytPaint();
 
 /* ================= settings ================= */
 const ACCENTS=[['White','#f4f4f5'],['Orange','#ff7a1a'],['Blue','#4c8dff'],['Green','#34d399'],['Purple','#a78bfa'],['Pink','#f472b6']];
