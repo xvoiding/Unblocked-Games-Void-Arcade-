@@ -354,6 +354,42 @@ body[data-view="browser"] footer{display:none}
   #bFwd,#bHome{display:none}
   .bstrip{padding:8px 8px 0}.btool{padding:6px 8px}
 }
+/* ================= dev menu ================= */
+body.dv-hideSpot #spot{display:none}
+body.dv-hideEcl .eclipse{display:none}
+body.dv-hideHelp .nb[data-go="help"]{display:none}
+body.dv-hideFoot footer{display:none}
+.devw{position:fixed;inset:0;z-index:92;background:var(--ov);opacity:0;pointer-events:none;transition:opacity .25s var(--ease)}
+.devw.open{opacity:1;pointer-events:auto}
+.dev{position:absolute;right:0;top:0;bottom:0;width:min(620px,100vw);background:var(--bg);color:var(--ink);border-left:1px solid var(--edge2);display:flex;flex-direction:column;transform:translateX(28px);transition:transform .45s var(--ease);box-shadow:-30px 0 80px -30px var(--shadow)}
+.devw.open .dev{transform:none}
+.dev header{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--edge)}
+.dev header b{font:800 18px var(--display);letter-spacing:-.04em}
+.dev header small{color:var(--dim);font-size:12.5px;flex:1}
+.dtabs{display:flex;gap:8px;padding:12px 18px 0}
+.dbody{flex:1;overflow:auto;padding:14px 18px 40px;-webkit-overflow-scrolling:touch}
+.dv-in{width:100%;background:var(--input);border:1px solid var(--edge2);color:var(--ink);padding:9px 12px;border-radius:var(--br);outline:none;font-size:14.5px}
+.dv-in:focus{border-color:rgba(var(--ac-rgb),.7)}
+select.dv-in option{background:var(--opt-bg);color:var(--ink)}
+textarea.dv-in{min-height:140px;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
+.dbar{display:flex;gap:8px;margin-bottom:12px}.dbar select{width:auto}
+.drow{border:1px solid var(--edge);background:var(--raise);border-radius:var(--br);padding:10px;margin-bottom:8px;display:grid;grid-template-columns:46px 1fr;gap:10px}
+.drow.hid{opacity:.55}
+.dth{width:46px;height:46px;border-radius:10px;background:var(--raise2);overflow:hidden;display:grid;place-items:center;font:800 16px var(--display)}
+.dth img{width:100%;height:100%;object-fit:cover}
+.dsub{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.dsub select{width:auto;padding:7px 10px}
+.dsub .btn{padding:6px 11px;font-size:13px}
+.dsub .btn.on{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
+.dedit{display:grid;gap:8px;margin-top:10px}
+.dedit label{font-size:12px;color:var(--dim);display:grid;gap:4px}
+.dadd{background:var(--raise);border:1px solid var(--edge);border-radius:var(--br);padding:0 14px;margin-bottom:12px}
+.dadd summary{padding:12px 0;font-weight:700;cursor:pointer}
+.dadd .dedit{padding-bottom:14px;margin-top:0}
+.dnote{color:var(--dim);font-size:13px;margin:10px 2px}
+.dsec{font:700 14px var(--display);letter-spacing:-.03em;margin:18px 0 8px}
+.dbody .set{padding:11px 0}
+@media (max-width:720px){.dev{width:100vw}}
 /* ================= themes ================= */
 :root[data-theme="light"]{--bg:#f5f5f2;--raise:#fff;--raise2:#eeeeea;--edge:rgba(0,0,0,.09);--edge2:rgba(0,0,0,.18);--ink:#131316;--mist:#52525b;--dim:#85858f;--rail-bg:rgba(255,255,255,.84);--hov:rgba(0,0,0,.06);--bar:rgba(255,255,255,.96);--tog-off:#cfcfd6;--toast-bg:#131316;--toast-ink:#fff;--input:#fff;--opt-bg:#fff;--ov:rgba(245,245,242,.72);--shadow:rgba(0,0,0,.3)}
 :root[data-theme="light"] .danger{color:#d12d2d!important}
@@ -593,6 +629,15 @@ body[data-view="browser"] footer{display:none}
   </div>
 </div>
 
+<!-- dev menu -->
+<div class="devw" id="dev">
+  <div class="dev" role="dialog" aria-label="Dev menu">
+    <header><b>Dev menu</b><small id="dvstat">Checking...</small><button class="btn" id="dvx">Close</button></header>
+    <div class="dtabs" id="dvtabs"><button class="tab on" data-t="games">Games</button><button class="tab" data-t="recover">Recover</button><button class="tab" data-t="ui">UI</button><button class="tab" data-t="data">Data</button></div>
+    <div class="dbody" id="dvbody"></div>
+  </div>
+</div>
+
 <!-- profile -->
 <div class="overlay" id="pmodal">
   <div class="modal">
@@ -614,7 +659,7 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');cl
 /* ================= data ================= */
 const BASE='https://noahstutoring.academy/';
 /* [name, url, image, category, description] */
-const SITE_CATS=[];
+const SITE_CATS=['Game Hubs'];
 const RAW=[
 ["Horsey Game","games/514.html","images/514.jpg","Action","crazy deers mane"],
 ["DEEEER Simulator","games/513.html","images/513.jpg","Sandbox","crazy deers mane"],
@@ -1077,17 +1122,48 @@ const RAW=[
 ["Aqua Park","https://html5.gamemonetize.co/1e6qqz20x4n2hyn71p3kftt64den44h5/","/images/qp/aquapark.jpg","Action","Race down giant water slides and bump rivals into the pool"],
 ["Aqua Park (New Graphics)","https://www.crazygames.com/game/aquapark-io-yky","/images/qp/aquapark-new.jpg","Action","The newer Aquapark.io with upgraded graphics"],
 ];
-const GAMES=RAW.map(([n,u,im,c,t])=>{
+const SRV={configured:false,writable:false,ready:null,stat:'',pw:(()=>{try{return sessionStorage.getItem('devpw')||''}catch(e){return ''}})()};
+function devNorm(x){
+  x=x&&typeof x==='object'?x:{};const str=v=>typeof v==='string'?v:'';
+  const o={games:{},extra:[],ui:{}};
+  const g=x.games&&typeof x.games==='object'?x.games:{};
+  Object.keys(g).forEach(k=>{const v=g[k]||{},c={};['name','cat','img','url','desc'].forEach(f=>{if(str(v[f]))c[f]=str(v[f])});if(v.hidden===true)c.hidden=true;if(Array.isArray(v.alias))c.alias=v.alias.map(str).filter(Boolean);if(Object.keys(c).length)o.games[k]=c});
+  (Array.isArray(x.extra)?x.extra:[]).forEach(e=>{if(e&&str(e.n)&&str(e.u)&&!/^\s*(javascript|data|vbscript|file):/i.test(str(e.u)))o.extra.push({x:+e.x||Date.now()+o.extra.length,n:str(e.n),u:str(e.u),img:str(e.img),c:str(e.c)||'Action',t:str(e.t),alias:Array.isArray(e.alias)?e.alias.map(str).filter(Boolean):[]})});
+  const u=x.ui&&typeof x.ui==='object'?x.ui:{};
+  ['siteName','word2','tag','foot','css'].forEach(k=>{if(str(u[k]))o.ui[k]=str(u[k])});
+  ['hideSpot','hideEcl','hideCont','hideFavs','hidePop','hideGen','hideHelp','hideFoot'].forEach(k=>{if(u[k]===true)o.ui[k]=true});
+  if(Array.isArray(x.pop))o.pop=x.pop.filter(v=>typeof v==='string');
+  return o;
+}
+let DEV=devNorm(store.get('devmode','')==='server'?store.get('devsrv',null):store.get('dev',null));
+function devSave(){if(SRV.configured){store.set('devsrv',DEV);devPush()}else store.set('dev',DEV)}
+function mkG(n,u,im,c,t,o,x){
   const abs=/^https?:\/\//i.test(u), url=abs?u:BASE+u;
   let d='noahstutoring.academy';
   try{d=new URL(url).hostname.replace(/^www\./,'')}catch(e){}
-  return {n,u:url,d,c,t,img:im?(im[0]==='/'?im:BASE+im):'',site:SITE_CATS.indexOf(c)>-1};
-});
-GAMES.forEach((g,i)=>g.id=i);
+  return {o:o||n,x:!!x,n,u:url,d,c,t,img:im?(im[0]==='/'||/^https?:\/\//i.test(im)?im:BASE+im):'',site:SITE_CATS.indexOf(c)>-1};
+}
+const BASEG=RAW.map(([n,u,im,c,t])=>mkG(n,u,im,c,t));
+const GAMES=[];let ALL=[];
+function applyDev(){
+  ALL=[...BASEG,...DEV.extra.map(x=>mkG(x.n,x.u,x.img,x.c,x.t,'x'+x.x,true))].map((b,k)=>{
+    const g={...b},ov=DEV.games[b.o]||{};g.k=k;
+    if(ov.name)g.n=ov.name;
+    if(ov.cat){g.c=ov.cat;g.site=SITE_CATS.indexOf(ov.cat)>-1}
+    if(ov.url){const m=mkG(g.n,ov.url,'',g.c,'');g.u=m.u;g.d=m.d}
+    if(ov.img)g.img=mkG(g.n,g.u,ov.img,g.c,'').img;
+    if(ov.desc)g.t=ov.desc;
+    g.hid=!!ov.hidden;return g;
+  });
+  GAMES.length=0;ALL.forEach(g=>{if(!g.hid)GAMES.push(g)});
+  GAMES.forEach((g,i)=>g.id=i);ALL.forEach(g=>{if(g.hid)g.id=-1});
+}
 const GENRES_G=['Action','Adventure','Horror','Puzzle','Racing','Rhythm','Sandbox','Sports','Retro','Idle'];
 const ORDER=[...GENRES_G,...SITE_CATS];
 const TABS=['All','Favorites',...ORDER];
-const POP=['Minecraft 1.12.1','Geometry Dash Webport','Sonic Mania','Five Nights at Freddy\'s','Tiny Fishing','Ragdoll Archers','Stickman Hook','Slice Master'];
+applyDev();
+const POP0=['Minecraft 1.12.1','Geometry Dash Webport','Sonic Mania','Five Nights at Freddy\'s','Tiny Fishing','Ragdoll Archers','Stickman Hook','Slice Master'];
+const popList=()=>Array.isArray(DEV.pop)?DEV.pop:POP0;
 let cat='All',query='',sortBy='';
 let favs=store.get('favs',[]),recent=store.get('recent',[]);
 favs=favs.map(n=>n==='FNAF'?"Five Nights at Freddy's":n);recent=recent.map(n=>n==='FNAF'?"Five Nights at Freddy's":n);
@@ -1119,7 +1195,7 @@ const block=(title,list)=>`<div class="shelf"><div class="shead"><h2>${esc(title
 /* ================= tabs + games page ================= */
 const matchTab=(g,c)=>c==='All'||(c==='Favorites'?favs.includes(g.n):g.c===c);
 const tabCount=c=>GAMES.filter(g=>matchTab(g,c)).length;
-function renderTabs(){$('#tabs').innerHTML=TABS.map(c=>`<button class="tab ${c===cat?'on':''}" data-c="${esc(c)}">${esc(c)}<span class="n">${tabCount(c)}</span></button>`).join('')}
+function renderTabs(){$('#tabs').innerHTML=TABS.filter(c=>c==='All'||c==='Favorites'||tabCount(c)>0||c===cat).map(c=>`<button class="tab ${c===cat?'on':''}" data-c="${esc(c)}">${esc(c)}<span class="n">${tabCount(c)}</span></button>`).join('')}
 function sorted(l){
   const a=l.slice();
   if(sortBy==='az')a.sort((x,y)=>x.n.localeCompare(y.n));
@@ -1151,11 +1227,12 @@ function renderHome(){
   const fl=favs.map(byName).filter(Boolean);
   const games=GAMES.filter(g=>!g.site);
   let html='';
-  if(r.length)html+=shelf('Continue playing',r);
-  if(fl.length)html+=shelf('Your favorites',fl);
-  const top=POP.map(byName).filter(Boolean);
-  if(top.length)html+=shelf('Popular',top);
-  GENRES_G.forEach(c=>{const l=GAMES.filter(g=>g.c===c);if(l.length)html+=shelf(c,l.slice(0,16),{more:c})});
+  const U=DEV.ui;
+  if(r.length&&!U.hideCont)html+=shelf('Continue playing',r);
+  if(fl.length&&!U.hideFavs)html+=shelf('Your favorites',fl);
+  const top=popList().map(o=>GAMES.find(g=>g.o===o)).filter(Boolean);
+  if(top.length&&!U.hidePop)html+=shelf('Popular',top);
+  if(!U.hideGen)GENRES_G.forEach(c=>{const l=GAMES.filter(g=>g.c===c);if(l.length)html+=shelf(c,l.slice(0,16),{more:c})});
   $('#hrows').innerHTML=html;
   const plays=store.get('plays',0)||0,mins=Math.round((store.get('ptime',0)||0)/60);
   $('#hmeta').textContent=games.length+' games'+(GAMES.some(g=>g.site)?' · '+GAMES.filter(g=>g.site).length+(GAMES.filter(g=>g.site).length===1?' site':' sites'):'')+(plays?' · '+plays+' played'+(mins>=1?' · '+(mins>=90?(mins/60).toFixed(1)+' hours':mins+' min')+' in game':''):'');
@@ -1396,10 +1473,311 @@ $('#nform').addEventListener('submit',e=>{e.preventDefault();const t=bCur(),v=$(
 $('#bin').addEventListener('focus',e=>e.target.select());
 $('#ql').addEventListener('click',e=>{const b=e.target.closest('[data-u]');const t=bCur();if(b&&t)bGo(t,b.dataset.u)});
 
+/* ================= dev menu (type 001) ================= */
+const DEF={tag:$('#tag').textContent,word2:$('#logo span:nth-child(2)').textContent,foot:'No ads. Ever.',name:'Void Arcade'};
+const dv={tab:'games',q:'',f:'all',open:new Set()};
+const UI_TOG=[['hideSpot','Hide the featured card'],['hideEcl','Hide the hero ring art'],['hideCont','Hide "Continue playing"'],['hideFavs','Hide "Your favorites"'],['hidePop','Hide "Popular"'],['hideGen','Hide the genre shelves'],['hideHelp','Hide the Help tab'],['hideFoot','Hide the footer']];
+const REMOVED=[["Five Nights at Epstein","games/2019.html","","Horror","A secret escape game where you navigate through mysterious locations.","Removed this session"],["CrazyGames","https://www.crazygames.com","","Game Hubs","Huge library of free browser games","Removed this session"],["Stone Grass","https://www.crazygames.com/game/stone-grass-mowing-simulator","/images/qp/stone-grass.jpg","Sandbox","Mow the lawn and upgrade your mower","Removed this session"],["Cubes 2048.io","https://www.crazygames.com/game/cubes-2048-io","/images/qp/cubes-2048.jpg","Puzzle","Merge matching cubes to build bigger numbers","Removed this session"],["Count Masters","https://www.crazygames.com/game/count-masters-stickman-games","/images/qp/count-masters.jpg","Action","Grow your crowd and run through the gates","Removed this session"],["Helix Jump","https://www.crazygames.com/game/helix-jump","/images/qp/helix-jump.jpg","Action","Bounce the ball down the tower","Removed this session"],["Draw Climber","https://www.crazygames.com/game/draw-climber","/images/qp/draw-climber.jpg","Action","Draw the legs that climb the hill","Removed this session"],["Color Fill 3D","https://www.crazygames.com/game/color-fill-3d","/images/qp/color-fill.jpg","Action","Paint the whole level without crashing","Removed this session"],["Tiny Fishing (Quick Play)","https://html5.gamemonetize.co/0sv6b7mr8ry3mnczviovlrf0ql7e9ob9/","/images/qp/tiny-fishing.jpg","Idle","Cast, catch, upgrade your line and go deeper","Removed this session"],["Hook King Runner","https://www.crazygames.com/game/hook-king-runner","/images/qp/hook-king.jpg","Action","Grapple and swing your way through the course","Removed this session"],["Crazy Flips 3D","https://www.crazygames.com/game/crazy-flips-3d","/images/qp/crazy-flips.jpg","Action","Pull off wild flips and land them clean","Removed this session"],["Happy Glass","https://poki.com/en/g/happy-glass","/images/qp/happy-glass.jpg","Puzzle","Draw a line to fill the glass with water","Removed this session"],["Bottle Flip Challenge","https://poki.com/en/g/bottle-flip-challenge","/images/qp/bottle-flip.jpg","Sports","Flip the bottle and stick the landing","Removed this session"],["Flip the Bottle","https://poki.com/en/g/flip-the-bottle","/images/qp/flip-bottle.jpg","Sports","Tap to flip and land on target spots","Removed this session"],["Sky Riders","https://www.crazygames.com/game/sky-riders","","Action","Race cars and bikes over wild sky tracks","Removed this session"],["Tiny Fishing (CrazyGames)","https://www.crazygames.com/game/tiny-fishing","","Idle","Cast, catch, upgrade your line and go deeper","Removed this session"],["Agar.io","https://agar.io","","Action","Eat cells, grow big, avoid getting eaten","Removed earlier"],["Slither.io","https://slither.io","","Action","Grow the longest snake on the server","Removed earlier"],["Diep.io","https://diep.io","","Action","Upgrade your tank and take on the arena","Removed earlier"],["Krunker.io","https://krunker.io","","Action","Fast browser shooter with custom maps","Removed earlier"],["Shell Shockers","https://shellshock.io","","Action","Egg-based multiplayer shooter","Removed earlier"],["Skribbl.io","https://skribbl.io","","Puzzle","Draw and guess with friends","Removed earlier"],["Gartic Phone","https://garticphone.com","","Puzzle","Telephone, but with drawings","Removed earlier"],["Bonk.io","https://bonk.io","","Action","Physics-based multiplayer duels","Removed earlier"],["TETR.IO","https://tetr.io","","Puzzle","Competitive multiplayer Tetris","Removed earlier"],["Jstris","https://jstris.jezevec10.com","","Puzzle","Free multiplayer block stacking","Removed earlier"],["TypeRacer","https://play.typeracer.com","","Sports","Race other players by typing","Removed earlier"],["Nitro Type","https://www.nitrotype.com","","Racing","Typing races with cars","Removed earlier"],["Roblox","https://now.gg/apps/a/19900/b.html","","Sandbox","Play Roblox in your browser through now.gg","Roblox"],["Lichess","https://lichess.org","","Puzzle","Free chess against anyone","Removed earlier"],["Chess.com","https://www.chess.com/play/online","","Puzzle","Play chess online","Removed earlier"],["2048","https://play2048.co","","Puzzle","Slide tiles and make 2048","Removed earlier"],["Minesweeper","https://minesweeper.online","","Puzzle","The classic, online","Removed earlier"],["Solitaire","https://www.solitr.com","","Puzzle","Klondike and more","Removed earlier"],["Monkeytype","https://monkeytype.com","","Puzzle","Clean typing speed test","Removed earlier"],["Neal.fun","https://neal.fun","","Sandbox","Weird and wonderful web toys","Removed earlier"],["Sandspiel","https://sandspiel.club","","Sandbox","Falling-sand sandbox","Removed earlier"],["Roblox: Brookhaven","https://now.gg/Brookhaven/19905/Brookhaven.html","","Action","Roblox roleplay town, played in the browser through now.gg","Roblox"],["Roblox: Adopt Me","https://now.gg/adopt-me/19912/adopt-me.html","","Action","Raise pets and trade in Roblox, played through now.gg","Roblox"],["Roblox: Blox Fruits","https://now.gg/Blox-fruit/19901/Blox-fruit.html","","Action","Roblox pirate adventure, played through now.gg","Roblox"],["Roblox: Rivals","https://now.gg/rivals/19911/rivals.html","","Action","Roblox shooter duels, played through now.gg","Roblox"],["Roblox: The Strongest Battlegrounds","https://now.gg/the-strongest-battle/19913/the-strongest-battle.html","","Action","Roblox fighting arena, played through now.gg","Roblox"],["Roblox: 99 Nights in the Forest","https://now.gg/99-Nights/19902/99-Nights.html","","Action","Roblox survival horror, played through now.gg","Roblox"],["Poki","https://poki.com","","Game Hubs","Free online games for everyone","Removed earlier"],["Y8","https://www.y8.com","","Game Hubs","Classic and new browser games","Removed earlier"],["Miniclip","https://www.miniclip.com","","Game Hubs","Casual and multiplayer favorites","Removed earlier"],["Coolmath Games","https://www.coolmathgames.com","","Game Hubs","Brain games and puzzles","Removed earlier"],["Armor Games","https://armorgames.com","","Game Hubs","Long-running game portal","Removed earlier"],["Kongregate","https://www.kongregate.com","","Game Hubs","Community game portal","Removed earlier"],["Newgrounds","https://www.newgrounds.com/games","","Game Hubs","Indie games and animations","Removed earlier"],["itch.io","https://itch.io/games/platform-web","","Game Hubs","Indie browser games","Removed earlier"],["Game Jolt","https://gamejolt.com/games","","Game Hubs","Indie games from creators","Removed earlier"],["Addicting Games","https://www.addictinggames.com","","Game Hubs","Quick, fun casual games","Removed earlier"],["Silver Games","https://www.silvergames.com","","Game Hubs","Free online games","Removed earlier"],["Arkadium","https://www.arkadium.com/games","","Game Hubs","Puzzle, card and word games","Removed earlier"],["Pogo","https://www.pogo.com","","Game Hubs","Casual games from EA","Removed earlier"],["Kizi","https://kizi.com","","Game Hubs","Free games for all ages","Removed earlier"],["Playgama","https://playgama.com","","Game Hubs","Free online games for every taste","Removed earlier"],["Math Playground","https://www.mathplayground.com","","Game Hubs","Logic and math games","Removed earlier"]];
+function applyUi(){
+  const u=DEV.ui,b=document.body;
+  UI_TOG.forEach(([k])=>b.classList.toggle('dv-'+k,!!u[k]));
+  paintName();
+  $('#logo span:nth-child(2)').textContent=u.word2||DEF.word2;
+  const nm=u.siteName||DEF.name;
+  $('.mark b').textContent=nm;
+  $('footer span:first-child').innerHTML='<b>'+esc(nm)+'</b> · '+esc(u.foot||DEF.foot);
+  if(!store.get('cloak',''))document.title=nm;
+  let st=$('#devcss');if(!st){st=document.createElement('style');st.id='devcss';document.head.appendChild(st)}
+  st.textContent=u.css||'';
+}
+const extraOf=g=>DEV.extra.find(x=>'x'+x.x===g.o);
+const edKeys=o=>Object.keys(DEV.games[o]||{}).filter(k=>k!=='alias'&&k!=='hidden');
+// People's favorites are saved by game name. When a game is renamed, move those saves to the new name.
+function migrateNames(){
+  const map=new Map();
+  ALL.forEach(g=>{
+    const al=g.x?(extraOf(g)||{}).alias||[]:(DEV.games[g.o]||{}).alias||[];
+    (g.x?al:[g.o,...al]).forEach(a=>{if(a!==g.n&&!GAMES.some(h=>h.n===a))map.set(a,g.n)});
+  });
+  let ch=false;const fix=l=>l.map(n=>map.has(n)?(ch=true,map.get(n)):n);
+  favs=fix(favs);recent=fix(recent);
+  if(ch){store.set('favs',favs);store.set('recent',recent)}
+}
+function devApply(){
+  applyDev();migrateNames();
+  sp.list=sp.list.map(x=>GAMES.find(g=>g.o===x.o)).filter(Boolean);if(!sp.list.length)pickSpot();sp.i=Math.min(sp.i,sp.list.length-1);
+  applyUi();renderAll();if(view==='home')renderSpot();
+  if($('#dev').classList.contains('open')){if(dv.tab==='games')devList();else if(dv.tab==='recover')devRecover()}
+}
+function devRefresh(){devSave();devApply()}
+function devStat(s){
+  if(s!==undefined)SRV.stat=s;
+  const el=$('#dvstat');if(el)el.textContent=SRV.configured?(SRV.stat||'Saves for everyone'):'This device only · server storage not set up';
+}
+let pushT=0;
+function devPush(){
+  clearTimeout(pushT);devStat('Saving...');
+  pushT=setTimeout(async()=>{
+    try{
+      const r=await fetch('/api/dev',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pw:SRV.pw,action:'save',dev:DEV})});
+      if(r.status===401){SRV.pw='';try{sessionStorage.removeItem('devpw')}catch(e){}devStat('Locked');devLogin('Your session expired. Enter the password again.');return}
+      if(!r.ok)throw 0;
+      devStat('Saved for everyone');
+    }catch(e){devStat('Save failed. Try again')}
+  },450);
+}
+function devRename(g,v){
+  const old=g.n;v=v.trim();if(!v)v=g.x?old:g.o;
+  if(v===old){devList();return}
+  if(GAMES.some(h=>h!==g&&h.n.toLowerCase()===v.toLowerCase())){toast('Another game already has that name');devList();return}
+  let rec;
+  if(g.x)rec=extraOf(g);else rec=DEV.games[g.o]=DEV.games[g.o]||{};
+  rec.alias=rec.alias||[];if(!rec.alias.includes(old)&&old!==g.o)rec.alias.push(old);
+  if(g.x)rec.n=v;else{if(v===g.o)delete rec.name;else rec.name=v}
+  rec.alias=rec.alias.filter(a=>a!==v);
+  devRefresh();toast('Renamed');
+}
+function devSet(g,f,v){
+  v=v.trim();if(f==='name'){devRename(g,v);return}
+  if(g.x){const x=extraOf(g);x[{cat:'c',img:'img',desc:'t',url:'u'}[f]]=v}
+  else{
+    const b=BASEG.find(h=>h.o===g.o),ov=DEV.games[g.o]=DEV.games[g.o]||{};
+    if(v&&!(f==='cat'&&v===b.c))ov[f]=v;else delete ov[f];
+    if(!Object.keys(ov).length)delete DEV.games[g.o];
+  }
+  devRefresh();
+}
+function devDelete(g){
+  if(g.x){DEV.extra=DEV.extra.filter(x=>'x'+x.x!==g.o);delete DEV.games[g.o]}
+  else{(DEV.games[g.o]=DEV.games[g.o]||{}).hidden=true}
+  if(Array.isArray(DEV.pop))DEV.pop=DEV.pop.filter(o=>o!==g.o);
+  devRefresh();toast(g.x?'Deleted. It is in the Recover tab if it was an old game':'Deleted. Switch the filter to Deleted to bring it back');
+}
+function devRestore(g){
+  if(GAMES.some(h=>h.n.toLowerCase()===g.n.toLowerCase())){toast('A game with that name already exists');return}
+  const ov=DEV.games[g.o];if(ov){delete ov.hidden;if(!Object.keys(ov).length)delete DEV.games[g.o]}
+  devRefresh();toast('Restored');
+}
+function devResetGame(g){
+  const ov=DEV.games[g.o]||{},al=[...(ov.alias||[]),g.n].filter(a=>a!==g.o);
+  if(al.length)DEV.games[g.o]={alias:al};else delete DEV.games[g.o];
+  devRefresh();toast('Reset to default');
+}
+function devPop(g){
+  const l=popList().slice(),i=l.indexOf(g.o);
+  if(i>-1)l.splice(i,1);else l.push(g.o);
+  DEV.pop=l;devRefresh();
+}
+function devAdd(){
+  const f=id=>$('#'+id).value.trim(),n=f('dan'),u=f('dau');
+  if(!n||!u){toast('Add a name and a link');return}
+  if(!/^https?:\/\//i.test(u)){toast('The link should start with https://');return}
+  if(GAMES.some(g=>g.n.toLowerCase()===n.toLowerCase())){toast('Another game already has that name');return}
+  DEV.extra.push({x:Date.now(),n,u,img:f('dai'),c:$('#dac').value,t:f('dad'),alias:[]});
+  devRefresh();['dan','dau','dai','dad'].forEach(id=>$('#'+id).value='');toast('Added '+n);
+}
+function devAddBack(idxs){
+  let n=0;
+  idxs.forEach((i,j)=>{
+    const [nm,u,img,c,t]=REMOVED[i];
+    if(GAMES.some(g=>g.n.toLowerCase()===nm.toLowerCase()))return;
+    DEV.extra.push({x:Date.now()+j,n:nm,u,img,c,t,alias:[]});n++;
+  });
+  if(n){devRefresh();toast(n===1?'Added back':n+' games added back')}else toast('Those are already on the site');
+}
+const catOpts=sel=>[...GENRES_G,...SITE_CATS].map(c=>`<option${c===sel?' selected':''}>${c}</option>`).join('');
+function devCount(){
+  const el=$('#dvn');if(!el)return;
+  const ed=Object.keys(DEV.games).filter(o=>edKeys(o).length).length;
+  el.textContent=GAMES.length+' games showing · '+ed+' edited · '+ALL.filter(g=>g.hid).length+' deleted · '+DEV.extra.length+' added';
+}
+function devList(){
+  const box=$('#dvlist');if(!box)return;
+  const q=dv.q.toLowerCase();
+  let rows=ALL.filter(g=>{
+    if(dv.f==='deleted')return g.hid&&(!q||g.n.toLowerCase().includes(q));
+    if(g.hid)return false;
+    if(dv.f==='edited'&&!(g.x?false:edKeys(g.o).length))return false;
+    if(dv.f==='added'&&!g.x)return false;
+    return !q||g.n.toLowerCase().includes(q)||g.o.toLowerCase().includes(q)||g.c.toLowerCase().includes(q);
+  });
+  const total=rows.length;rows=rows.slice(0,60);
+  const pop=new Set(popList());
+  box.innerHTML=rows.map(g=>{
+    const open=dv.open.has(g.o),th=g.img?`<img src="${esc(g.img)}" alt="" loading="lazy" onerror="this.remove()">`:esc((g.n[0]||'?').toUpperCase());
+    const was=!g.x&&g.n!==g.o?`<small class="dnote" style="display:block;margin:4px 2px 0">Originally "${esc(g.o)}"</small>`:'';
+    return `<div class="drow${g.hid?' hid':''}" data-k="${g.k}"><span class="dth">${th}</span><div>
+      <input class="dv-in" data-f="name" value="${esc(g.n)}" aria-label="Game name"${g.hid?' disabled':''}>${was}
+      <div class="dsub">${g.hid?'<button class="btn" data-a="res">Restore</button>':`<select class="dv-in" data-f="cat" aria-label="Category">${catOpts(g.c)}</select>
+        <button class="btn${pop.has(g.o)?' on':''}" data-a="pop" title="Show on the Popular shelf">Popular</button>
+        <button class="btn" data-a="edit">${open?'Hide':'Edit'}</button>
+        <button class="btn danger" data-a="del">Delete</button>`}</div>
+      ${open&&!g.hid?`<div class="dedit"><label>Game link<input class="dv-in" data-f="url" value="${esc(g.u)}"></label><label>Image link<input class="dv-in" data-f="img" value="${esc(g.img)}" placeholder="https://..."></label><label>Description<input class="dv-in" data-f="desc" value="${esc(g.t||'')}"></label>${g.x?'':'<button class="btn" data-a="rst">Reset this game to default</button>'}</div>`:''}
+    </div></div>`}).join('')||`<p class="dnote">${dv.f==='deleted'?'No deleted games.':'Nothing here.'}</p>`;
+  if(total>rows.length)box.insertAdjacentHTML('beforeend',`<p class="dnote">Showing ${rows.length} of ${total}. Search to narrow it down.</p>`);
+  devCount();
+}
+function devRecover(){
+  const have=new Set(GAMES.map(g=>g.n.toLowerCase())),groups={};
+  REMOVED.forEach((r,i)=>{(groups[r[5]]=groups[r[5]]||[]).push(i)});
+  const missing=REMOVED.filter(r=>!have.has(r[0].toLowerCase())).length;
+  $('#dvbody').innerHTML=`<p class="dnote" style="margin-top:0">Games and sites that used to be on the site and got removed. Add any of them back and they show up in the Games tab, where you can rename, move or delete them like the rest.</p>
+  <div class="dbar"><button class="btn solid" data-a="radd-all"${missing?'':' disabled'}>Add all missing (${missing})</button></div>`+
+  Object.keys(groups).map(gr=>`<div class="dsec">${esc(gr)}</div>`+groups[gr].map(i=>{
+    const [n,u,img,c,t]=REMOVED[i],on=have.has(n.toLowerCase());
+    const src=img?(img[0]==='/'||/^https?:/i.test(img)?img:BASE+img):'';
+    return `<div class="drow${on?' hid':''}"><span class="dth">${src?`<img src="${esc(src)}" alt="" loading="lazy" onerror="this.remove()">`:esc(n[0].toUpperCase())}</span><div><b>${esc(n)}</b><small class="dnote" style="display:block;margin:2px 0 0">${esc(c)} · ${esc(t||'')}</small><div class="dsub"><button class="btn" data-a="radd" data-r="${i}"${on?' disabled':''}>${on?'On the site':'Add back'}</button></div></div></div>`}).join('')).join('');
+}
+async function devHist(){
+  const box=$('#dvhist');if(!box)return;
+  if(!SRV.configured){box.innerHTML='<p class="dnote">Version history works once server storage is set up.</p>';return}
+  box.innerHTML='<p class="dnote">Loading...</p>';
+  try{
+    const r=await fetch('/api/dev',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pw:SRV.pw,action:'hist'})});
+    const j=await r.json();if(!r.ok)throw 0;
+    box.innerHTML=j.versions.length?j.versions.map(v=>`<div class="set"><div><b>${new Date(v.t).toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</b><small>${v.edited} edited · ${v.deleted} deleted · ${v.added} added</small></div><button class="btn" data-a="hrest" data-i="${v.i}">Restore</button></div>`).join(''):'<p class="dnote">No older versions yet. One is kept every time you save a change.</p>';
+  }catch(e){box.innerHTML='<p class="dnote">Could not load history.</p>'}
+}
+function devTab(t){
+  dv.tab=t;$('#dvtabs').style.display='';$$('#dvtabs .tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  devStat();
+  const body=$('#dvbody');
+  if(t==='games'){
+    body.innerHTML=`${SRV.configured?'':'<p class="dnote" style="margin-top:0">Server storage is not set up, so changes only affect this device. See the Data tab.</p>'}<div class="dbar"><input class="dv-in" id="dvq" placeholder="Search games" value="${esc(dv.q)}" autocomplete="off"><select class="dv-in" id="dvf"><option value="all">All</option><option value="edited">Edited</option><option value="deleted">Deleted</option><option value="added">Added</option></select></div>
+    <details class="dadd"><summary>Add a game</summary><div class="dedit"><label>Name<input class="dv-in" id="dan"></label><label>Game link<input class="dv-in" id="dau" placeholder="https://..."></label><label>Image link (optional)<input class="dv-in" id="dai" placeholder="https://..."></label><label>Category<select class="dv-in" id="dac">${catOpts('Action')}</select></label><label>Description (optional)<input class="dv-in" id="dad"></label><button class="btn solid" data-a="add">Add game</button></div></details>
+    <div id="dvlist"></div><p class="dnote" id="dvn"></p>`;
+    $('#dvf').value=dv.f;devList();
+  }else if(t==='recover'){devRecover()}
+  else if(t==='ui'){
+    const u=DEV.ui,tx=(k,l,ph)=>`<div class="set"><div><b>${l}</b></div><input class="dv-in" style="max-width:260px" data-ui="${k}" value="${esc(u[k]||'')}" placeholder="${esc(ph)}" maxlength="80"></div>`;
+    const ac=getComputedStyle(document.documentElement).getPropertyValue('--ac').trim();
+    body.innerHTML=`<div class="dsec" style="margin-top:0">Text</div>
+    ${tx('siteName','Site name (tab, footer, side bar)',DEF.name)}${tx('word2','Hero second word',DEF.word2)}${tx('tag','Tagline',DEF.tag)}${tx('foot','Footer text',DEF.foot)}
+    <div class="dsec">Show or hide</div>
+    ${UI_TOG.map(([k,l])=>`<div class="set"><div><b>${l}</b></div><button class="tog${u[k]?' on':''}" data-uit="${k}" aria-label="${l}"></button></div>`).join('')}
+    <div class="dsec">Color</div>
+    <div class="set"><div><b>Accent color on this device</b><small>Same as the swatches in Settings</small></div><input type="color" id="dvac" value="${/^#[0-9a-f]{6}$/i.test(ac)?ac:'#f4f4f5'}" style="width:48px;height:34px;border:0;background:none"></div>
+    <div class="dsec">Custom CSS</div>
+    <textarea class="dv-in" id="dvcss" spellcheck="false" placeholder=".wm{letter-spacing:0}">${esc(u.css||'')}</textarea>
+    <div style="margin-top:12px"><button class="btn danger" data-a="rstui">Reset UI changes</button></div>`;
+  }else{
+    body.innerHTML=`<div class="set"><div><b>Export changes</b><small>Renames, deletes, added games and UI changes as a file</small></div><button class="btn" data-a="exp">Export</button></div>
+    <div class="set"><div><b>Import changes</b><small>Load a file you exported before</small></div><button class="btn" data-a="imp">Import</button></div>
+    <div class="set"><div><b>Reset all changes</b><small>Brings every game and the UI back to default${SRV.configured?' for everyone':''}</small></div><button class="btn danger" data-a="rstall">Reset</button></div>
+    <input type="file" id="dvimp" accept="application/json,.json" hidden>
+    <p class="dnote" id="dvn"></p>
+    <div class="dsec">Version history</div><div id="dvhist"></div>
+    ${SRV.configured?'':`<div class="dsec">Make changes save for everyone</div><p class="dnote">Right now changes only live in this browser. To save them on the server so everyone sees them: in Vercel open your project, go to Storage, add <b>Upstash Redis</b> and connect it to this project. Then go to Settings, Environment Variables and add <b>DEV_PASSWORD</b> with a password only you know. Redeploy, then type 001 again and unlock with that password.</p>`}`;
+    devCount();devHist();
+  }
+}
+function devLocked(){
+  $('#dvtabs').style.display='none';
+  $('#dvbody').innerHTML='<div class="dsec" style="margin-top:0">Almost there</div><p class="dnote">Server storage is connected, but there is no <b>DEV_PASSWORD</b> yet. In Vercel go to Settings, Environment Variables, add <b>DEV_PASSWORD</b> with a password only you know, then redeploy.</p>';
+}
+function devLogin(msg){
+  $('#dvtabs').style.display='none';
+  $('#dvbody').innerHTML=`<div class="dsec" style="margin-top:0">Dev password</div><p class="dnote" id="dvmsg">${esc(msg||'Enter the dev password to change the site for everyone.')}</p><form id="dvlf"><input class="dv-in" id="dvpw" type="password" placeholder="Password" autocomplete="current-password"><div style="margin-top:12px"><button class="btn solid" type="submit">Unlock</button></div></form>`;
+  setTimeout(()=>{const i=$('#dvpw');if(i)i.focus()},50);
+  $('#dvlf').onsubmit=async e=>{
+    e.preventDefault();const pw=$('#dvpw').value;if(!pw)return;
+    $('#dvmsg').textContent='Checking...';
+    try{
+      const r=await fetch('/api/dev',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pw,action:'check'})});
+      if(r.ok){SRV.pw=pw;try{sessionStorage.setItem('devpw',pw)}catch(e){}devTab(dv.tab);return}
+      $('#dvmsg').textContent=r.status===401?'Wrong password.':'Something is not set up on the server yet.';
+    }catch(e){$('#dvmsg').textContent='Could not reach the server.'}
+    $('#dvpw').value='';
+  };
+}
+async function openDev(){
+  $('#dev').classList.add('open');
+  try{await SRV.ready}catch(e){}
+  devStat();
+  if(SRV.configured){
+    if(!SRV.writable){devLocked();return}
+    if(!SRV.pw){devLogin();return}
+  }
+  devTab(dv.tab);
+}
+function closeDev(){$('#dev').classList.remove('open')}
+$('#dvx').onclick=closeDev;
+$('#dev').addEventListener('mousedown',e=>{if(e.target.id==='dev')closeDev()});
+$('#dvtabs').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b)devTab(b.dataset.t)});
+$('#dvbody').addEventListener('input',e=>{
+  const t=e.target;
+  if(t.id==='dvq'){dv.q=t.value;devList();return}
+  if(t.dataset.ui){const v=t.value.trim();if(v)DEV.ui[t.dataset.ui]=v;else delete DEV.ui[t.dataset.ui];devSave();applyUi();return}
+  if(t.id==='dvcss'){if(t.value.trim())DEV.ui.css=t.value;else delete DEV.ui.css;devSave();applyUi();return}
+  if(t.id==='dvac'){setAccent(t.value,true)}
+});
+$('#dvbody').addEventListener('change',e=>{
+  const t=e.target;
+  if(t.id==='dvf'){dv.f=t.value;devList();return}
+  if(t.id==='dvimp'){devImport(t.files[0]);t.value='';return}
+  const row=t.closest('.drow');
+  if(row&&t.dataset.f){const g=ALL[+row.dataset.k];if(g)devSet(g,t.dataset.f,t.value)}
+});
+$('#dvbody').addEventListener('click',async e=>{
+  const tg=e.target.closest('[data-uit]');
+  if(tg){const k=tg.dataset.uit,v=!tg.classList.contains('on');tg.classList.toggle('on',v);if(v)DEV.ui[k]=true;else delete DEV.ui[k];devSave();applyUi();renderHome();return}
+  const a=e.target.closest('[data-a]');if(!a)return;
+  const row=a.closest('.drow'),g=row&&row.dataset.k!==undefined?ALL[+row.dataset.k]:null;
+  switch(a.dataset.a){
+    case 'edit':if(g){dv.open.has(g.o)?dv.open.delete(g.o):dv.open.add(g.o);devList()}break;
+    case 'pop':g&&devPop(g);break;
+    case 'del':g&&devDelete(g);break;
+    case 'res':g&&devRestore(g);break;
+    case 'rst':g&&devResetGame(g);break;
+    case 'add':devAdd();break;
+    case 'radd':devAddBack([+a.dataset.r]);break;
+    case 'radd-all':devAddBack(REMOVED.map((_,i)=>i));break;
+    case 'rstui':DEV.ui={};devSave();applyUi();renderHome();devTab('ui');toast('UI reset');break;
+    case 'exp':{
+      const data={app:'void-arcade-dev',dev:DEV};
+      const l=document.createElement('a');l.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,1)],{type:'application/json'}));l.download='void-arcade-dev.json';document.body.appendChild(l);l.click();l.remove();toast('Downloaded');break}
+    case 'imp':$('#dvimp').click();break;
+    case 'rstall':
+      if(confirm('Reset every change'+(SRV.configured?' for everyone':'')+'? You can undo it from Version history.')){
+        DEV=devNorm(null);devRefresh();devTab('data');toast('Everything reset');
+      }break;
+    case 'hrest':
+      if(confirm('Go back to that version?')){
+        try{
+          const r=await fetch('/api/dev',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pw:SRV.pw,action:'restore',i:+a.dataset.i})});
+          const j=await r.json();if(!r.ok)throw 0;
+          DEV=devNorm(j.dev);store.set('devsrv',DEV);devApply();devTab('data');toast('Restored that version');
+        }catch(err){toast('Could not restore that version')}
+      }break;
+  }
+});
+function devImport(f){
+  if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);if(!d||d.app!=='void-arcade-dev'||!d.dev)throw 0;
+      DEV=devNorm(d.dev);devRefresh();devTab('data');toast('Imported');
+    }catch(e){toast("That file isn't a dev backup")}
+  };
+  r.readAsText(f);
+}
+['#hq','#gq','#sin','#nin','#bin'].forEach(sel=>{const el=$(sel);if(el)el.addEventListener('input',()=>{if(el.value.trim()==='001'){el.value='';el.dispatchEvent(new Event('input'));openDev()}})});
+let devBuf='',devT=0;
+// Everyone loads the saved changes from the server on every visit.
+SRV.ready=fetch('/api/dev',{cache:'no-cache'}).then(r=>r.json()).then(j=>{
+  SRV.configured=!!j.server;SRV.writable=!!j.writable;
+  if(!j.server){store.set('devmode','');return}
+  store.set('devmode','server');
+  DEV=devNorm(j.dev);store.set('devsrv',DEV);
+  devApply();
+}).catch(()=>{SRV.configured=store.get('devmode','')==='server';SRV.writable=SRV.configured});
+
 /* ================= keys ================= */
 let lastEsc=0;
 document.addEventListener('keydown',e=>{
   const typing=/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+  if(!typing&&/^\d$/.test(e.key)&&!e.ctrlKey&&!e.metaKey&&!e.altKey){devBuf=(devBuf+e.key).slice(-3);clearTimeout(devT);devT=setTimeout(()=>devBuf='',1500);if(devBuf==='001'){devBuf='';openDev();return}}
   if(e.key==='`'&&!typing){e.preventDefault();$('#secret').classList.contains('open')?closeSecret():openSecret();return}
   if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openSecret();return}
   if(e.key==='/'&&!typing){e.preventDefault();if(view==='home')$('#hq').focus();else{go('games');setTimeout(()=>$('#gq').focus(),200)}return}
@@ -1407,7 +1785,8 @@ document.addEventListener('keydown',e=>{
     const now=Date.now();
     if(now-lastEsc<450){location.replace('https://classroom.google.com');return}
     lastEsc=now;
-    if($('#secret').classList.contains('open'))closeSecret();
+    if($('#dev').classList.contains('open'))closeDev();
+    else if($('#secret').classList.contains('open'))closeSecret();
     else if($('#pmodal').classList.contains('open'))closeOv('#pmodal');
     else if($('#viewer').classList.contains('open'))closeViewer();
     else if(typing)document.activeElement.blur();
@@ -1521,7 +1900,7 @@ let pname=store.get('pname','');
 function paintName(){
   $('#avl').textContent=pname?pname.trim()[0].toUpperCase():'?';
   $('#whoName').textContent=pname||'Set your name';
-  $('#tag').textContent=pname?`Welcome back, ${pname}. No ads. Ever.`:'Just games. No ads. Ever.';
+  $('#tag').textContent=DEV.ui.tag||(pname?`Welcome back, ${pname}. No ads. Ever.`:'Just games. No ads. Ever.');
 }
 $('#avatar').onclick=()=>{$('#pname').value=pname;openOv('#pmodal');setTimeout(()=>$('#pname').focus(),60)};
 $('#pcancel').onclick=()=>closeOv('#pmodal');
@@ -1551,6 +1930,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelAnim
 
 /* ================= boot ================= */
 setTheme(store.get('theme','normal'),false);
+applyUi();migrateNames();
 setAccent(store.get('accent',(THEMES[store.get('theme','normal')]||THEMES.normal)[1]),false);
 tog($('#tgFx'),'fx',true,v=>{fxOn=v;if(v)startFx();else clearFx()});
 setDens(store.get('dens','cozy'),false);
