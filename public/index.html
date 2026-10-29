@@ -1311,7 +1311,7 @@ document.addEventListener('keydown',e=>{
 /* ================= music: YouTube Music audio via Piped ================= */
 const GENRES=[['Trending','top hits this week'],['Lo-Fi','lofi hip hop'],['Hip-Hop','hip hop hits'],['Pop','pop hits'],['Rock','rock hits'],['R&B','r&b hits'],['Electronic','electronic music'],['Chill','chill music'],['Gaming','gaming music']];
 const SUGGEST=['Drake','DaBaby','Sabrina Carpenter','The Weeknd','SZA','Kendrick Lamar','Playboi Carti','Tyler, The Creator','lo-fi beats','2000s hits'];
-const PIPED=['https://pipedapi.kavin.rocks','https://pipedapi.adminforge.de','https://api.piped.private.coffee','https://pipedapi.reallyaweso.me','https://piped-api.lunar.icu','https://pipedapi.drgns.space'];
+const PIPED=['https://api.piped.private.coffee','https://piped-api.lunar.icu','https://pipedapi.drgns.space','https://pipedapi.kavin.rocks','https://pipedapi.reallyaweso.me','https://pipedapi.adminforge.de'];
 const SV=(d,cls)=>`<svg class="${cls||''}" viewBox="0 0 24 24">${d}</svg>`;
 const IC={
   play:'<svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg>',
@@ -1349,7 +1349,8 @@ async function api(path){
   }
   throw err||new Error('unreachable');
 }
-const media=async u=>(await useProxy())?'/go/'+encodeURIComponent(u):u;
+const isPipedProxy=u=>/^https:\/\/proxy\.[^/]+\//i.test(u);
+const media=async u=>((await useProxy())&&!isPipedProxy(u))?'/go/'+encodeURIComponent(u):u;
 
 let lib=store.get('mlib',null);if(!lib||typeof lib!=='object')lib={};if(!Array.isArray(lib.liked))lib.liked=[];if(!Array.isArray(lib.pls))lib.pls=[];
 const saveLib=()=>store.set('mlib',lib);
@@ -1439,6 +1440,37 @@ function playFrom(list,i){
   if(curT()&&curT().id===t.id&&q===list){au.paused?au.play():au.pause();return}
   q=list.slice();qi=i;startTrack();
 }
+let hls=null;
+function pickStream(j){
+  const c=[];
+  (j.audioStreams||[]).forEach(s=>{if(s.url)c.push({u:s.url,b:s.bitrate||0,s:3})});
+  (j.videoStreams||[]).forEach(s=>{
+    if(!s.url)return;
+    if(/mpegurl/i.test(s.mimeType||''))return;
+    c.push({u:s.url,b:s.bitrate||0,s:s.videoOnly?1:2});
+  });
+  if(!c.length)return null;
+  c.sort((x,y)=>y.s-x.s||y.b-x.b);
+  return c[0].u;
+}
+function playHls(url){
+  return new Promise((res,rej)=>{
+    const go=()=>{
+      try{
+        if(hls){hls.destroy();hls=null}
+        hls=new Hls({enableWorker:true});
+        hls.on(Hls.Events.MANIFEST_PARSED,()=>res());
+        hls.on(Hls.Events.ERROR,(e,d)=>{if(d&&d.fatal)rej(new Error('hls'))});
+        hls.attachMedia(au);hls.loadSource(url);au.play().catch(()=>{});
+      }catch(e){rej(e)}
+    };
+    if(window.Hls)return go();
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js';
+    s.onload=go;s.onerror=()=>rej(new Error('hls lib'));
+    document.head.appendChild(s);
+  });
+}
 async function startTrack(){
   const t=curT();if(!t)return;
   const my=++loadSeq;
@@ -1447,14 +1479,17 @@ async function startTrack(){
   try{
     const j=await api('/streams/'+t.id);
     if(my!==loadSeq)return;
-    const a=(j.audioStreams||[]).filter(s=>s.url);
-    if(!a.length)throw new Error('no audio');
-    a.sort((x,y)=>(y.bitrate||0)-(x.bitrate||0));
-    const best=a.find(s=>/mp4|m4a/i.test(s.mimeType||''))||a[0];
-    const u=await media(best.proxyUrl||best.url);
-    if(my!==loadSeq)return;
-    au.src=u;
-    await au.play();
+    const picked=pickStream(j);
+    if(!picked){
+      if(j.hls){await playHls(j.hls);if(my!==loadSeq)return}
+      else throw new Error('no stream');
+    }else{
+      const u=await media(picked);
+      if(my!==loadSeq)return;
+      if(hls){hls.destroy();hls=null}
+      au.src=u;
+      await au.play();
+    }
     paintBar();
     if('mediaSession' in navigator){
       try{navigator.mediaSession.metadata=new MediaMetadata({title:t.title,artist:t.artist,artwork:t.img?[{src:t.img,sizes:'320x180'}]:[]})}catch(e){}
