@@ -65,9 +65,10 @@ h2{font-size:18px;margin:4px 0 14px}
   var p=new URLSearchParams(location.search),q=p.get('q'),v=p.get('v');
   var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
   function dur(s){if(s==null)return'';var h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return(h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0')}
+  function when(w){return /^\d{4}-\d\d-\d\d/.test(w||'')?new Date(w).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}):(w||'')}
   function num(n){if(n==null)return'';if(n>=1e9)return(n/1e9).toFixed(1)+'B views';if(n>=1e6)return(n/1e6).toFixed(1)+'M views';if(n>=1e3)return(n/1e3).toFixed(1)+'K views';return n+' views'}
   function api(qs){return fetch('/api/yt?'+qs).then(function(r){return r.json().then(function(j){if(!r.ok)throw new Error(j.error||'failed');return j})})}
-  function card(x){return '<a class="card" href="/yt.html?v='+esc(x.id)+'"><div class="th"><img loading="lazy" alt="" src="'+esc(x.thumb)+'">'+(x.dur?'<b>'+dur(x.dur)+'</b>':'')+'</div><h3>'+esc(x.title)+'</h3><small>'+esc(x.by)+'</small><small>'+[num(x.views),esc(x.when)].filter(Boolean).join(' · ')+'</small></a>'}
+  function card(x){return '<a class="card" href="/yt.html?v='+esc(x.id)+'"><div class="th"><img loading="lazy" alt="" src="'+esc(x.thumb)+'">'+(x.dur?'<b>'+dur(x.dur)+'</b>':'')+'</div><h3>'+esc(x.title)+'</h3><small>'+esc(x.by)+'</small><small>'+[num(x.views),esc(when(x.when))].filter(Boolean).join(' · ')+'</small></a>'}
   function fail(e){app.innerHTML='<div class="msg">'+esc(e&&e.message||'Something went wrong.')+'</div>'}
 
   if(v){
@@ -77,7 +78,7 @@ h2{font-size:18px;margin:4px 0 14px}
       if(d.blocked){app.innerHTML='<div class="msg">This video is blocked.</div>';return}
       document.title=d.title+' - YouTube';
       var qual=(d.videos||[]);
-      app.innerHTML='<div class="watch"><div><div class="pl" id="pl"></div><div class="bar" id="bar"></div><h1>'+esc(d.title)+'</h1><div class="meta">'+esc(d.by)+' · '+[num(d.views),esc(d.when)].filter(Boolean).join(' · ')+'</div>'+(d.desc?'<div class="desc">'+esc(d.desc)+'</div>':'')+'</div><div class="rel">'+(d.related||[]).map(card).join('')+'</div></div>';
+      app.innerHTML='<div class="watch"><div><div class="pl" id="pl"></div><div class="bar" id="bar"></div><h1>'+esc(d.title)+'</h1><div class="meta">'+esc(d.by)+' · '+[num(d.views),esc(when(d.when))].filter(Boolean).join(' · ')+'</div>'+(d.desc?'<div class="desc">'+esc(d.desc)+'</div>':'')+'</div><div class="rel">'+(d.related||[]).map(card).join('')+'</div></div>';
       var pl=$('#pl'),bar=$('#bar'),embed=false;
       function useEmbed(){embed=true;pl.innerHTML='<iframe allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen src="https://www.youtube-nocookie.com/embed/'+encodeURIComponent(d.id)+'?autoplay=1&rel=0"></iframe>';paint()}
       function useVideo(i){embed=false;var s=qual[i];pl.innerHTML='<video controls autoplay playsinline></video>';var el=pl.firstChild;el.onerror=function(){useEmbed()};el.src=s.url;paint(i)}
@@ -91,7 +92,11 @@ h2{font-size:18px;margin:4px 0 14px}
       }
       var start=qual.findIndex(function(s){return s.h>0&&s.h<=720});
       if(qual.length&&!d.live)useVideo(start>-1?start:0);else useEmbed();
-    }).catch(fail);
+    }).catch(function(){
+      // The data source couldn't read this video, so use YouTube's own player instead.
+      document.title='YouTube';
+      app.innerHTML='<div class="watch"><div><div class="pl"><iframe allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen src="https://www.youtube-nocookie.com/embed/'+encodeURIComponent(v)+'?autoplay=1&rel=0"></iframe></div><div class="bar"><span class="meta">Playing with the YouTube player.</span></div></div></div>';
+    });
   }else{
     var next=null,term=(q||'').trim();
     if(q!==null)$('#q').value=q;
