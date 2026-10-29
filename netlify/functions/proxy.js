@@ -114,12 +114,20 @@ IDBFactory.prototype.open=function(n){var a=[].slice.call(arguments);a[0]=NS+n;r
 IDBFactory.prototype.deleteDatabase=function(n){var a=[].slice.call(arguments);a[0]=NS+n;return Fd.apply(this,a)};
 if(Fs)IDBFactory.prototype.databases=function(){return Fs.call(this).then(function(l){return l.filter(function(d){return d.name&&d.name.indexOf(NS)===0}).map(function(d){return{name:d.name.slice(NS.length),version:d.version}})})}}
 }catch(e){}
-function CURF(){try{var s=new URLSearchParams(location.search).get('u');return s||B}catch(e){return B}}
+var LAST=B;
+function CURF(){try{var s=new URLSearchParams(location.search).get('u');if(s){LAST=s;return s}}catch(e){}return LAST}
 function P(u){try{u=String(u);if(!u)return u;if(u.indexOf('/go?u=')===0)return u;var x=new URL(u,CURF());if(x.origin===location.origin){if(x.pathname==='/go'&&x.searchParams.get('u'))return x.pathname+x.search+x.hash;x=new URL(x.pathname+x.search+x.hash,CURF())}var a=x.href;if(!/^https?:/.test(a))return u;return '/go?u='+encodeURIComponent(a)+(SC?'&vs='+SC:'');}catch(e){return u}}
 if(SC&&window.matchMedia){var mm=window.matchMedia.bind(window);window.matchMedia=function(q){return mm(String(q).replace(/\(\s*prefers-color-scheme\s*:\s*(dark|light)\s*\)/gi,function(_,v){return v.toLowerCase()===SC?'(min-width:0px)':'(max-width:0px)'}))}}
 var HP=window.History&&History.prototype||history,hp=HP.pushState,hr=HP.replaceState;
 function HH(fn){return function(s,t,u){if(u!=null&&u!==''){var x=String(u);if(x.charAt(0)!=='#')try{u=P(x)}catch(e){}}return fn.call(this,s,t,u)}}
 HP.pushState=HH(hp);HP.replaceState=HH(hr);
+// Some sites (YouTube) change the address with a clean copy of the history API that we can't wrap. If the address
+// stops being /go?u=..., put the real address back so reloads and links keep working.
+function FIX(){try{if(location.pathname==='/go'&&new URLSearchParams(location.search).get('u'))return;
+var abs=new URL(location.pathname+location.search+location.hash,LAST).href;if(!/^https?:/.test(abs))return;
+hr.call(history,history.state,'','/go?u='+encodeURIComponent(abs)+(SC?'&vs='+SC:''))}catch(e){}}
+setInterval(FIX,250);
+try{if(window.navigation)navigation.addEventListener('currententrychange',FIX)}catch(e){}
 function FS(f,sub){try{
 var fa=sub&&sub.hasAttribute&&sub.hasAttribute('formaction');
 var m=String((sub&&sub.getAttribute&&sub.getAttribute('formmethod'))||f.getAttribute('method')||'get').toLowerCase();
