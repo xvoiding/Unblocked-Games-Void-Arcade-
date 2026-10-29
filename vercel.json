@@ -1,35 +1,8 @@
 {
-  "outputDirectory": "public",
-  "functions": {
-    "api/go.js": {
-      "maxDuration": 60,
-      "memory": 1024,
-      "includeFiles": "netlify/functions/**"
-    },
-    "api/icon.js": {
-      "maxDuration": 10,
-      "includeFiles": "netlify/functions/**"
-    },
-    "api/ai.js": {
-      "maxDuration": 30,
-      "includeFiles": "netlify/functions/**"
-    },
-    "api/yt.js": {
-      "maxDuration": 15
-    }
-  },
   "rewrites": [
-    {
-      "source": "/go",
-      "destination": "/api/go"
-    },
-    {
-      "source": "/go/(.*)",
-      "destination": "/api/go?u=$1"
-    },
-    {
-      "source": "/icon",
-      "destination": "/api/icon"
-    }
+    { "source": "/go", "destination": "/api/go" },
+    { "source": "/go/:p*", "destination": "/api/go/:p*" },
+    { "source": "/s/:p*", "destination": "https://api.piped.private.coffee/:p*" },
+    { "source": "/m/:p*", "destination": "https://proxy.piped.private.coffee/:p*" }
   ]
 }
