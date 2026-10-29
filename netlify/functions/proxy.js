@@ -65,23 +65,6 @@ function schemeOf(h) {
 
 const isYt = (h) => /(^|\.)youtube\.com$/i.test(h || '');
 
-// YouTube has its own player page (see public/yt.html) because the real site can't run inside the proxy.
-function ytRoute(u) {
-  try {
-    const x = new URL(u);
-    const h = x.hostname.toLowerCase().replace(/^(www|m|music)\./, '');
-    const v = (id) => (/^[\w-]{6,20}$/.test(id || '') ? '/yt.html?v=' + id : null);
-    if (h === 'youtu.be') return v(x.pathname.slice(1).split('/')[0]);
-    if (h !== 'youtube.com' && h !== 'youtube-nocookie.com') return null;
-    const p = x.pathname.replace(/\/+$/, '') || '/';
-    if (p === '/' || p === '/feed/trending' || p === '/feed/explore') return '/yt.html';
-    if (p === '/results') return '/yt.html?q=' + encodeURIComponent(x.searchParams.get('search_query') || '');
-    if (p === '/watch') return v(x.searchParams.get('v'));
-    const m = /^\/(?:shorts|live)\/([\w-]{6,20})$/.exec(p);
-    return m ? v(m[1]) : null;
-  } catch { return null; }
-}
-
 function absolutize(value, base) {
   const v = value.trim();
   if (!v || v.startsWith('#') || /^(javascript|data|mailto|tel|blob|about):/i.test(v)) return null;
@@ -291,4 +274,3 @@ exports.handler = async (event) => {
 };
 
 exports.rewriteHtml = rewriteHtml;
-exports.ytRoute = ytRoute;

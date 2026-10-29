@@ -1495,19 +1495,7 @@ $('#secret').addEventListener('mousedown',e=>{if(e.target.id==='secret')closeSec
 const BR={tabs:[],act:0,seq:0,max:8,ready:false};
 const QL=[['Google','https://www.google.com/'],['YouTube','https://www.youtube.com/'],['Wikipedia','https://en.wikipedia.org/'],['GitHub','https://github.com/'],['Twitch','https://www.twitch.tv/'],['Weather','https://weather.com/']];
 const hostOf=u=>{try{return new URL(u).hostname.replace(/^www\./,'')}catch(e){return u}};
-function realUrl(src){try{
-  const u=new URL(src,location.href);
-  if(u.origin===location.origin){
-    if(u.pathname==='/go')return u.searchParams.get('u')||'';
-    if(u.pathname==='/yt.html'){
-      const v=u.searchParams.get('v');
-      if(v)return 'https://www.youtube.com/watch?v='+encodeURIComponent(v);
-      return u.searchParams.has('q')&&u.searchParams.get('q')?'https://www.youtube.com/results?search_query='+encodeURIComponent(u.searchParams.get('q')):'https://www.youtube.com/';
-    }
-    return '';
-  }
-  return u.href;
-}catch(e){return ''}}
+function realUrl(src){try{const u=new URL(src,location.href);if(u.origin===location.origin)return u.pathname==='/go'?(u.searchParams.get('u')||''):'';return u.href}catch(e){return ''}}
 const bCur=()=>BR.tabs.find(t=>t.id===BR.act);
 function bSave(){store.set('btabs',{urls:BR.tabs.map(t=>t.url),act:Math.max(0,BR.tabs.findIndex(t=>t.id===BR.act))})}
 function bInit(){
