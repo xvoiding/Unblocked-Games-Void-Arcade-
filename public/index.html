@@ -1685,7 +1685,7 @@ function devLogin(msg){
     try{
       const r=await fetch('/api/dev',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({pw,action:'check'})});
       if(r.ok){SRV.pw=pw;try{sessionStorage.setItem('devpw',pw)}catch(e){}devTab(dv.tab);return}
-      $('#dvmsg').textContent=r.status===401?'Wrong password.':'Something is not set up on the server yet.';
+      $('#dvmsg').textContent=r.status===401?'Wrong password.':r.status===429?'Too many tries. Wait 15 minutes.':'Something is not set up on the server yet.';
     }catch(e){$('#dvmsg').textContent='Could not reach the server.'}
     $('#dvpw').value='';
   };

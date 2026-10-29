@@ -87,7 +87,15 @@ module.exports = async (req, res) => {
   b = b && typeof b === 'object' ? b : {};
   const pw = process.env.DEV_PASSWORD;
   if (!c || !pw) return send(503, { error: 'not_configured', storage: !!c, password: !!pw });
-  if (!same(b.pw, pw)) { await sleep(900); return send(401, { error: 'bad_password' }); }
+  // Lockout so even a short password can't be guessed: 8 wrong tries per IP, or 60 in total, locks for 15 minutes.
+  const ip = String((req.headers && (req.headers['x-forwarded-for'] || req.headers['x-real-ip'])) || 'x').split(',')[0].trim().slice(0, 64);
+  const [fIp, fAll] = await redis([['GET', 'void:fail:' + ip], ['GET', 'void:fail:all']]);
+  if (Number(fIp) >= 8 || Number(fAll) >= 60) { await sleep(500); return send(429, { error: 'locked' }); }
+  if (!same(b.pw, pw)) {
+    await redis([['INCR', 'void:fail:' + ip], ['EXPIRE', 'void:fail:' + ip, 900], ['INCR', 'void:fail:all'], ['EXPIRE', 'void:fail:all', 900]]);
+    await sleep(900);
+    return send(401, { error: 'bad_password' });
+  }
 
   try {
     if (b.action === 'check') return send(200, { ok: true });
