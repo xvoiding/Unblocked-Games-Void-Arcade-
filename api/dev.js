@@ -1,27 +1,28 @@
 // Dev-menu storage: lets the site owner rename/delete/add games and change the UI for EVERYONE.
-// Stored in Upstash Redis (add the "Upstash Redis" integration in Vercel -> Storage; it sets
-// KV_REST_API_URL + KV_REST_API_TOKEN). Writes need DEV_PASSWORD (set it in Vercel env vars).
+// Saved in a Vercel Blob store (BLOB_READ_WRITE_TOKEN is set when the store is connected to the project).
+// Writes need DEV_PASSWORD (set it in the project's environment variables).
 // GET  /api/dev                      -> public config everyone loads
 // POST /api/dev {pw, action:'check'|'save'|'hist'|'restore', ...}
 const crypto = require('crypto');
+const { put, get, list, del } = require('@vercel/blob');
 
-const KEY = 'void:dev', HIST = 'void:dev:hist';
-const cfg = () => {
-  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-  return url && token ? { url: url.replace(/\/$/, ''), token } : null;
-};
+const KEY = 'void/dev.json', HIST = 'void/hist/', FAIL = 'void/fail.json';
+const hasStore = () => !!process.env.BLOB_READ_WRITE_TOKEN;
 
-async function redis(cmds) {
-  const c = cfg();
-  const r = await fetch(c.url + '/pipeline', {
-    method: 'POST',
-    headers: { authorization: 'Bearer ' + c.token, 'content-type': 'application/json' },
-    body: JSON.stringify(cmds),
-  });
-  if (!r.ok) throw new Error('storage ' + r.status);
-  const out = await r.json();
-  return out.map((x) => { if (x.error) throw new Error(x.error); return x.result; });
+async function readText(pathname) {
+  const r = await get(pathname, { access: 'public', useCache: false });
+  if (!r || r.statusCode !== 200 || !r.stream) return null;
+  return await new Response(r.stream).text();
+}
+async function readJson(pathname) {
+  try { const t = await readText(pathname); return t ? JSON.parse(t) : null; } catch (e) { return null; }
+}
+const writeText = (pathname, text) => put(pathname, text, {
+  access: 'public', addRandomSuffix: false, allowOverwrite: true, contentType: 'application/json', cacheControlMaxAge: 60,
+});
+async function histList() {
+  const { blobs } = await list({ prefix: HIST, limit: 100 });
+  return blobs.sort((a, b) => (a.pathname < b.pathname ? 1 : -1));
 }
 
 const str = (v, max = 2000) => (typeof v === 'string' ? v.slice(0, max) : '');
@@ -70,13 +71,12 @@ const summary = (d) => ({
 module.exports = async (req, res) => {
   res.setHeader('content-type', 'application/json; charset=utf-8');
   const send = (code, obj, cache) => { res.statusCode = code; res.setHeader('cache-control', cache || 'no-store'); res.end(JSON.stringify(obj)); };
-  const c = cfg();
 
   if (req.method === 'GET') {
-    if (!c) return send(200, { server: false });
+    if (!hasStore()) return send(200, { server: false });
     try {
-      const [v] = await redis([['GET', KEY]]);
-      return send(200, { server: true, writable: !!process.env.DEV_PASSWORD, dev: v ? JSON.parse(v) : null },
+      const dev = await readJson(KEY);
+      return send(200, { server: true, writable: !!process.env.DEV_PASSWORD, dev },
         'public, max-age=0, s-maxage=10, stale-while-revalidate=60');
     } catch (e) { return send(200, { server: false, error: 'storage' }); }
   }
@@ -86,42 +86,50 @@ module.exports = async (req, res) => {
   if (typeof b === 'string') { try { b = JSON.parse(b); } catch (e) { b = {}; } }
   b = b && typeof b === 'object' ? b : {};
   const pw = process.env.DEV_PASSWORD;
-  if (!c || !pw) return send(503, { error: 'not_configured', storage: !!c, password: !!pw });
-  // Lockout so even a short password can't be guessed: 8 wrong tries per IP, or 60 in total, locks for 15 minutes.
-  const ip = String((req.headers && (req.headers['x-forwarded-for'] || req.headers['x-real-ip'])) || 'x').split(',')[0].trim().slice(0, 64);
-  const [fIp, fAll] = await redis([['GET', 'void:fail:' + ip], ['GET', 'void:fail:all']]);
-  if (Number(fIp) >= 8 || Number(fAll) >= 60) { await sleep(500); return send(429, { error: 'locked' }); }
-  if (!same(b.pw, pw)) {
-    await redis([['INCR', 'void:fail:' + ip], ['EXPIRE', 'void:fail:' + ip, 900], ['INCR', 'void:fail:all'], ['EXPIRE', 'void:fail:all', 900]]);
-    await sleep(900);
-    return send(401, { error: 'bad_password' });
-  }
+  if (!hasStore() || !pw) return send(503, { error: 'not_configured', storage: hasStore(), password: !!pw });
 
   try {
+    // Lockout so even a short password can't be guessed: 8 wrong tries per IP, or 60 in total, locks for 15 minutes.
+    const ip = String((req.headers && (req.headers['x-forwarded-for'] || req.headers['x-real-ip'])) || 'x').split(',')[0].trim().slice(0, 64);
+    let fail = await readJson(FAIL);
+    if (!fail || Date.now() - fail.t > 900000) fail = { t: Date.now(), all: 0, ips: {} };
+    if ((fail.ips[ip] || 0) >= 8 || fail.all >= 60) { await sleep(500); return send(429, { error: 'locked' }); }
+    if (!same(b.pw, pw)) {
+      fail.all++; fail.ips[ip] = (fail.ips[ip] || 0) + 1;
+      await writeText(FAIL, JSON.stringify(fail));
+      await sleep(900);
+      return send(401, { error: 'bad_password' });
+    }
+
     if (b.action === 'check') return send(200, { ok: true });
     if (b.action === 'save' || b.action === 'restore') {
       let next;
-      const [prev, list] = await redis([['GET', KEY], ['LRANGE', HIST, 0, 19]]);
+      const prev = await readText(KEY);
       if (b.action === 'restore') {
-        const item = list[Number(b.i)];
+        const item = (await histList())[Number(b.i)];
         if (!item) return send(404, { error: 'no_such_version' });
-        next = sanitize(JSON.parse(JSON.parse(item).dev));
+        next = sanitize(JSON.parse(await readText(item.pathname)));
       } else {
         next = sanitize(b.dev);
       }
       const json = JSON.stringify(next);
       if (json.length > 400000) return send(413, { error: 'too_big' });
-      const cmds = [];
       if (prev && prev !== json) {
-        cmds.push(['LPUSH', HIST, JSON.stringify({ t: Date.now(), dev: prev })], ['LTRIM', HIST, 0, 19]);
+        let sm = { edited: 0, deleted: 0, added: 0 };
+        try { sm = summary(JSON.parse(prev)); } catch (e) { /* keep zeros */ }
+        await writeText(`${HIST}${Date.now()}-${sm.edited}-${sm.deleted}-${sm.added}.json`, prev);
+        const all = await histList();
+        if (all.length > 20) await del(all.slice(20).map((x) => x.url));
       }
-      cmds.push(['SET', KEY, json]);
-      await redis(cmds);
+      await writeText(KEY, json);
       return send(200, { ok: true, dev: next });
     }
     if (b.action === 'hist') {
-      const [list] = await redis([['LRANGE', HIST, 0, 19]]);
-      return send(200, { ok: true, versions: list.map((s, i) => { const o = JSON.parse(s); return { i, t: o.t, ...summary(JSON.parse(o.dev)) }; }) });
+      const all = (await histList()).slice(0, 20);
+      return send(200, { ok: true, versions: all.map((x, i) => {
+        const m = /\/(\d+)-(\d+)-(\d+)-(\d+)\.json$/.exec(x.pathname) || [];
+        return { i, t: Number(m[1]) || 0, edited: Number(m[2]) || 0, deleted: Number(m[3]) || 0, added: Number(m[4]) || 0 };
+      }) });
     }
     return send(400, { error: 'action' });
   } catch (e) {

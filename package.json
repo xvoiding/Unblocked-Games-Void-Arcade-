@@ -1,0 +1,8 @@
+{
+  "name": "void-arcade",
+  "private": true,
+  "description": "Void Arcade. The site is static; api/ holds the serverless functions.",
+  "dependencies": {
+    "@vercel/blob": "2.8.2"
+  }
+}
