@@ -1328,29 +1328,24 @@ const IC={
 };
 const thumb=id=>'https://i.ytimg.com/vi/'+encodeURIComponent(id)+'/mqdefault.jpg';
 const au=new Audio();au.preload='none';au.volume=Math.min(1,Math.max(0,+store.get('mvol',80)/100));
-let proxyOK=null,pidx=store.get('piped',0)|0,busy=false,loadSeq=0;
-async function useProxy(){
-  if(proxyOK!==null)return proxyOK;
-  try{const r=await fetch('/go/ping',{cache:'no-store'});proxyOK=(await r.text()).trim()==='proxy ok'}catch(e){proxyOK=false}
-  return proxyOK;
-}
+const PIPED_BASE='https://api.piped.private.coffee';
+const MEDIA_BASE='https://proxy.piped.private.coffee/';
+const localMedia=u=>u.startsWith(MEDIA_BASE)?'/m/'+u.slice(MEDIA_BASE.length):'/go/'+encodeURIComponent(u);
+const px=localMedia;
 async function api(path){
-  const p=await useProxy();let err;
-  for(let n=0;n<PIPED.length;n++){
-    const base=PIPED[(pidx+n)%PIPED.length],url=base+path;
-    try{
-      const r=await fetch(p?'/go/'+encodeURIComponent(url):url,{headers:{accept:'application/json'},cache:'no-store'});
-      if(!r.ok)throw new Error(r.status);
-      const j=await r.json();
-      if(j.error)throw new Error(j.error);
-      pidx=(pidx+n)%PIPED.length;store.set('piped',pidx);
-      return j;
-    }catch(e){err=e}
+  let j;
+  try{
+    const r=await fetch('/s'+path,{headers:{accept:'application/json'},cache:'no-store'});
+    if(!r.ok)throw new Error(r.status);
+    j=await r.json();
+  }catch(e){
+    const r=await fetch('/go/'+encodeURIComponent(PIPED_BASE+path),{headers:{accept:'application/json'},cache:'no-store'});
+    if(!r.ok)throw new Error(r.status);
+    j=await r.json();
   }
-  throw err||new Error('unreachable');
+  if(j.error)throw new Error(j.error);
+  return j;
 }
-const isPipedProxy=u=>/^https:\/\/proxy\.[^/]+\//i.test(u);
-const media=async u=>((await useProxy())&&!isPipedProxy(u))?'/go/'+encodeURIComponent(u):u;
 
 let lib=store.get('mlib',null);if(!lib||typeof lib!=='object')lib={};if(!Array.isArray(lib.liked))lib.liked=[];if(!Array.isArray(lib.pls))lib.pls=[];
 const saveLib=()=>store.set('mlib',lib);
@@ -1488,7 +1483,7 @@ async function startTrack(){
       if(my!==loadSeq)return;
       if(hls){hls.destroy();hls=null}
       au.src=u;
-      await au.play();
+      const u=localMedia(picked);
     }
     paintBar();
     if('mediaSession' in navigator){
