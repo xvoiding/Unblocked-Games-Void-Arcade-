@@ -1852,7 +1852,7 @@ const RT_PLAT=[
 ];
 const RT_PL=k=>RT_PLAT.find(x=>x.k===k)||{};
 const rtCat={};
-var rt={fil:'',on:false,ready:false,done:{},more:{}};
+var rt={fil:'',on:false,ready:false,done:{},more:{},drain:false};
 let rtQ='';
 function rtAll(){
   return RT_PLAT.reduce((a,P)=>{
@@ -1903,9 +1903,19 @@ async function rtLoad(k,pages){
       if(!r||!r.total){rt.done[k]=true;break}
       st.p++;n++;rtPaint();
       if(r.total<18){rt.done[k]=true;break}
+      await new Promise(z=>setTimeout(z,50));
     }
   }catch(e){rt.done[k]=true}
   st.busy=false;rtPaint();
+}
+  async function rtDrain(){
+  if(rt.drain)return;rt.drain=true;
+  for(const P of RT_PLAT){
+    if(!P.p||rt.done[P.k])continue;
+    await rtLoad(P.k,400);
+    if(!rt.drain)break;
+  }
+  rt.drain=false;rtPaint();
 }
 function rtCvErr(el){
   if(!el.dataset.t2&&/\.webp$/.test(el.src)){el.dataset.t2=1;el.src=el.src.replace(/\.webp$/,'.jpg');return}
@@ -1925,7 +1935,10 @@ function rtPaint(){
     RT_PLAT.filter(P=>(RT_EB[P.k]||[]).length||(rtCat[P.k]||[]).length)
       .map(P=>`<button class="tab ${rt.fil===P.k?'on':''}" data-rc="${P.k}">${esc(P.n)}<span class="n">${(RT_EB[P.k]||[]).length+(rtCat[P.k]||[]).length}</span></button>`).join('');
   const busy=rt.fil&&rt.more[rt.fil]&&rt.more[rt.fil].busy;
-  $('#rtInfo').textContent=busy?'Loading…':list.length+(list.length===1?' game':' games');
+  const got=RT_PLAT.filter(P=>!P.p||rt.done[P.k]).length;
+  if(busy)$('#rtInfo').textContent='Loading…';
+  else if(rt.drain&&!rtQ)$('#rtInfo').textContent='Pulling the library… '+got+'/'+RT_PLAT.length+' consoles';
+  else $('#rtInfo').textContent=list.length+(list.length===1?' game':' games');
   $('#rtGrid').innerHTML=list.map(rtTile).join('')||'<p class="rt-note">Nothing matched. Try a console tab.</p>';
   const m=$('#rtMore');
   m.hidden=!rt.fil||!!rt.done[rt.fil]||!!rtQ;
@@ -1936,6 +1949,7 @@ function rtInit(){
   RT_PLAT.forEach(P=>{const c=rtCacheGet(P.k);if(c)rtCat[P.k]=c});
   rtPaint();
   ['nes','snes','genesis','gba','psx','gb'].forEach(k=>rtLoad(k,2));
+  setTimeout(rtDrain,400);
 }
 /* ===== retro player: EmulatorJS driven in-app, ROMs same-origin through /go ===== */
 const RT_DATA='https://cdn.emulatorjs.org/stable/data/';
@@ -2011,10 +2025,10 @@ $('#rtSys').addEventListener('click',e=>{
   rt.fil=b.dataset.rc;rtPaint();
   if(rt.fil){rt.done[rt.fil]=false;rtLoad(rt.fil,2)}
 });
-$('#rtMore').onclick=()=>{if(rt.fil)rtLoad(rt.fil,3)};
+$('#rtMore').onclick=()=>{if(rt.fil)rtLoad(rt.fil,12)};
 $('#rtSearch').addEventListener('input',e=>{
   rtQ=e.target.value.trim().toLowerCase();rtPaint();
-  if(rtQ.length>1)RT_PLAT.forEach(P=>{if(P.p)rtLoad(P.k,1)});
+  if(rtQ.length>1)rtDrain();
 });
 $('#rtGrid').addEventListener('click',e=>{const t=e.target.closest('[data-es]');if(t)rtPlay(t.dataset.ec,t.dataset.es)});
 $('#rtGrid').addEventListener('keydown',e=>{
