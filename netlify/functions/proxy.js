@@ -195,8 +195,6 @@ async function decodeText(res, ct) {
 exports.handler = async (event) => {
   const target = event.queryStringParameters && event.queryStringParameters.u;
   if (!target) return infoPage(400, 'No address', 'Nothing to load.');
-  const yt = ytRoute(target);
-  if (yt) return { statusCode: 302, headers: { location: yt, 'cache-control': 'no-store' }, body: '' };
   const qs = event.queryStringParameters || {};
   const scheme = /^(dark|light)$/.test(qs.vs || '') ? qs.vs : schemeOf(event.headers);
 
